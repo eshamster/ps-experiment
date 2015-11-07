@@ -28,13 +28,13 @@
 (defun.ps f3 ()
   (+ 1 2 3))
 
-(maphash (lambda (k v)
-           (print k)
-           (print v))
-         ps-experiment.utils.func::*ps-func-store*)
-
-(print
- (with-use-ps-pack (ps-experiment.sample-pack
-                    this)
-   (fs1 200)
-   (f2 100)))
+(defun experiment ()
+  (maphash (lambda (k v)
+             (print k)
+             (print v))
+           ps-experiment.utils.func::*ps-func-store*) 
+  (print
+   (with-use-ps-pack (ps-experiment.sample-pack
+                      this)
+     (fs1 200)
+     (f2 100))))
