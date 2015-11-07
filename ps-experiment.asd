@@ -16,13 +16,16 @@
   :version "0.1"
   :author "eshamster"
   :license "LLGPL"
-  :depends-on (:parenscript)
+  :depends-on (:parenscript
+               :alexandria
+               :anaphora)
   :components ((:module "src"
                 :serial t
                 :components
                 ((:file "utils-common")
                  (:file "utils-func")
                  (:file "utils")
+                 (:file "sample-pack")
                  (:file "ps-experiment"))))
   :description "This is the experimental utils for parenscript"
   :long-description

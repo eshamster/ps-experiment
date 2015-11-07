@@ -10,12 +10,12 @@
   (:import-from :ps-experiment.utils.func
                 :defun+ps
                 :defun.ps
-                :with-import-ps-func)
+                :with-use-ps-pack)
   (:export :setf-with
            :load-ps
            :defun+ps
            :defun.ps
-           :with-import-ps-func
+           :with-use-ps-pack
            :ps.
            :defmacro.ps))
 (in-package :ps-experiment.utils)

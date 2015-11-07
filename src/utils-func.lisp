@@ -5,11 +5,16 @@
         :parenscript)
   (:shadow :sb-debug
            :var)
+  (:import-from :alexandria
+                :flatten)
+  (:import-from :anaphora
+                :aif
+                :it)
   (:import-from :ps-experiment.utils.common
                 :replace-dot-in-tree)
   (:export :defun+ps
            :defun.ps
-           :with-import-ps-func))
+           :with-use-ps-pack))
 (in-package :ps-experiment.utils.func)
 
 (defparameter *ps-func-store* (make-hash-table))
@@ -44,8 +49,25 @@
 
 (defmacro with-import-ps-func (ps-lst &body body)
   `(concatenate 'string
-                ,@ (interleave (mapcar (lambda (elem) (list (intern-ub elem)))
+                ,@ (interleave (mapcar (lambda (elem) (list elem))
                                        ps-lst)
                                                              "
 ")
                                    (ps ,@body)))
+
+(defmacro with-use-ps-pack (pack-sym-lst &body body)
+  (let* ((pack-lst (mapcar (lambda (sym)
+                             (let ((name (symbol-name sym)))
+                               
+                               (if (equal name "THIS")
+                                   *package*
+                                   (aif (find-package name)
+                                        it
+                                        (error "There is no package named \"~A\"." name)))))
+                           pack-sym-lst))
+         (func-lst (flatten
+                    (mapcar (lambda (pack)
+                              (reverse (gethash pack *ps-func-store*)))
+                            pack-lst))))
+    `(with-import-ps-func ,func-lst
+       ,@body)))

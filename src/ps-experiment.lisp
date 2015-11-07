@@ -4,7 +4,7 @@
         :parenscript)
   (:import-from :ps-experiment.utils
                 :defun.ps
-                :with-import-ps-func))
+                :with-use-ps-pack))
 (in-package :ps-experiment)
 
 (defun.ps f1 (a b)
@@ -13,11 +13,16 @@
 (defun.ps f2 (b)
   (f1 10 b))
 
+(defun.ps f3 ()
+  (+ 1 2 3))
+
 (maphash (lambda (k v)
            (print k)
            (print v))
          ps-experiment.utils.func::*ps-func-store*)
 
 (print
- (with-import-ps-func (f1 f2)
+ (with-use-ps-pack (ps-experiment.sample-pack
+                    this)
+   (fs1 200)
    (f2 100)))
