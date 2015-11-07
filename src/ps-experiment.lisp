@@ -3,8 +3,20 @@
   (:use :cl
         :parenscript)
   (:import-from :ps-experiment.utils
+                :setf-with
+                :load-ps
+                :defun+ps
                 :defun.ps
-                :with-use-ps-pack))
+                :with-use-ps-pack
+                :ps.
+                :defmacro.ps)
+  (:export :setf-with
+           :load-ps
+           :defun+ps
+           :defun.ps
+           :with-use-ps-pack
+           :ps.
+           :defmacro.ps))
 (in-package :ps-experiment)
 
 (defun.ps f1 (a b)
