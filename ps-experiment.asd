@@ -15,12 +15,19 @@
 (defsystem ps-experiment
   :version "0.1"
   :author "eshamster"
-  :license ""
-  :depends-on ()
+  :license "LLGPL"
+  :depends-on (:parenscript
+               :alexandria
+               :anaphora)
   :components ((:module "src"
+                :serial t
                 :components
-                ((:file "ps-experiment"))))
-  :description ""
+                ((:file "utils-common")
+                 (:file "utils-func")
+                 (:file "utils")
+                 (:file "sample-pack")
+                 (:file "ps-experiment"))))
+  :description "This is the experimental utils for parenscript"
   :long-description
   #.(with-open-file (stream (merge-pathnames
                              #p"README.markdown"
