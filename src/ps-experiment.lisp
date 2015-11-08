@@ -32,9 +32,16 @@
   (maphash (lambda (k v)
              (print k)
              (print v))
-           ps-experiment.utils.func::*ps-func-store*) 
+           ps-experiment.utils.func::*ps-func-store*)
+  (format t "~%-------------------~%")
   (print
-   (with-use-ps-pack (ps-experiment.sample-pack
-                      this)
+   (with-use-ps-pack (:ps-experiment.sample-pack
+                      :this)
      (fs1 200)
-     (f2 100))))
+     (f2 100)))
+  (format t "~%-------------------~%")
+  (print
+   (with-use-ps-pack (:all)
+     (fs1 200)
+     (f2 100)))
+  nil)

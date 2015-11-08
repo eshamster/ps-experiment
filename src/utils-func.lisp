@@ -6,7 +6,8 @@
   (:shadow :sb-debug
            :var)
   (:import-from :alexandria
-                :flatten)
+                :flatten
+                :hash-table-keys)
   (:import-from :anaphora
                 :aif
                 :it)
@@ -56,15 +57,16 @@
                                    (ps ,@body)))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
-  (let* ((pack-lst (mapcar (lambda (sym)
-                             (let ((name (symbol-name sym)))
-                               
-                               (if (equal name "THIS")
-                                   *package*
-                                   (aif (find-package name)
-                                        it
-                                        (error "There is no package named \"~A\"." name)))))
-                           pack-sym-lst))
+  (let* ((pack-lst (if (equal (symbol-name (car pack-sym-lst)) "ALL")
+                       (hash-table-keys *ps-func-store*)
+                       (mapcar (lambda (sym)
+                                 (let ((name (symbol-name sym))) 
+                                   (if (equal name "THIS")
+                                       *package*
+                                       (aif (find-package name)
+                                            it
+                                            (error "There is no package named \"~A\"." name)))))
+                               pack-sym-lst)))
          (func-lst (flatten
                     (mapcar (lambda (pack)
                               (reverse (gethash pack *ps-func-store*)))
