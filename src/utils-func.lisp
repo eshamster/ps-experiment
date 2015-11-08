@@ -19,10 +19,10 @@
 
 (defparameter *ps-func-store* (make-hash-table))
 
-(defmacro register-ps-func (name_)
-  `(symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
-     (unless (find ,name_ target-lst)
-       (push ,name_ target-lst))))
+(defun register-ps-func (name_)
+  (symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
+    (unless (find name_ target-lst)
+       (push name_ target-lst))))
 
 (defun intern-ub (sym)
   (intern (format nil "~A_" (symbol-name sym))))
