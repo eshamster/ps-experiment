@@ -7,7 +7,8 @@
            :var)
   (:import-from :alexandria
                 :flatten
-                :hash-table-keys)
+                :hash-table-keys
+                :with-gensyms)
   (:import-from :anaphora
                 :aif
                 :it)
@@ -48,28 +49,29 @@
                       (cdr rest)))))
     (rec nil lst)))
 
-(defmacro with-import-ps-func (ps-lst &body body)
-  `(concatenate 'string
-                ,@ (interleave (mapcar (lambda (elem) (list elem))
-                                       ps-lst)
-                                                             "
+(defun import-ps-funcs (ps-lst ps-body)
+  (apply #'concatenate 'string
+         (append
+          (interleave (mapcar (lambda (elem) (funcall elem))
+                              ps-lst)
+                      "
 ")
-                                   (ps ,@body)))
+          (list ps-body))))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
-  (let* ((pack-lst (if (equal (symbol-name (car pack-sym-lst)) "ALL")
-                       (hash-table-keys *ps-func-store*)
-                       (mapcar (lambda (sym)
-                                 (let ((name (symbol-name sym))) 
-                                   (if (equal name "THIS")
-                                       *package*
-                                       (aif (find-package name)
-                                            it
-                                            (error "There is no package named \"~A\"." name)))))
-                               pack-sym-lst)))
-         (func-lst (flatten
-                    (mapcar (lambda (pack)
-                              (reverse (gethash pack *ps-func-store*)))
-                            pack-lst))))
-    `(with-import-ps-func ,func-lst
-       ,@body)))
+  (with-gensyms (pack-lst func-lst)
+    `(let* ((,pack-lst (if (equal (symbol-name (car ',pack-sym-lst)) "ALL")
+                           (hash-table-keys *ps-func-store*)
+                           (mapcar (lambda (sym)
+                                     (let ((name (symbol-name sym))) 
+                                       (if (equal name "THIS")
+                                           ,*package*
+                                           (aif (find-package name)
+                                                it
+                                                (error "There is no package named \"~A\"." name)))))
+                                   ',pack-sym-lst)))
+            (,func-lst (flatten
+                        (mapcar (lambda (pack)
+                                  (reverse (gethash pack *ps-func-store*)))
+                                ,pack-lst))))
+       (import-ps-funcs ,func-lst (ps ,@body)))))
