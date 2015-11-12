@@ -9,7 +9,8 @@
 (in-package :ps-experiment.utils.common)
 
 (defun replace-dot-sep (elem)
-  (if (symbolp elem)
+  (if (and (symbolp elem)
+           (not (null (symbol-package elem)))) ; gensym case
       (let ((name (symbol-name elem))
             (pack-name (package-name (symbol-package elem))))
         (cond ((and (> (length name) 1)
