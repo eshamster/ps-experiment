@@ -1,3 +1,5 @@
+![Build Status](https://circleci.com/gh/eshamster/ps-experiment.png?style=shield)
+
 # Ps-Experiment
 
 ## Usage
