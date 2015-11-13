@@ -12,10 +12,13 @@
   :author "eshamster"
   :license ""
   :depends-on (:ps-experiment
+               :parenscript
+               :cl-js
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "ps-experiment"))))
+                ((:test-file "utils-common")
+                 (:test-file "ps-experiment"))))
   :description "Test system for ps-experiment"
 
   :defsystem-depends-on (:prove-asdf)
