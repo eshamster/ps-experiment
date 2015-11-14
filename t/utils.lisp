@@ -6,7 +6,7 @@
         :prove))
 (in-package :ps-experiment-test.utils)
 
-(plan 3)
+(plan 4)
 
 (subtest
     "Test #j. reader macro"
@@ -31,5 +31,16 @@
                (+ a.x b.y))
              (defmacro+ps test (a b)
                (+ (@ a x) (@ b y)))))
+
+(subtest
+    "Test setf-with"
+  (is-expand (setf-with obj
+               x 100
+               y 200
+               z 300)
+             (with-slots (x y z) obj
+               (setf x 100
+                     y 200
+                     z 300))))
 
 (finalize)
