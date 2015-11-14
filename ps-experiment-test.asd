@@ -17,7 +17,9 @@
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "utils-common")
+                ((:file "test-utils")
+                 (:test-file "utils-common")
+                 (:test-file "utils-func" :depends-on ("test-utils"))
                  (:test-file "ps-experiment"))))
   :description "Test system for ps-experiment"
 

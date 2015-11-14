@@ -74,4 +74,4 @@
                         (mapcar (lambda (pack)
                                   (reverse (gethash pack *ps-func-store*)))
                                 ,pack-lst))))
-       (import-ps-funcs ,func-lst (ps ,@body)))))
+       (import-ps-funcs ,func-lst (ps ,@(replace-dot-in-tree body))))))
