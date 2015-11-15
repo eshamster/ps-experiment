@@ -23,9 +23,9 @@
                 :serial t
                 :components
                 ((:file "utils-common")
+                 (:file "package")
                  (:file "utils-func")
                  (:file "utils")
-                 (:file "sample-pack")
                  (:file "ps-experiment"))))
   :description "This is the experimental utils for parenscript"
   :long-description
