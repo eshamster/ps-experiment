@@ -45,15 +45,11 @@
     (setf c.y (- a.y b.y))
     c))
 
-
 ; --- body --- 
 
 (in-package :ps-experiment-test.utils.func)
 
 (plan 1)
-
-(defun.ps add (a b)
-  (+ a b))
 
 (defmacro.ps test-js-program ()
   `(let ((pos-a (new (position)))
@@ -68,17 +64,11 @@
         x)))
 
 (subtest
-    "Test with-use-ps-pack"
+    "Test defun.ps"
   (is (execute-js (with-use-ps-pack (:test.func.pack-a
                                      :test.func.pack-b)
                     (test-js-program)))
       70)
-  (is (execute-js (with-use-ps-pack (:all)
-                    (test-js-program)))
-      70)
-  (is (execute-js (with-use-ps-pack (:this)
-                    (add 100 200)))
-      300)
   (is-error (execute-js (with-use-ps-pack (:test.func.pack-a)
                           (test-js-program)))
             'undefined-variable))
