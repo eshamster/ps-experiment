@@ -9,9 +9,12 @@
                 :defmacro.ps)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack)
+  (:import-from :ps-experiment.defines
+                :defvar.ps)
   (:export :setf-with
            :defun+ps
            :defun.ps
+           :defvar.ps
            :with-use-ps-pack
            :ps.
            :defmacro.ps))

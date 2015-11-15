@@ -20,6 +20,7 @@
                 ((:file "test-utils")
                  (:test-file "utils-common")
                  (:test-file "package" :depends-on ("test-utils"))
+                 (:test-file "defines" :depends-on ("test-utils"))
                  (:test-file "utils-func" :depends-on ("test-utils"))
                  (:test-file "utils" :depends-on ("test-utils"))
                  (:test-file "ps-experiment"))))
