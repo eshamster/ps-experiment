@@ -3,8 +3,7 @@
   (:use :cl
         :parenscript)
   (:import-from :ps-experiment.utils
-                :defun.ps
-                :with-use-ps-pack))
+                :defun.ps))
 (in-package :ps-experiment.sample-pack)
 
 (defun.ps fs1 (x)

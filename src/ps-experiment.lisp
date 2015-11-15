@@ -6,9 +6,10 @@
                 :setf-with
                 :defun+ps
                 :defun.ps
-                :with-use-ps-pack
                 :ps.
                 :defmacro.ps)
+  (:import-from :ps-experiment.package
+                :with-use-ps-pack)
   (:export :setf-with
            :defun+ps
            :defun.ps

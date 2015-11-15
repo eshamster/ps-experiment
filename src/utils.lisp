@@ -5,8 +5,6 @@
         :parenscript)
   (:shadow :sb-debug
            :var)
-  (:import-from :ps-experiment.package
-                :with-use-ps-pack)
   (:import-from :ps-experiment.utils.common
                 :replace-dot-in-tree)
   (:import-from :ps-experiment.utils.func
@@ -15,7 +13,6 @@
   (:export :setf-with
            :defun+ps
            :defun.ps
-           :with-use-ps-pack
            :ps.
            :defmacro.ps))
 (in-package :ps-experiment.utils)
