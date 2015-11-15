@@ -7,6 +7,7 @@
         :prove)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack
+                :find-ps-symbol
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
@@ -22,7 +23,8 @@
            (incf a x))
          (test 100)
          a))
-      120))
+      120)
+  (ok (find-ps-symbol "_DEFVAR_A")))
 
 (finalize)
 

@@ -13,7 +13,7 @@
 (in-package :ps-experiment.defines)
 
 (defun intern-defvar-func (sym)
-  (symbolicate "_defvar_" sym))
+  (symbolicate '_defvar_ sym))
 
 (defmacro defvar.ps (name initial-value)
   (let ((register-name (intern-defvar-func name)))
