@@ -24,12 +24,10 @@
 
 (defun replace-dot-in-tree (tree)
   (labels ((rec (rest)
-             (let (result)
-               (when rest
-                 (dolist (elem rest)
-                   (push (if (listp elem)
-                             (rec elem)
-                             (replace-dot-sep elem))
-                         result)))
-               (nreverse result))))
+             (cond
+               ((consp rest) (let (result)
+                               (dolist (elem rest)
+                                 (push (rec elem) result))
+                               (nreverse result)))
+               (rest (replace-dot-sep rest)))))
     (rec tree)))
