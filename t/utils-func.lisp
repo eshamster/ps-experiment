@@ -6,7 +6,8 @@
         :ps-experiment-test.test-utils
         :prove)
   (:import-from :ps-experiment
-                :defmacro.ps))
+                :defmacro.ps
+                :with-use-ps-pack))
 
 
 (defmacro def-test-package (name)
