@@ -3,12 +3,15 @@
   (:use :cl
         :parenscript)
   (:export :register-ps-func
-           :with-use-ps-pack)
+           :with-use-ps-pack
+           :find-ps-symbol
+           :unintern-all-ps-symbol)
   (:import-from :alexandria
                 :flatten
                 :hash-table-keys
                 :with-gensyms)
   (:import-from :anaphora
+                :acond
                 :aif
                 :it)
   (:import-from :ps-experiment.utils.common
@@ -17,10 +20,23 @@
 
 (defparameter *ps-func-store* (make-hash-table))
 
-(defun register-ps-func (name_)
+(defun register-ps-func (name_sym)
   (symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
-    (unless (find name_ target-lst)
-       (push name_ target-lst))))
+    (unless (find name_sym target-lst)
+       (push name_sym target-lst))))
+
+(defun find-ps-symbol (string &optional (package (package-name *package*)))
+  (let ((found-package (find-package package)))
+    (acond ((null found-package) (values nil nil))
+           ((find-if (lambda (sym) (equal (symbol-name sym) string))
+                     (gethash found-package *ps-func-store*))
+            (values it (if (eq found-package *package*)
+                           :internal
+                           :external)))
+           (t (values nil nil)))))
+
+(defun unintern-all-ps-symbol ()
+  (setf *ps-func-store* (make-hash-table)))
 
 (defun interleave (lst delim)
   (labels ((rec (result rest)

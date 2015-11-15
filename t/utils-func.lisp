@@ -7,7 +7,9 @@
         :prove)
   (:import-from :ps-experiment
                 :defmacro.ps
-                :with-use-ps-pack))
+                :with-use-ps-pack)
+  (:import-from :ps-experiment.package
+                :unintern-all-ps-symbol))
 
 
 (defmacro def-test-package (name)
@@ -82,3 +84,5 @@
             'undefined-variable))
 
 (finalize)
+
+(unintern-all-ps-symbol)
