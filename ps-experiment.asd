@@ -23,6 +23,7 @@
                 :serial t
                 :components
                 ((:file "utils-common")
+                 (:file "package")
                  (:file "utils-func")
                  (:file "utils")
                  (:file "sample-pack")
