@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 1)
+(plan 2)
 
 (defvar.ps a 20)
 
@@ -25,6 +25,20 @@
          a))
       120)
   (ok (find-ps-symbol "_DEFVAR_A")))
+
+
+(defstruct.ps test-str1 a1 (b1 20))
+(defvar.ps s (new (test-str1)))
+(defstruct.ps test-str2 (a2 s.b1))
+
+(subtest
+    "Test defstruct.ps"
+  (is (execute-js
+       (with-use-ps-pack (:this)
+         (defvar x (new (test-str2))) 
+         x.a2))
+      20)
+  (ok (find-ps-symbol "_DEFSTRUCT_TEST-STR1")))
 
 (finalize)
 
