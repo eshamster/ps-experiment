@@ -10,6 +10,10 @@
 
 (subtest
     "Test replace-dot-in-tree"
+  (is (replace-dot-in-tree 2) 2)
+  (is (replace-dot-in-tree 'test) 'test)
+  (is (replace-dot-in-tree 'a.b) '(@ a b)
+      :test #'equal)
   (is (replace-dot-in-tree '(a (1 :b c) "abc" test))
       '(a (1 :b c) "abc" test)
       :test #'equal)
