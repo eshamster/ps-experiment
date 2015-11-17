@@ -6,7 +6,6 @@
         :ps-experiment-test.test-utils
         :prove)
   (:import-from :ps-experiment.package
-                :with-use-ps-pack
                 :find-ps-symbol
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
