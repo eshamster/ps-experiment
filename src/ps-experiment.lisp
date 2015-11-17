@@ -1,12 +1,13 @@
 (in-package :cl-user)
 (defpackage ps-experiment
-  (:use :parenscript)
   (:import-from :ps-experiment.utils
-                :setf-with
-                :defun+ps
-                :defun.ps
+                :setf-with)
+  (:import-from :ps-experiment.utils.common
                 :ps.
                 :defmacro.ps)
+  (:import-from :ps-experiment.utils.func
+                :defun+ps
+                :defun.ps)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack)
   (:import-from :ps-experiment.defines

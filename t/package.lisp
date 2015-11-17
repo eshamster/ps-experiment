@@ -1,10 +1,14 @@
 (in-package :cl-user)
 (defpackage ps-experiment-test.package
   (:use :cl
-        :ps-experiment.package
+        :ps-experiment
         :parenscript
         :ps-experiment-test.test-utils
-        :prove))
+        :prove)
+  (:import-from :ps-experiment.package
+                :register-ps-func
+                :find-ps-symbol
+                :unintern-all-ps-symbol))
 
 (defmacro def-test-package (name)
   `(defpackage ,name

@@ -1,12 +1,18 @@
 (in-package :cl-user)
 (defpackage ps-experiment-test.utils.common
   (:use :cl
-        :ps-experiment.utils.common
+        :ps-experiment
         :parenscript
-        :prove))
+        :prove)
+  (:import-from :ps-experiment.utils.common
+                :replace-dot-in-tree))
 (in-package :ps-experiment-test.utils.common)
 
-(plan 1)
+(plan 4)
+
+(subtest
+    "Test #j. reader macro"
+  (is '#j.TEST.AbCd# '-t-e-s-t.-ab-cd))
 
 (subtest
     "Test replace-dot-in-tree"
@@ -21,5 +27,25 @@
       '((@ a b) (test (@ bc d efg) 123) (@ b c) d.e)
       :test #'equal)
   (ok (replace-dot-in-tree '(a.b (#:b d.ef 12) c #:defg))))
+
+(subtest
+    "Test ps. macro"
+  (is-expand (ps. (with-slots (a b) obj
+                    (setf a.x 100)
+                    (setf (@ a x) 200)
+                    (setf b 300))
+                  (setf obj.a.x 100))
+             (ps (with-slots (a b) obj
+                   (setf (@ a x) 100)
+                   (setf (@ a x) 200)
+                   (setf b 300))
+                 (setf (@ obj a x) 100))))
+
+(subtest
+    "Test defmacro.ps macro"
+  (is-expand (defmacro.ps test (a b)
+               (+ a.x b.y))
+             (defmacro+ps test (a b)
+               (+ (@ a x) (@ b y)))))
 
 (finalize)

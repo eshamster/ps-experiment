@@ -24,8 +24,8 @@
                 :components
                 ((:file "utils-common")
                  (:file "package")
-                 (:file "defines")
                  (:file "utils-func")
+                 (:file "defines")
                  (:file "utils")
                  (:file "ps-experiment"))))
   :description "This is the experimental utils for parenscript"

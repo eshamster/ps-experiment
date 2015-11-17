@@ -6,7 +6,6 @@
         :ps-experiment-test.test-utils
         :prove)
   (:import-from :ps-experiment.package
-                :with-use-ps-pack
                 :find-ps-symbol
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
@@ -31,14 +30,28 @@
 (defvar.ps s (new (test-str1)))
 (defstruct.ps test-str2 (a2 s.b1))
 
+(defmacro exec-in-this (&body body)
+  `(execute-js (with-use-ps-pack (:this)
+                 ,@body)))
+
 (subtest
     "Test defstruct.ps"
-  (is (execute-js
-       (with-use-ps-pack (:this)
-         (defvar x (new (test-str2))) 
-         x.a2))
-      20)
-  (ok (find-ps-symbol "_DEFSTRUCT_TEST-STR1")))
+  (ok (find-ps-symbol "_DEFSTRUCT_TEST-STR1"))
+  (subtest
+      "Test initilization"
+    (is (exec-in-this (defvar x (new (test-str2))) 
+                      x.a2)
+        20))
+  (subtest
+      "Test ...-p function"
+    (ok (exec-in-this
+         (test-str1-p (new (test-str1)))))
+    (ok (not (exec-in-this
+              (test-str1-p (new (test-str2))))))
+    (ok (not (exec-in-this
+              (test-str1-p 1))))
+    (ok (not (exec-in-this
+              (test-str1-p "test"))))))
 
 (finalize)
 

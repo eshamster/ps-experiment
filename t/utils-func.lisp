@@ -1,7 +1,7 @@
 (in-package :cl-user)
 (defpackage ps-experiment-test.utils.func
   (:use :cl
-        :ps-experiment.utils.func
+        :ps-experiment
         :parenscript
         :ps-experiment-test.test-utils
         :prove)
