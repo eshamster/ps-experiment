@@ -3,8 +3,30 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:export :replace-dot-in-tree))
+  (:export :replace-dot-in-tree
+           :ps.
+           :defmacro.ps))
 (in-package :ps-experiment.utils.common)
+
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun j.-reader (stream &rest rest)
+    (declare (ignore rest))
+    (let ((char (read-char stream)))
+      (when (or (null char)
+                (not (char= char #\.)))
+        (error "\".\" is required in the next of \"#j\"")))
+    (let (chars)
+      (do ((char (read-char stream) (read-char stream)))
+          ((char= char #\#))
+        (if (upper-case-p char)
+            (progn (push #\- chars)
+                   (push char chars))
+            (push (char-upcase char) chars)))
+      (intern (coerce (nreverse chars) 'string))))
+  
+  (set-dispatch-macro-character #\# #\j #'j.-reader))
+
 
 (defun replace-dot-sep (elem)
   (if (and (symbolp elem)
@@ -29,3 +51,10 @@
                                (nreverse result)))
                (rest (replace-dot-sep rest)))))
     (rec tree)))
+
+(defmacro ps. (&body body)
+  `(ps ,@(replace-dot-in-tree body)))
+
+(defmacro defmacro.ps (name args &body body)
+  `(defmacro+ps ,name ,args
+     ,@(replace-dot-in-tree body)))
