@@ -1,6 +1,5 @@
 (in-package :cl-user)
 (defpackage ps-experiment
-  (:use :parenscript)
   (:import-from :ps-experiment.utils
                 :setf-with
                 :defun+ps

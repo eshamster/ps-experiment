@@ -3,8 +3,6 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:shadow :sb-debug
-           :var)
   (:import-from :ps-experiment.utils.common
                 :replace-dot-in-tree)
   (:import-from :ps-experiment.utils.func
