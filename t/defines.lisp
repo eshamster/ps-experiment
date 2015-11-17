@@ -43,15 +43,15 @@
                       x.a2)
         20))
   (subtest
-      "Test ...p function"
+      "Test ...-p function"
     (ok (exec-in-this
-         (test-str1p (new (test-str1)))))
+         (test-str1-p (new (test-str1)))))
     (ok (not (exec-in-this
-              (test-str1p (new (test-str2))))))
+              (test-str1-p (new (test-str2))))))
     (ok (not (exec-in-this
-              (test-str1p 1))))
+              (test-str1-p 1))))
     (ok (not (exec-in-this
-              (test-str1p "test"))))))
+              (test-str1-p "test"))))))
 
 (finalize)
 

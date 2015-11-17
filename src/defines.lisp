@@ -33,6 +33,6 @@
                              `(setf (@ this ,(car elem)) ,(replace-dot-in-tree (cadr elem)))
                              `(setf (@ this ,elem) nil)))
                        name-and-options))))
-       (defun.ps ,(symbolicate name 'p) (obj)
+       (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        '(:struct ,name))))
