@@ -6,7 +6,7 @@
         :prove))
 (in-package :ps-experiment-test.utils)
 
-(plan 4)
+(plan 5)
 
 (subtest
     "Test #j. reader macro"
@@ -42,5 +42,11 @@
                (setf x 100
                      y 200
                      z 300))))
+
+(subtest
+    "Test push"
+  (is (ps (push a b))
+      "b.push(a);"
+      :test #'equal))
 
 (finalize)

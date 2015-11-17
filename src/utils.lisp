@@ -44,6 +44,9 @@
     `(with-slots ,(extract-slots nil rest) ,target
        (setf ,@rest))))
 
+(defpsmacro push (item place)
+  `((@ ,place push) ,item))
+
 (defmacro ps. (&body body)
   `(ps ,@(replace-dot-in-tree body)))
 
