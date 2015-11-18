@@ -21,8 +21,9 @@
     `(defun ,register-name ()
        (ps (defvar ,name ,(replace-dot-in-tree initial-value))))))
 
-(defmacro defstruct.ps (name &rest name-and-options)
-  (let ((register-name (symbolicate '_defstruct_ name)))
+(defmacro defstruct.ps (name-and-options &rest slot-description)
+  (let* ((name name-and-options)
+         (register-name (symbolicate '_defstruct_ name)))
     (register-ps-func register-name)
     `(progn
        (defun ,register-name ()
@@ -32,7 +33,7 @@
                          (if (consp elem)
                              `(setf (@ this ,(car elem)) ,(replace-dot-in-tree (cadr elem)))
                              `(setf (@ this ,elem) nil)))
-                       name-and-options))))
+                       slot-description))))
        (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        '(:struct ,name))))
