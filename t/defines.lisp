@@ -51,7 +51,12 @@
     (ok (not (exec-in-this
               (test-str1-p 1))))
     (ok (not (exec-in-this
-              (test-str1-p "test"))))))
+              (test-str1-p "test")))))
+  (subtest
+      "Test syntax errors"
+    (prove-macro-expand-error "(defstruct.ps 12 a b)" 'type-error)
+    (prove-macro-expand-error "(defstruct.ps \"test\" a b)" 'type-error)))
+
 
 (finalize)
 
