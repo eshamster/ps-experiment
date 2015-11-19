@@ -30,6 +30,9 @@
 (defvar.ps s (new (test-str1)))
 (defstruct.ps test-str2 (a2 s.b1))
 
+(defstruct.ps parent (a 10) (b 20))
+(defstruct.ps (child (:include parent)) (c 30))
+
 (defmacro exec-in-this (&body body)
   `(execute-js (with-use-ps-pack (:this)
                  ,@body)))
@@ -52,6 +55,18 @@
               (test-str1-p 1))))
     (ok (not (exec-in-this
               (test-str1-p "test")))))
+  (subtest
+      "Test inheritance"
+    (ok (exec-in-this
+         (parent-p (new (child)))))
+    (ok (exec-in-this
+         (child-p (new (child)))))
+    (ok (not (exec-in-this
+              (child-p (new (parent))))))
+    (is (exec-in-this
+         (defvar x (new (child)))
+         (+ x.a x.c))
+        40))
   (subtest
       "Test syntax errors"
     (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
