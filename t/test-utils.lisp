@@ -16,6 +16,6 @@
   (with-js-env ((empty-lib))
     (run-js js-str)))
 
-(defmacro prove-macro-expand-error (str-code expected)
-  `(is-error (eval (read-from-string ,str-code))
-             ,expected))
+(defmacro prove-macro-expand-error (code expected-error)
+  `(is-error (eval (read-from-string ,(format nil "~S" code)))
+             ,expected-error))
