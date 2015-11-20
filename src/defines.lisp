@@ -9,8 +9,8 @@
                 :symbolicate)
   (:import-from :ps-experiment.utils.func
                 :defun.ps)
-  (:import-from :ps-experiment.utils.common
-                :replace-dot-in-tree)
+  (:import-from :ps-experiment.utils.common 
+                :ps.)
   (:import-from :ps-experiment.package
                 :register-ps-func))
 (in-package :ps-experiment.defines)
@@ -38,7 +38,7 @@
   (let ((register-name (symbolicate '_defvar_ name)))
     (register-ps-func register-name)
     `(defun ,register-name ()
-       (ps (defvar ,name ,(replace-dot-in-tree initial-value))))))
+       (ps. (defvar ,name ,initial-value)))))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
@@ -52,13 +52,13 @@
       (register-ps-func register-name)
       `(progn
          (defun ,register-name ()
-           (ps
+           (ps.
              (defun ,name ()
                ,(when parent
                       `((@ ,parent call) this))
                ,@(mapcar (lambda (elem)
                            (if (consp elem)
-                               `(setf (@ this ,(car elem)) ,(replace-dot-in-tree (cadr elem)))
+                               `(setf (@ this ,(car elem)) ,(cadr elem))
                                `(setf (@ this ,elem) nil)))
                          slot-description))))
          (defun.ps ,(symbolicate name '-p) (obj)

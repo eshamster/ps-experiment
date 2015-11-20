@@ -15,7 +15,7 @@
                 :aif
                 :it)
   (:import-from :ps-experiment.utils.common
-                :replace-dot-in-tree))
+                :ps.))
 (in-package :ps-experiment.package)
 
 (defparameter *ps-func-store* (make-hash-table))
@@ -71,4 +71,4 @@
                         (mapcar (lambda (pack)
                                   (reverse (gethash pack *ps-func-store*)))
                                 ,pack-lst))))
-       (import-ps-funcs ,func-lst (ps ,@(replace-dot-in-tree body))))))
+       (import-ps-funcs ,func-lst (ps. ,@body)))))

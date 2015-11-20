@@ -3,8 +3,7 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:import-from :ps-experiment.utils.common
-                :replace-dot-in-tree)
+  (:import-from :ps-experiment.utils.common)
   (:import-from :ps-experiment.utils.func
                 :defun+ps
                 :defun.ps)
