@@ -70,7 +70,10 @@
   (subtest
       "Test syntax errors"
     (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
-    (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error)))
+    (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error)
+    (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
+    (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
+    (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)))
 
 
 (finalize)

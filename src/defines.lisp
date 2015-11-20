@@ -22,7 +22,10 @@
         (error 'type-error :expected-type 'symbol :datum name)))
   
   (defun parse-defstruct-options (options)
-    "TODO: Error processing"
+    (unless (eq (car options) :include)
+      (error "unknown DEFSTRUCT.PS option:~% ~S" options))
+    (unless (symbolp (cadr options))
+      (error 'type-error :expected-type 'symbol :datum (cadr options)))
     (cadr options))
   
   (defun parse-defstruct-name-and-options (name-and-options)
