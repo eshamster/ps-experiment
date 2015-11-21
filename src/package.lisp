@@ -3,13 +3,16 @@
   (:use :cl
         :parenscript)
   (:export :register-ps-func
+           :make-ps-definer
            :with-use-ps-pack
            :find-ps-symbol
            :unintern-all-ps-symbol)
   (:import-from :alexandria
                 :flatten
                 :hash-table-keys
-                :with-gensyms)
+                :once-only
+                :with-gensyms
+                :symbolicate)
   (:import-from :anaphora
                 :acond
                 :aif
@@ -24,6 +27,12 @@
   (symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
     (unless (find name_sym target-lst)
        (push name_sym target-lst))))
+
+(defun make-ps-definer (kind name body) 
+  (let ((register-name (symbolicate '_ kind '_ name)))
+    (register-ps-func register-name)
+    `(defun ,register-name ()
+       (ps. ,body))))
 
 (defun find-ps-symbol (string &optional (package (package-name *package*)))
   (let ((found-package (find-package package)))

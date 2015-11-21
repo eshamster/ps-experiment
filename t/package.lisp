@@ -8,7 +8,10 @@
   (:import-from :ps-experiment.package
                 :register-ps-func
                 :find-ps-symbol
-                :unintern-all-ps-symbol))
+                :make-ps-definer
+                :unintern-all-ps-symbol)
+  (:import-from :alexandria
+                :symbolicate))
 
 (defmacro def-test-package (name)
   `(defpackage ,name
@@ -50,7 +53,7 @@
 
 (register-ps-func 'test1)
 
-(plan 2)
+(plan 3)
 
 (subtest
     "Test find-ps-symbol"
@@ -80,6 +83,24 @@ test-b2
 test-a1
 test-a2
 test.abc = 100;"
+      :test #'equal))
+
+
+(unintern-all-ps-symbol)
+
+(defmacro defhoge.ps (name value)
+  (make-ps-definer
+   'defhoge name
+   `(defvar ,name ,value)))
+
+(defhoge.ps x 100)
+
+(subtest
+    "Test make-ps-definer"
+  (ok (find-ps-symbol "_DEFHOGE_X"))
+  (is (with-use-ps-pack (:this))
+      "var x = 100;
+"
       :test #'equal))
 
 (unintern-all-ps-symbol)
