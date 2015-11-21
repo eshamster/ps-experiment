@@ -5,7 +5,6 @@
         :parenscript)
   (:import-from :ps-experiment.utils.common)
   (:import-from :ps-experiment.utils.func
-                :defun+ps
                 :defun.ps)
   (:export :setf-with))
 (in-package :ps-experiment.utils)

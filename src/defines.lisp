@@ -12,6 +12,7 @@
   (:import-from :ps-experiment.utils.common 
                 :ps.)
   (:import-from :ps-experiment.package
+                :make-ps-definer
                 :register-ps-func))
 (in-package :ps-experiment.defines)
 
@@ -35,10 +36,9 @@
         (values (parse-defstruct-name name-and-options) nil))))
 
 (defmacro defvar.ps (name initial-value)
-  (let ((register-name (symbolicate '_defvar_ name)))
-    (register-ps-func register-name)
-    `(defun ,register-name ()
-       (ps. (defvar ,name ,initial-value)))))
+  (make-ps-definer
+   'defvar name
+   `(defvar ,name ,initial-value)))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
@@ -49,28 +49,23 @@
   (multiple-value-bind (name parent)
       (parse-defstruct-name-and-options name-and-options)
     `(progn
-       ,(let ((register-name (symbolicate '_defstruct_ name)))
-          (register-ps-func register-name)
-          `(defun ,register-name ()
-             (ps.
-               (defun ,name ()
-                 ,(when parent
-                        `((@ ,parent call) this))
-                 ,@(mapcar (lambda (elem)
-                             (if (consp elem)
-                                 `(setf (@ this ,(car elem)) ,(cadr elem))
-                                 `(setf (@ this ,elem) nil)))
-                           slot-description)))))
+       (defun.ps ,name ()
+         ,(when parent
+                `((@ ,parent call) this))
+         ,@(mapcar (lambda (elem)
+                     (if (consp elem)
+                         `(setf (@ this ,(car elem)) ,(cadr elem))
+                         `(setf (@ this ,elem) nil)))
+                   slot-description))
        (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        ,(when parent
-              (let ((inherit-func (symbolicate '_inheritance_ name)))
-                (register-ps-func inherit-func)
-                `(defun ,inherit-func ()
-                   (ps (funcall (lambda ()
-                                  (defun temp-ctor ())
-                                  (setf (@ temp-ctor prototype) (@ ,parent prototype))
-                                  (setf (@ ,name super-class_) (@ ,parent prototype))
-                                  (setf (@ ,name prototype) (new (temp-ctor)))
-                                  (setf (@ ,name prototype constructor) ,name)))))))
+              (make-ps-definer
+               'defvar-inheritance name
+               `(funcall (lambda ()
+                           (defun temp-ctor ())
+                           (setf (@ temp-ctor prototype) (@ ,parent prototype))
+                           (setf (@ ,name super-class_) (@ ,parent prototype))
+                           (setf (@ ,name prototype) (new (temp-ctor)))
+                           (setf (@ ,name prototype constructor) ,name)))))
        '(:struct ,name))))

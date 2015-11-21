@@ -6,7 +6,6 @@
         :ps-experiment-test.test-utils
         :prove)
   (:import-from :ps-experiment.package
-                :find-ps-symbol
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
@@ -22,8 +21,7 @@
            (incf a x))
          (test 100)
          a))
-      120)
-  (ok (find-ps-symbol "_DEFVAR_A")))
+      120))
 
 
 (defstruct.ps test-str1 a1 (b1 20))
@@ -39,7 +37,6 @@
 
 (subtest
     "Test defstruct.ps"
-  (ok (find-ps-symbol "_DEFSTRUCT_TEST-STR1"))
   (subtest
       "Test initilization"
     (is (exec-in-this (defvar x (new (test-str2))) 
