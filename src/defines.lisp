@@ -17,13 +17,13 @@
 
 (defmacro defun.ps (name args &body body)
   (make-ps-definer
-   'defun name
+   :defun name
    `(defun ,name ,args
       ,@body)))
 
 (defmacro defvar.ps (name initial-value)
   (make-ps-definer
-   'defvar name
+   :defvar name
    `(defvar ,name ,initial-value)))
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
@@ -79,7 +79,7 @@
          (instanceof obj ,name))
        ,(when parent
               (make-ps-definer
-               'defvar-inheritance name
+               :defvar-inheritance name
                `(funcall (lambda ()
                            (defun temp-ctor ())
                            (setf (@ temp-ctor prototype) (@ ,parent prototype))
