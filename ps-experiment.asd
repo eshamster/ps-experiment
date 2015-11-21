@@ -24,7 +24,6 @@
                 :components
                 ((:file "utils-common")
                  (:file "package")
-                 (:file "utils-func")
                  (:file "defines")
                  (:file "utils")
                  (:file "ps-experiment"))))

@@ -11,11 +11,10 @@
   (:import-from :ps-experiment.package
                 :unintern-all-ps-symbol))
 
-
 (defmacro def-test-package (name)
   `(defpackage ,name
      (:use :cl
-           :ps-experiment.utils.func
+           :ps-experiment
            :parenscript)))
 
 (def-test-package test.func.pack-a)

@@ -5,12 +5,11 @@
   (:import-from :ps-experiment.utils.common
                 :ps.
                 :defmacro.ps)
-  (:import-from :ps-experiment.utils.func 
-                :defun.ps)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack)
   (:import-from :ps-experiment.defines
                 :defvar.ps
+                :defun.ps
                 :defstruct.ps)
   (:export :setf-with 
            :defun.ps

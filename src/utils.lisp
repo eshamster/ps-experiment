@@ -4,7 +4,7 @@
         :cl-ppcre
         :parenscript)
   (:import-from :ps-experiment.utils.common)
-  (:import-from :ps-experiment.utils.func
+  (:import-from :ps-experiment.defines
                 :defun.ps)
   (:export :setf-with))
 (in-package :ps-experiment.utils)

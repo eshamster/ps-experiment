@@ -4,17 +4,27 @@
         :cl-ppcre
         :parenscript)
   (:export :defvar.ps
+           :defun.ps
            :defstruct.ps)
   (:import-from :alexandria
                 :symbolicate)
-  (:import-from :ps-experiment.utils.func
-                :defun.ps)
   (:import-from :ps-experiment.utils.common 
                 :ps.)
   (:import-from :ps-experiment.package
                 :make-ps-definer
                 :register-ps-func))
 (in-package :ps-experiment.defines)
+
+(defmacro defun.ps (name args &body body)
+  (make-ps-definer
+   'defun name
+   `(defun ,name ,args
+      ,@body)))
+
+(defmacro defvar.ps (name initial-value)
+  (make-ps-definer
+   'defvar name
+   `(defvar ,name ,initial-value)))
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
   (defun parse-defstruct-name (name)
@@ -34,11 +44,6 @@
         (values (parse-defstruct-name (car name-and-options))
                 (parse-defstruct-options (cadr name-and-options)))
         (values (parse-defstruct-name name-and-options) nil))))
-
-(defmacro defvar.ps (name initial-value)
-  (make-ps-definer
-   'defvar name
-   `(defvar ,name ,initial-value)))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
