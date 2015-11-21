@@ -4,16 +4,27 @@
         :cl-ppcre
         :parenscript)
   (:export :defvar.ps
+           :defun.ps
            :defstruct.ps)
   (:import-from :alexandria
                 :symbolicate)
-  (:import-from :ps-experiment.utils.func
-                :defun.ps)
   (:import-from :ps-experiment.utils.common 
                 :ps.)
   (:import-from :ps-experiment.package
+                :make-ps-definer
                 :register-ps-func))
 (in-package :ps-experiment.defines)
+
+(defmacro defun.ps (name args &body body)
+  (make-ps-definer
+   'defun name
+   `(defun ,name ,args
+      ,@body)))
+
+(defmacro defvar.ps (name initial-value)
+  (make-ps-definer
+   'defvar name
+   `(defvar ,name ,initial-value)))
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
   (defun parse-defstruct-name (name)
@@ -34,12 +45,6 @@
                 (parse-defstruct-options (cadr name-and-options)))
         (values (parse-defstruct-name name-and-options) nil))))
 
-(defmacro defvar.ps (name initial-value)
-  (let ((register-name (symbolicate '_defvar_ name)))
-    (register-ps-func register-name)
-    `(defun ,register-name ()
-       (ps. (defvar ,name ,initial-value)))))
-
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
 (defmacro defstruct.ps (name-and-options &rest slot-description)
@@ -48,29 +53,32 @@
     slot-description::= slot-name | (slot-name slot-init-form)"
   (multiple-value-bind (name parent)
       (parse-defstruct-name-and-options name-and-options)
-    (let ((register-name (symbolicate '_defstruct_ name)))
-      (register-ps-func register-name)
-      `(progn
-         (defun ,register-name ()
-           (ps.
-             (defun ,name ()
-               ,(when parent
-                      `((@ ,parent call) this))
-               ,@(mapcar (lambda (elem)
-                           (if (consp elem)
-                               `(setf (@ this ,(car elem)) ,(cadr elem))
-                               `(setf (@ this ,elem) nil)))
-                         slot-description))))
-         (defun.ps ,(symbolicate name '-p) (obj)
-           (instanceof obj ,name))
+    `(progn
+       (defun.ps ,name ()
          ,(when parent
-                (let ((inherit-func (symbolicate '_inheritance_ name)))
-                  (register-ps-func inherit-func)
-                  `(defun ,inherit-func ()
-                     (ps (funcall (lambda ()
-                                    (defun temp-ctor ())
-                                    (setf (@ temp-ctor prototype) (@ ,parent prototype))
-                                    (setf (@ ,name super-class_) (@ ,parent prototype))
-                                    (setf (@ ,name prototype) (new (temp-ctor)))
-                                    (setf (@ ,name prototype constructor) ,name)))))))
-         '(:struct ,name)))))
+                `((@ ,parent call) this))
+         ,@(mapcar (lambda (elem)
+                     (if (consp elem)
+                         `(setf (@ this ,(car elem)) ,(cadr elem))
+                         `(setf (@ this ,elem) nil)))
+                   slot-description))
+       (defun.ps ,(symbolicate 'make- name) (&key ,@slot-description)
+         (let ((result (new (,name))))
+           ,@(mapcar (lambda (elem)
+                       (if (consp elem)
+                           `(setf (@ result ,(car elem)) ,(car elem))
+                           `(setf (@ result ,elem) ,elem)))
+                     slot-description)
+           result))
+       (defun.ps ,(symbolicate name '-p) (obj)
+         (instanceof obj ,name))
+       ,(when parent
+              (make-ps-definer
+               'defvar-inheritance name
+               `(funcall (lambda ()
+                           (defun temp-ctor ())
+                           (setf (@ temp-ctor prototype) (@ ,parent prototype))
+                           (setf (@ ,name super-class_) (@ ,parent prototype))
+                           (setf (@ ,name prototype) (new (temp-ctor)))
+                           (setf (@ ,name prototype constructor) ,name)))))
+       '(:struct ,name))))
