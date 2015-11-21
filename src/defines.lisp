@@ -43,7 +43,14 @@
     (if (listp name-and-options)
         (values (parse-defstruct-name (car name-and-options))
                 (parse-defstruct-options (cadr name-and-options)))
-        (values (parse-defstruct-name name-and-options) nil))))
+        (values (parse-defstruct-name name-and-options) nil)))
+
+  (defun parse-defstruct-slot-description (slot-description)
+    (mapcar (lambda (slot)
+              (if (consp slot)
+                  slot
+                  (list slot nil)))
+            slot-description)))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
@@ -51,24 +58,22 @@
   "This is the tiny subset of defsturt in terms of syntax.
     name-and-options::= structure-name | (structure-name (:include included-structure-name))
     slot-description::= slot-name | (slot-name slot-init-form)"
-  (multiple-value-bind (name parent)
-      (parse-defstruct-name-and-options name-and-options)
+  (bind:bind (((:values name parent)
+               (parse-defstruct-name-and-options name-and-options))
+              (slots
+               (parse-defstruct-slot-description slot-description)))
     `(progn
        (defun.ps ,name ()
          ,(when parent
                 `((@ ,parent call) this))
-         ,@(mapcar (lambda (elem)
-                     (if (consp elem)
-                         `(setf (@ this ,(car elem)) ,(cadr elem))
-                         `(setf (@ this ,elem) nil)))
-                   slot-description))
+         ,@(mapcar (lambda (slot)
+                     `(setf (@ this ,(car slot)) ,(cadr slot)))
+                   slots))
        (defun.ps ,(symbolicate 'make- name) (&key ,@slot-description)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)
-                       (if (consp elem)
-                           `(setf (@ result ,(car elem)) ,(car elem))
-                           `(setf (@ result ,elem) ,elem)))
-                     slot-description)
+                       `(setf (@ result ,(car elem)) ,(car elem)))
+                     slots)
            result))
        (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
