@@ -74,11 +74,20 @@
         40))
   (subtest
       "Test syntax errors"
-    (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
-    (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error)
-    (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
-    (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
-    (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)))
+    (subtest
+        "Test struct name"
+      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error))
+    (subtest
+        "Test option"
+      (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error))
+    (subtest
+        "Test slot name"
+      (prove-macro-expand-error (defstruct.ps test 12 b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error))))
 
 
 (finalize)

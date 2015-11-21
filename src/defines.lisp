@@ -46,11 +46,14 @@
         (values (parse-defstruct-name name-and-options) nil)))
 
   (defun parse-defstruct-slot-description (slot-description)
-    (mapcar (lambda (slot)
-              (if (consp slot)
-                  slot
-                  (list slot nil)))
-            slot-description)))
+    (let ((result (mapcar (lambda (slot)
+                            (if (consp slot)
+                                slot
+                                (list slot nil)))
+                          slot-description)))
+      (if (every (lambda (slot) (symbolp (car slot))) result)
+          result
+          (error 'type-error :expected-type 'symbol :datum slot-description)))))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
