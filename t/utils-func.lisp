@@ -10,27 +10,13 @@
                 :with-use-ps-pack)
   (:import-from :ps-experiment.package
                 :unintern-all-ps-symbol))
+(in-package :ps-experiment-test.utils.func)
 
-(defmacro def-test-package (name)
-  `(defpackage ,name
-     (:use :cl
-           :ps-experiment
-           :parenscript)))
-
-(def-test-package test.func.pack-a)
-(def-test-package test.func.pack-b)
-
-
-; --- prepare ---
-
-(in-package :test.func.pack-a)
+;; --- prepare ---
 
 (defun.ps position ()
   (setf this.x 20)
   (setf this.y 30))
-
-(in-package :test.func.pack-b)
-
 
 (defun.ps add-pos (a b)
   (let ((c (new (position))))
@@ -44,32 +30,28 @@
     (setf c.y (- a.y b.y))
     c))
 
-; --- body --- 
-
-(in-package :ps-experiment-test.utils.func)
+;; --- body --- 
 
 (plan 1)
 
-(defmacro.ps test-js-program ()
-  `(let ((pos-a (new (position)))
-         (pos-b (new (position)))
-         (pos-c (new (position))))
-     (setf pos-a.x 100)
-     (setf pos-b.x 50)
-     (setf pos-c.x 80)
-     (@ (sub-pos (add-pos pos-a
-                          pos-b)
-                 pos-c)
-        x)))
-
 (subtest
     "Test defun.ps"
-  (is (execute-js (with-use-ps-pack (:test.func.pack-a
-                                     :test.func.pack-b)
-                    (test-js-program)))
+  (is (execute-js (with-use-ps-pack (:this)
+                    (let ((pos-a (new (position)))
+                          (pos-b (new (position)))
+                          (pos-c (new (position))))
+                      (setf pos-a.x 100)
+                      (setf pos-b.x 50)
+                      (setf pos-c.x 80)
+                      (@ (sub-pos (add-pos pos-a
+                                           pos-b)
+                                  pos-c)
+                         x))))
       70)
-  (is-error (execute-js (with-use-ps-pack (:test.func.pack-a)
-                          (test-js-program)))
+  (is-error (execute-js (with-use-ps-pack (:this)
+                          (let ((pos-a (new (position)))
+                                (pos-b (new (position))))
+                            (mult-pos pos-a pos-b))))
             'undefined-variable))
 
 (finalize)

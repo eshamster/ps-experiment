@@ -1,5 +1,6 @@
 (in-package :cl-user)
-(defpackage ps-experiment
+(defpackage ps-experiment 
+  (:nicknames :pse)
   (:import-from :ps-experiment.utils
                 :setf-with)
   (:import-from :ps-experiment.utils.common

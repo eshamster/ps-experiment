@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 2)
+(plan 3)
 
 (defvar.ps a 20)
 
@@ -61,26 +61,58 @@
     (ok (not (exec-in-this
               (test-str1-p "test")))))
   (subtest
-      "Test inheritance"
-    (ok (exec-in-this
-         (parent-p (new (child)))))
-    (ok (exec-in-this
-         (child-p (new (child)))))
-    (ok (not (exec-in-this
-              (child-p (new (parent))))))
+      "Test accessors"
     (is (exec-in-this
-         (defvar x (new (child)))
-         (+ x.a x.c))
-        40))
+         (test-str1-a1 (make-test-str1 :a1 100)))
+        100)
+    (is (exec-in-this
+         (defvar x (make-test-str1 :a1 100))
+         (setf (test-str1-a1 x) 200)
+         x.a1)
+        200))
+  (subtest
+      "Test inheritance"
+    (subtest
+        "Test type check"
+      (ok (exec-in-this
+           (parent-p (new (child)))))
+      (ok (exec-in-this
+           (child-p (new (child)))))
+      (ok (not (exec-in-this
+                (child-p (new (parent)))))))
+    (subtest
+        "Test make and accessors"
+      (is (exec-in-this
+           (defvar x (make-child :a 100))
+           (parent-a x))
+          100)
+      (is (exec-in-this
+           (defvar x (make-child :a 100))
+           (child-a x))
+          100)
+      (is (exec-in-this
+           (defvar x (make-child :a 100 :c 200))
+           (+ x.a x.c))
+          300)))
   (subtest
       "Test syntax errors"
-    (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
-    (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error)
-    (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
-    (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
-    (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)))
+    (subtest
+        "Test struct name"
+      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error))
+    (subtest
+        "Test option"
+      (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error))
+    (subtest
+        "Test slot name"
+      (prove-macro-expand-error (defstruct.ps test 12 b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error))))
 
-
-(finalize)
 
 (unintern-all-ps-symbol)
+(is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)
+
+(finalize)

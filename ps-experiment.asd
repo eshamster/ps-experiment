@@ -17,6 +17,7 @@
   :author "eshamster"
   :license "LLGPL"
   :depends-on (:parenscript
+               :metabang-bind
                :alexandria
                :anaphora)
   :components ((:module "src"
