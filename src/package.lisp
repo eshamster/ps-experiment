@@ -6,7 +6,8 @@
            :make-ps-definer
            :with-use-ps-pack
            :find-ps-symbol
-           :unintern-all-ps-symbol)
+           :unintern-all-ps-symbol
+           :add-unintern-all-ps-symbol-hook)
   (:import-from :alexandria
                 :flatten
                 :hash-table-keys
@@ -45,7 +46,16 @@
            (t (values nil nil)))))
 
 (defun unintern-all-ps-symbol ()
-  (setf *ps-func-store* (make-hash-table)))
+  (setf *ps-func-store* (make-hash-table))
+  (dolist (hook *unintern-all-ps-symbol-hook*)
+    (funcall hook)))
+
+(defvar *unintern-all-ps-symbol-hook* nil)
+
+(defun add-unintern-all-ps-symbol-hook (hook)
+  (if (functionp hook)
+      (push hook *unintern-all-ps-symbol-hook*)
+      (error 'type-error :expected-type 'function :datum hook)))
 
 (defun interleave (lst delim)
   (labels ((rec (result rest)
