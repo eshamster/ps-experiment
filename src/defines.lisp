@@ -78,6 +78,10 @@
                        `(setf (@ result ,(car elem)) ,(car elem)))
                      slots)
            result))
+       ,@(mapcar (lambda (slot)
+                   `(defpsmacro ,(symbolicate name '- (car slot)) (obj)
+                      `(@ ,obj ,',(car slot))))
+                 slots)
        (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        ,(when parent

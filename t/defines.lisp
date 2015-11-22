@@ -61,6 +61,11 @@
     (ok (not (exec-in-this
               (test-str1-p "test")))))
   (subtest
+      "Test accessors"
+    (is (exec-in-this
+         (test-str1-a1 (make-test-str1 :a1 100)))
+        100))
+  (subtest
       "Test inheritance"
     (ok (exec-in-this
          (parent-p (new (child)))))
