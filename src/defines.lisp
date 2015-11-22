@@ -6,12 +6,16 @@
   (:export :defvar.ps
            :defun.ps
            :defstruct.ps)
+  (:import-from :anaphora
+                :aif
+                :it)
   (:import-from :alexandria
                 :symbolicate)
   (:import-from :ps-experiment.utils.common 
                 :ps.)
   (:import-from :ps-experiment.package
-                :make-ps-definer))
+                :make-ps-definer
+                :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment.defines)
 
 (defmacro defun.ps (name args &body body)
@@ -52,7 +56,33 @@
                           slot-description)))
       (if (every (lambda (slot) (symbolp (car slot))) result)
           result
-          (error 'type-error :expected-type 'symbol :datum slot-description)))))
+          (error 'type-error :expected-type 'symbol :datum slot-description))))
+
+  (defvar *ps-struct-slots* (make-hash-table)
+    "Store slots of each structure made by defstruct.ps
+key = structure-name
+value = ({(slot-name slot-init-form}*)")
+
+  (add-unintern-all-ps-symbol-hook
+   (lambda () (setf *ps-struct-slots* (make-hash-table))))
+  
+  (defun find-defstruct-slots (parent)
+    (aif (gethash parent *ps-struct-slots*)
+         it
+         (error 'unbound-variable :name parent)))
+  
+  (defun merge-defstruct-slots (parent slots)
+    (if (null parent)
+        slots
+        (let ((merged-slots (append (find-defstruct-slots parent)
+                                    slots)))
+          (if (= (length merged-slots)
+                 (length (remove-duplicates merged-slots)))
+              merged-slots
+              (error 'simple-error "duplicate slot name")))))
+
+  (defun register-defstruct-slots (name slots)
+    (setf (gethash name *ps-struct-slots*) slots)))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
@@ -64,14 +94,14 @@
                (parse-defstruct-name-and-options name-and-options))
               (slots
                (parse-defstruct-slot-description slot-description)))
+    (setf slots (merge-defstruct-slots parent slots))
+    (register-defstruct-slots name slots)
     `(progn
        (defun.ps ,name ()
-         ,(when parent
-                `((@ ,parent call) this))
          ,@(mapcar (lambda (slot)
                      `(setf (@ this ,(car slot)) ,(cadr slot)))
                    slots))
-       (defun.ps ,(symbolicate 'make- name) (&key ,@slot-description)
+       (defun.ps ,(symbolicate 'make- name) (&key ,@slots)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)
                        `(setf (@ result ,(car elem)) ,(car elem)))
