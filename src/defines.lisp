@@ -11,8 +11,7 @@
   (:import-from :ps-experiment.utils.common 
                 :ps.)
   (:import-from :ps-experiment.package
-                :make-ps-definer
-                :register-ps-func))
+                :make-ps-definer))
 (in-package :ps-experiment.defines)
 
 (defmacro defun.ps (name args &body body)
