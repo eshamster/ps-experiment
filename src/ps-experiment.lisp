@@ -3,7 +3,7 @@
   (:nicknames :pse)
   (:import-from :ps-experiment.utils
                 :setf-with)
-  (:import-from :ps-experiment.utils.common
+  (:import-from :ps-experiment.base
                 :ps.
                 :defmacro.ps)
   (:import-from :ps-experiment.package

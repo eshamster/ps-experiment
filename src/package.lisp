@@ -18,7 +18,7 @@
                 :acond
                 :aif
                 :it)
-  (:import-from :ps-experiment.utils.common
+  (:import-from :ps-experiment.base
                 :ps.))
 (in-package :ps-experiment.package)
 

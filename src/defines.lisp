@@ -11,7 +11,7 @@
                 :it)
   (:import-from :alexandria
                 :symbolicate)
-  (:import-from :ps-experiment.utils.common 
+  (:import-from :ps-experiment.base
                 :ps.)
   (:import-from :ps-experiment.package
                 :make-ps-definer

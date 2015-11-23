@@ -1,12 +1,12 @@
 (in-package :cl-user)
-(defpackage ps-experiment.utils.common
+(defpackage ps-experiment.base
   (:use :cl
         :cl-ppcre
         :parenscript)
   (:export :replace-dot-in-tree
            :ps.
            :defmacro.ps))
-(in-package :ps-experiment.utils.common)
+(in-package :ps-experiment.base)
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

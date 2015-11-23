@@ -18,7 +18,7 @@
   :components ((:module "t"
                 :components
                 ((:file "test-utils")
-                 (:test-file "utils-common")
+                 (:test-file "base")
                  (:test-file "package" :depends-on ("test-utils"))
                  (:test-file "defines" :depends-on ("test-utils"))
                  (:test-file "utils-func" :depends-on ("test-utils"))
