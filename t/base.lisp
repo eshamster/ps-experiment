@@ -10,6 +10,8 @@
 
 (plan 4)
 
+(enable-ps-experiment-syntax)
+
 (subtest
     "Test #j. reader macro"
   (is '#j.TEST.AbCd# '-t-e-s-t.-ab-cd))

@@ -5,7 +5,8 @@
                 :setf-with)
   (:import-from :ps-experiment.base
                 :ps.
-                :defmacro.ps)
+                :defmacro.ps
+                :enable-ps-experiment-syntax)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack)
   (:import-from :ps-experiment.defines
@@ -18,4 +19,5 @@
            :defstruct.ps
            :with-use-ps-pack
            :ps.
-           :defmacro.ps))
+           :defmacro.ps
+           :enable-ps-experiment-syntax))

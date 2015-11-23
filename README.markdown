@@ -30,11 +30,12 @@ this conversion is done after reading. So the following example is not supported
 
 #### Camel case (read macro)
 
-In \#j. (sharp j dot) read macro, camel cases are supported.   
+In \#j. (sharp j dot) read macro, camel cases are supported. To enable this syntax, call `(enable-ps-experiment-syntax)` macro.
 
 ```lisp
-#j.THREE.WebGLRenderer#
-;; => -t-h-r-e-e.-web-g-l-renderer
+> (enable-ps-experiment-syntax)
+> #j.THREE.WebGLRenderer#
+-t-h-r-e-e.-web-g-l-renderer
 ```
 
 ### Some definitions and Easy package system
@@ -101,6 +102,8 @@ function decNum(x) {
 };
 incNum(decNum());
 ```
+
+***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
 
 ----
 

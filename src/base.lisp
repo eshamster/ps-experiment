@@ -5,28 +5,29 @@
         :parenscript)
   (:export :replace-dot-in-tree
            :ps.
-           :defmacro.ps))
+           :defmacro.ps
+           :enable-ps-experiment-syntax))
 (in-package :ps-experiment.base)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun j.-reader (stream &rest rest)
-    (declare (ignore rest))
-    (let ((char (read-char stream)))
-      (when (or (null char)
-                (not (char= char #\.)))
-        (error "\".\" is required in the next of \"#j\"")))
-    (let (chars)
-      (do ((char (read-char stream) (read-char stream)))
-          ((char= char #\#))
-        (if (upper-case-p char)
-            (progn (push #\- chars)
-                   (push char chars))
-            (push (char-upcase char) chars)))
-      (intern (coerce (nreverse chars) 'string))))
-  
-  (set-dispatch-macro-character #\# #\j #'j.-reader))
+(defun j.-reader (stream &rest rest)
+  (declare (ignore rest))
+  (let ((char (read-char stream)))
+    (when (or (null char)
+              (not (char= char #\.)))
+      (error "\".\" is required in the next of \"#j\"")))
+  (let (chars)
+    (do ((char (read-char stream) (read-char stream)))
+        ((char= char #\#))
+      (if (upper-case-p char)
+          (progn (push #\- chars)
+                 (push char chars))
+          (push (char-upcase char) chars)))
+    (intern (coerce (nreverse chars) 'string))))
 
+(defmacro enable-ps-experiment-syntax ()
+  '(eval-when (:compile-toplevel :load-toplevel :execute)
+    (set-dispatch-macro-character #\# #\j #'j.-reader)))
 
 (defun replace-dot-sep (elem)
   (if (and (symbolp elem)
