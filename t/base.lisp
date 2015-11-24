@@ -4,11 +4,13 @@
         :ps-experiment
         :parenscript
         :prove)
-  (:import-from :ps-experiment.utils.common
+  (:import-from :ps-experiment.base
                 :replace-dot-in-tree))
 (in-package :ps-experiment-test.utils.common)
 
 (plan 4)
+
+(enable-ps-experiment-syntax)
 
 (subtest
     "Test #j. reader macro"

@@ -18,7 +18,7 @@
                 :acond
                 :aif
                 :it)
-  (:import-from :ps-experiment.utils.common
+  (:import-from :ps-experiment.base
                 :ps.))
 (in-package :ps-experiment.package)
 
@@ -74,6 +74,21 @@
 ")
           (list ps-body))))
 
+(defun make-package-list-with-depend (package-lst)
+  (let ((registered-packges (hash-table-keys *ps-func-store*)))
+    (labels ((rec (package)
+               (cond ((null package) nil)
+                     ((find package registered-packges)
+                      (append
+                       (apply #'append
+                              (loop for p
+                                 in (package-use-list package)
+                                 collect (rec p)))
+                       (list package)))
+                     (t nil))))
+      (remove-duplicates
+       (apply #'append (loop for p in package-lst collect (rec p)))))))
+
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
   (with-gensyms (pack-lst func-lst)
     `(let* ((,pack-lst (if (equal (symbol-name (car ',pack-sym-lst)) "ALL")
@@ -89,5 +104,5 @@
             (,func-lst (flatten
                         (mapcar (lambda (pack)
                                   (reverse (gethash pack *ps-func-store*)))
-                                ,pack-lst))))
+                                (make-package-list-with-depend ,pack-lst)))))
        (import-ps-funcs ,func-lst (ps. ,@body)))))

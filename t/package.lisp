@@ -22,6 +22,7 @@
 (def-test-package test.package.pack-a)
 (def-test-package test.package.pack-b)
 
+;; --- package a --- ;;
 (in-package :test.package.pack-a)
 
 (defun test-a1 ()
@@ -34,6 +35,7 @@
 (register-ps-func 'test-a2)
 
 
+;; --- package b --- ;;
 (in-package :test.package.pack-b)
 
 (defun test-b1 ()
@@ -46,6 +48,7 @@
 (register-ps-func 'test-b2)
 
 
+;; --- body --- ;;
 (in-package :ps-experiment-test.package)
 
 (defun test1 ()
@@ -53,7 +56,7 @@
 
 (register-ps-func 'test1)
 
-(plan 3)
+(plan 5)
 
 (subtest
     "Test find-ps-symbol"
@@ -85,7 +88,38 @@ test-a2
 test.abc = 100;"
       :test #'equal))
 
+;; --- affect global env --- ;;
+(use-package :test.package.pack-b)
 
+(subtest
+    "Test dependencies by 'use'"
+  (is (with-use-ps-pack (:this))
+      "test-b1
+test-b2
+test1
+")
+  (is (with-use-ps-pack (:test.package.pack-b
+                         :this))
+      "test-b1
+test-b2
+test1
+"))
+
+(in-package :test.package.pack-b)
+(use-package :test.package.pack-a)
+(in-package :ps-experiment-test.package)
+
+(subtest
+    "Test cascaded dependencies by 'use'"
+  (is (with-use-ps-pack (:this))
+      "test-a1
+test-a2
+test-b1
+test-b2
+test1
+"))
+
+;; --- affect global env --- ;;
 (unintern-all-ps-symbol)
 
 (defmacro defhoge.ps (name value)
