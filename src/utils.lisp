@@ -18,4 +18,5 @@
        (setf ,@rest))))
 
 (defpsmacro push (item place)
-  `((@ ,place push) ,item))
+  `(progn ((@ ,place unshift) ,item)
+          ,place))
