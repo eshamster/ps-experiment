@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 3)
+(plan 4)
 
 (defvar.ps a 20)
 
@@ -107,10 +107,23 @@
       (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error))
     (subtest
         "Test slot name"
-      (prove-macro-expand-error (defstruct.ps test 12 b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error))))
+      (prove-macro-expand-error (defstruct.ps test_error 12 b)
+                                #+sbcl 'sb-c:compiler-error
+                                #-sbcl 'type-error)
+      (prove-macro-expand-error (defstruct.ps test "test" b)
+                                #+sbcl 'sb-c:compiler-error
+                                #-sbcl 'type-error)
+      (prove-macro-expand-error (defstruct.ps test a (12 12))
+                                #+sbcl 'sb-c:compiler-error
+                                #-sbcl 'type-error))))
 
+(subtest
+    "Test inline defstruct"
+  (is (execute-js
+       (ps:ps (defstruct test-inline (a 10) b)
+              (defvar x (make-test-inline))
+              (test-inline-a x)))
+      10))
 
 (unintern-all-ps-symbol)
 (is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)

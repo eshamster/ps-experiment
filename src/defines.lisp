@@ -86,9 +86,14 @@ value = ({(slot-name slot-init-form}*)")
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
 
+(defmacro defstruct.ps (name-and-options &rest slot-description)
+  (make-ps-definer
+   :defstruct (parse-defstruct-name-and-options name-and-options)
+   `(defstruct ,name-and-options ,@slot-description)))
+
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
-(defmacro defstruct.ps (name-and-options &rest slot-description)
+(defpsmacro defstruct (name-and-options &rest slot-description)
   "This is the tiny subset of defsturt in terms of syntax.
     name-and-options::= structure-name | (structure-name (:include included-structure-name))
     slot-description::= slot-name | (slot-name slot-init-form)"
@@ -99,29 +104,26 @@ value = ({(slot-name slot-init-form}*)")
     (setf slots (merge-defstruct-slots parent slots))
     (register-defstruct-slots name slots)
     `(progn
-       (defun.ps ,name ()
+       (defun ,name ()
          ,@(mapcar (lambda (slot)
                      `(setf (@ this ,(car slot)) ,(cadr slot)))
                    slots))
-       (defun.ps ,(symbolicate 'make- name) (&key ,@slots)
+       (defun ,(symbolicate 'make- name) (&key ,@slots)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)
                        `(setf (@ result ,(car elem)) ,(car elem)))
                      slots)
            result))
        ,@(mapcar (lambda (slot)
-                   `(defpsmacro ,(symbolicate name '- (car slot)) (obj)
+                   `(defmacro ,(symbolicate name '- (car slot)) (obj)
                       `(@ ,obj ,',(car slot))))
                  slots)
-       (defun.ps ,(symbolicate name '-p) (obj)
+       (defun ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        ,(when parent
-              (make-ps-definer
-               :defvar-inheritance name
-               `(funcall (lambda ()
-                           (defun temp-ctor ())
-                           (setf (@ temp-ctor prototype) (@ ,parent prototype))
-                           (setf (@ ,name super-class_) (@ ,parent prototype))
-                           (setf (@ ,name prototype) (new (temp-ctor)))
-                           (setf (@ ,name prototype constructor) ,name)))))
-       '(:struct ,name))))
+              `(funcall (lambda ()
+                          (defun temp-ctor ())
+                          (setf (@ temp-ctor prototype) (@ ,parent prototype))
+                          (setf (@ ,name super-class_) (@ ,parent prototype))
+                          (setf (@ ,name prototype) (new (temp-ctor)))
+                          (setf (@ ,name prototype constructor) ,name)))))))
