@@ -29,7 +29,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 3)
+(plan 4)
 
 (subtest
     "Test setf-with"
@@ -56,6 +56,16 @@
                   '(1 2))
   (is-list-of.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if (lambda (x) (> x 2)) lst)
+                    lst)
+                  '(1 2 3 4)))
+
+(subtest
+    "Test remove-if-not"
+  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+                    (remove-if-not (lambda (x) (> x 2)) lst))
+                  '(3 4))
+  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+                    (remove-if-not (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
 
