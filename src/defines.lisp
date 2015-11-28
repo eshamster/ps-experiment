@@ -15,19 +15,15 @@
                 :ps.)
   (:import-from :ps-experiment.package
                 :make-ps-definer
+                :def-ps-definer
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment.defines)
 
-(defmacro defun.ps (name args &body body)
-  (make-ps-definer
-   :defun name
-   `(defun ,name ,args
-      ,@body)))
+(def-ps-definer defun.ps (name args &body body)
+  `(defun ,name ,args ,@body))
 
-(defmacro defvar.ps (name initial-value)
-  (make-ps-definer
-   :defvar name
-   `(defvar ,name ,initial-value)))
+(def-ps-definer defvar.ps (name initial-value)
+  `(defvar ,name ,initial-value))
 
 
 ;; ----- defstruct ----- ;;
@@ -86,10 +82,8 @@ value = ({(slot-name slot-init-form}*)")
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
 
-(defmacro defstruct.ps (name-and-options &rest slot-description)
-  (make-ps-definer
-   :defstruct (parse-defstruct-name-and-options name-and-options)
-   `(defstruct ,name-and-options ,@slot-description)))
+(def-ps-definer defstruct.ps (name-and-options &rest slot-description)
+  `(defstruct ,name-and-options ,@slot-description))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170

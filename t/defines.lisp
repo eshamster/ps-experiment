@@ -98,24 +98,17 @@
       "Test syntax errors"
     (subtest
         "Test struct name"
-      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error))
+      (prove-psmacro-expand-error (defstruct 12 a b) 'type-error)
+      (prove-psmacro-expand-error (defstruct "test" a b) 'type-error))
     (subtest
         "Test option"
-      (prove-macro-expand-error (defstruct.ps (test (:not-defined abc) a b)) 'simple-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error))
+      (prove-psmacro-expand-error (defstruct (test (:include 123) a b)) 'type-error)
+      (prove-psmacro-expand-error (defstruct (test (:include "test") a b)) 'type-error)))
     (subtest
         "Test slot name"
-      (prove-macro-expand-error (defstruct.ps test_error 12 b)
-                                #+sbcl 'sb-c:compiler-error
-                                #-sbcl 'type-error)
-      (prove-macro-expand-error (defstruct.ps test "test" b)
-                                #+sbcl 'sb-c:compiler-error
-                                #-sbcl 'type-error)
-      (prove-macro-expand-error (defstruct.ps test a (12 12))
-                                #+sbcl 'sb-c:compiler-error
-                                #-sbcl 'type-error))))
+      (prove-psmacro-expand-error (defstruct test_error 12 b) 'type-error)
+      (prove-psmacro-expand-error (defstruct test "test" b) 'type-error)
+      (prove-psmacro-expand-error (defstruct test a (12 12)) 'type-error)))
 
 (subtest
     "Test inline defstruct"

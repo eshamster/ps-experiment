@@ -3,7 +3,7 @@
   (:use :cl
         :parenscript)
   (:export :register-ps-func
-           :make-ps-definer
+           :def-ps-definer
            :with-use-ps-pack
            :find-ps-symbol
            :unintern-all-ps-symbol
@@ -34,6 +34,16 @@
     (register-ps-func register-name)
     `(defun ,register-name ()
        (ps. ,body))))
+
+(defun parse-name (name)
+  (if (consp name)
+      (parse-name (car name))
+      name))
+
+(defmacro def-ps-definer (def-name (name &rest rest-args) &body body)
+  `(defmacro ,def-name (,name ,@rest-args)
+     (make-ps-definer ',def-name (parse-name ,name)
+                      ,@body)))
 
 (defun find-ps-symbol (string &optional (package (package-name *package*)))
   (let ((found-package (find-package package)))
