@@ -9,6 +9,9 @@ dependencies:
   override:
     - git clone https://github.com/fukamachi/prove ~/lisp/prove
     - ros -l ~/lisp/prove/prove.asd install prove
+    - rm -rf ~/.roswell/local-projects/js
+    - ros run -e '(ql:quickload :cl-js)' -q
+    - (cd ~/.roswell/local-projects ; git clone https://github.com/akapav/js.git)
   cache_directories:
     - ~/.roswell
 

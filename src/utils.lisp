@@ -18,4 +18,15 @@
        (setf ,@rest))))
 
 (defpsmacro push (item place)
-  `((@ ,place push) ,item))
+  `(progn ((@ ,place unshift) ,item)
+          ,place))
+
+(defpsmacro remove-if (test sequence)
+  (with-ps-gensyms (copy)
+    `(let ((,copy ,sequence))
+       ((@ ,copy filter) (lambda (x) (not (funcall ,test x)))))))
+
+(defpsmacro remove-if-not (test sequence)
+  (with-ps-gensyms (copy)
+    `(let ((,copy ,sequence))
+       ((@ ,copy filter) ,test))))

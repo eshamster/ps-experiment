@@ -8,7 +8,7 @@
   (:import-from :ps-experiment.package
                 :register-ps-func
                 :find-ps-symbol
-                :make-ps-definer
+                :def-ps-definer
                 :unintern-all-ps-symbol)
   (:import-from :alexandria
                 :symbolicate))
@@ -122,16 +122,14 @@ test1
 ;; --- affect global env --- ;;
 (unintern-all-ps-symbol)
 
-(defmacro defhoge.ps (name value)
-  (make-ps-definer
-   'defhoge name
-   `(defvar ,name ,value)))
+(def-ps-definer defhoge.ps (name value)
+  `(defvar ,name ,value))
 
 (defhoge.ps x 100)
 
 (subtest
     "Test make-ps-definer"
-  (ok (find-ps-symbol "_DEFHOGE_X"))
+  (ok (find-ps-symbol "_DEFHOGE.PS_X"))
   (is (with-use-ps-pack (:this))
       "var x = 100;
 "

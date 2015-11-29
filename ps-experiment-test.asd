@@ -13,6 +13,7 @@
   :license ""
   :depends-on (:ps-experiment
                :parenscript
+               :alexandria
                :cl-js
                :prove)
   :components ((:module "t"
