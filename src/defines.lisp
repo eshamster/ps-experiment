@@ -90,7 +90,12 @@ value = ({(slot-name slot-init-form}*)")
 (defpsmacro defstruct (name-and-options &rest slot-description)
   "This is the tiny subset of defsturt in terms of syntax.
     name-and-options::= structure-name | (structure-name (:include included-structure-name))
-    slot-description::= slot-name | (slot-name slot-init-form)"
+    slot-description::= slot-name | (slot-name slot-init-form)
+
+    included-structure-name---a symbol.
+    structure-name---a symbol.
+    slot-name---a symbol.
+    slot-init-form---a form."
   (bind:bind (((:values name parent)
                (parse-defstruct-name-and-options name-and-options))
               (slots

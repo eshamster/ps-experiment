@@ -38,9 +38,33 @@ In \#j. (sharp j dot) read macro, camel cases are supported. To enable this synt
 -t-h-r-e-e.-web-g-l-renderer
 ```
 
-### Some definitions and Easy package system
+### defstruct
 
-The ps-experiment provides some top-level definitions, defvar.ps, defun.ps, defstruct.ps.
+The ps-experiment provides the subset of defstruct.
+
+Example:
+
+```lisp
+(ps:ps (defstruct test1 a (b 10))
+       (defstruct (test2 (:include test1)) c))
+```
+
+Syntax:
+
+```text
+defstruct name-and-options {slot-description}*
+name-and-options::= structure-name | (structure-name (:include included-structure-name))
+slot-description::= slot-name | (slot-name slot-init-form)
+ 
+included-structure-name---a symbol.
+structure-name---a symbol.
+slot-name---a symbol.
+slot-init-form---a form.
+```
+
+### Some top-level definitions and Easy package system
+
+The ps-experiment provides some top-level definitions, `defvar.ps`, `defun.ps`, `defstruct.ps`.
 
 Then, you can output these definitions as JavaScript by with-use-ps-pack macro per package. 
 
@@ -84,7 +108,7 @@ exec ros -Q -- $0 "$@"
   (declare (ignorable argv))
   (print
    (with-use-ps-pack (:pack-a :this)
-     (inc-num (dec-num)))))
+     (inc-num (dec-num 10)))))
 ```
 
 The output is as below.
@@ -100,7 +124,7 @@ function add(x, y) {
 function decNum(x) {
     return NUM -= x;
 };
-incNum(decNum());
+incNum(decNum(10));
 ```
 
 ***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
