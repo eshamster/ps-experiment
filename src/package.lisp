@@ -84,18 +84,17 @@
 ")
           (list ps-body))))
 
+;; TODO: prevent infinite loop when there is circular reference
 (defun make-package-list-with-depend (package-lst)
   (let ((registered-packges (hash-table-keys *ps-func-store*)))
     (labels ((rec (package)
-               (cond ((null package) nil)
-                     ((find package registered-packges)
-                      (append
-                       (apply #'append
-                              (loop for p
-                                 in (package-use-list package)
-                                 collect (rec p)))
-                       (list package)))
-                     (t nil))))
+               (when package
+                 (append
+                  (apply #'append
+                         (loop for p
+                            in (package-use-list package)
+                            collect (rec p)))
+                  (list package)))))
       (remove-duplicates
        (apply #'append (loop for p in package-lst collect (rec p)))))))
 
