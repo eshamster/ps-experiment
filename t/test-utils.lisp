@@ -20,9 +20,9 @@
     (run-js js-str)))
 
 (defmacro prove-macro-expand-error (code expected-error)
-  `(is-error (eval (read-from-string ,(format nil "~S" code)))
+  `(is-error (eval ',code)
              ,expected-error))
 
 (defmacro prove-psmacro-expand-error (code expected-error)
-  `(is-error (eval (read-from-string ,(format nil "~S" `(ps ,code))))
+  `(is-error (eval '(ps ,code))
              ,expected-error))
