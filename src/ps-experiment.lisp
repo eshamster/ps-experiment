@@ -11,12 +11,18 @@
                 :with-use-ps-pack)
   (:import-from :ps-experiment.defines
                 :defvar.ps
+                :defvar.ps+
                 :defun.ps
-                :defstruct.ps)
+                :defun.ps+
+                :defstruct.ps
+                :defstruct.ps+)
   (:export :setf-with 
-           :defun.ps
            :defvar.ps
+           :defvar.ps+
+           :defun.ps
+           :defun.ps+
            :defstruct.ps
+           :defstruct.ps+
            :with-use-ps-pack
            :ps.
            :defmacro.ps

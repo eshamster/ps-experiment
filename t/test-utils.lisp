@@ -2,6 +2,8 @@
 (defpackage ps-experiment-test.test-utils
   (:use :cl
         :prove)
+  (:import-from :ps-experiment
+                :with-use-ps-pack)
   (:import-from :cl-js
                 :run-js
                 :with-js-env
@@ -12,6 +14,7 @@
   (:export :execute-js
            :prove-macro-expand-error
            :prove-psmacro-expand-error
+           :prove-in-both
            :undefined-variable))
 (in-package :ps-experiment-test.test-utils)
 
@@ -26,3 +29,11 @@
 (defmacro prove-psmacro-expand-error (code expected-error)
   `(is-error (eval '(ps ,code))
              ,expected-error))
+
+(defmacro prove-in-both ((prove body &rest rest))
+  `(progn
+     (princ "Common Lisp: ")
+     (,prove ,body ,@rest)
+     (princ "JavaScript: ")
+     (,prove (run-js (with-use-ps-pack (:this) ,body)) ,@rest)
+     (princ "------")))

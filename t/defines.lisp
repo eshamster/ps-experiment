@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 4)
+(plan 5)
 
 (defvar.ps a 20)
 
@@ -117,6 +117,24 @@
               (defvar x (make-test-inline))
               (test-inline-a x)))
       10))
+
+(defun.ps+ test-func-plus (a b)
+  (+ a b))
+(defvar.ps+ test-var-plus 100)
+
+(defstruct.ps+ test-struct-plus1 (a 100) b)
+(defstruct.ps+ (test-struct-plus2 (:include test-struct-plus1)) c)
+(defvar.ps+ str-plus (make-test-struct-plus2 :c 20))
+
+(subtest
+    "Test xxx.ps+ macros"
+  (prove-in-both (is (test-func-plus 10 20) 30))
+  (prove-in-both (is test-var-plus 100))
+  (prove-in-both (is (test-struct-plus2-a str-plus) 100))
+  (prove-in-both (is (test-struct-plus2-c str-plus) 20))
+  (prove-in-both (ok (test-struct-plus1-p str-plus)))
+  (prove-in-both (ok (not (let ((target (make-test-struct-plus1)))
+                            (test-struct-plus2-p target))))))
 
 (unintern-all-ps-symbol)
 (is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)
