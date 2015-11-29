@@ -21,6 +21,9 @@
   `(progn ((@ ,place unshift) ,item)
           ,place))
 
+(defpsmacro every (predicate sequence)
+  `((@ ,sequence every) ,predicate))
+
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))

@@ -2,6 +2,7 @@
 (defpackage ps-experiment-test.utils
   (:use :cl
         :ps-experiment
+        :ps-experiment-test.test-utils
         :parenscript
         :prove)
   (:import-from :alexandria
@@ -29,7 +30,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 4)
+(plan 5)
 
 (subtest
     "Test setf-with"
@@ -48,6 +49,11 @@
                     (push 1 x)
                     (push 2 x))
                   '(2 1)))
+
+(subtest
+    "Test every"
+  (prove-in-both (ok (every (lambda (x) (> x 2)) '(3 4 5))))
+  (prove-in-both (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
 
 (subtest
     "Test remove-if"
