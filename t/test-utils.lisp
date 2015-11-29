@@ -11,6 +11,8 @@
                 :undefined-variable)
   (:import-from :parenscript
                 :ps)
+  (:import-from :alexandria
+                :with-gensyms)
   (:export :execute-js
            :prove-macro-expand-error
            :prove-psmacro-expand-error
@@ -30,10 +32,15 @@
   `(is-error (eval '(ps ,code))
              ,expected-error))
 
-(defmacro prove-in-both ((prove body &rest rest))
-  `(progn
-     (princ "Common Lisp: ")
-     (,prove ,body ,@rest)
-     (princ "JavaScript: ")
-     (,prove (run-js (with-use-ps-pack (:this) ,body)) ,@rest)
-     (princ "------")))
+(defmacro prove-in-both ((prove body &rest rest) &key (use '(:this)) (prints-js nil))
+  (with-gensyms (js)
+    `(progn
+       (princ "Common Lisp: ")
+       (,prove ,body ,@rest)
+       (princ "JavaScript: ")
+       (let ((,js (with-use-ps-pack ,use ,body)))
+         (when ,prints-js
+           (print ,js))
+         (,prove (run-js ,js) ,@rest))
+       (princ "------"))))
+
