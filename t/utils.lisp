@@ -30,7 +30,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 5)
+(plan 6)
 
 (subtest
     "Test setf-with"
@@ -54,6 +54,11 @@
     "Test every"
   (prove-in-both (ok (every (lambda (x) (> x 2)) '(3 4 5))))
   (prove-in-both (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
+
+(subtest
+    "Test some"
+  (prove-in-both (ok (some (lambda (x) (< x 2)) '(2 1 3))))
+  (prove-in-both (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
 
 (subtest
     "Test remove-if"

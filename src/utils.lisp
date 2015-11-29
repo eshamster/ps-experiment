@@ -24,6 +24,9 @@
 (defpsmacro every (predicate sequence)
   `((@ ,sequence every) ,predicate))
 
+(defpsmacro some (predicate sequence)
+  `((@ ,sequence some) ,predicate))
+
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))
