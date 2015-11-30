@@ -6,7 +6,9 @@
         :parenscript
         :prove)
   (:import-from :alexandria
-                :with-gensyms))
+                :with-gensyms)
+  (:import-from :ps-experiment.package
+                :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
 (defun js-array-to-list (js-array)
@@ -30,7 +32,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 6)
+(plan 7)
 
 (subtest
     "Test setf-with"
@@ -79,5 +81,17 @@
                     (remove-if-not (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
+
+
+;; --- affect global env --- ;;
+(defstruct.ps+ test1 a)
+(defstruct.ps+ (test2 (:include test1)) b)
+(defstruct.ps+ test3 a)
+
+(subtest
+    "Test typep"
+  (prove-in-both (ok (typep (make-test1) 'test1)) :prints-js t))
+
+(unintern-all-ps-symbol)
 
 (finalize)

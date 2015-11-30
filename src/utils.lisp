@@ -17,6 +17,8 @@
     `(with-slots ,(extract-slots nil rest) ,target
        (setf ,@rest))))
 
+;; --- array utils --- ;;
+
 (defpsmacro push (item place)
   `(progn ((@ ,place unshift) ,item)
           ,place))
@@ -36,3 +38,16 @@
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))
        ((@ ,copy filter) ,test))))
+
+;; --- have not classified utils --- ;;
+
+"Limitation: Now, this can judge the type only of objects"
+(defpsmacro typep (object type-specifier) 
+  (let ((is-symbol (and (listp type-specifier)
+                        (= (length type-specifier) 2)
+                        (eq (car type-specifier) 'quote)
+                        (symbolp (cadr type-specifier)))))
+    `(instanceof ,object ,(if is-symbol
+                              (eval type-specifier)
+                              type-specifier))))
+
