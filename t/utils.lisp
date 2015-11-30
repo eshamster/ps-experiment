@@ -90,7 +90,11 @@
 
 (subtest
     "Test typep"
-  (prove-in-both (ok (typep (make-test1) 'test1)) :prints-js t))
+  (prove-in-both (ok (typep (make-test1) 'test1)))
+  (prove-in-both (ok (typep (make-test2) 'test1)))
+  (prove-in-both (ok (not (typep (make-test1) 'test3))))
+  (prove-in-both (ok (let ((type 'test1))
+                       (typep (make-test1) type))) :prints-js t))
 
 (unintern-all-ps-symbol)
 
