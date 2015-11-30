@@ -2,10 +2,13 @@
 (defpackage ps-experiment-test.utils
   (:use :cl
         :ps-experiment
+        :ps-experiment-test.test-utils
         :parenscript
         :prove)
   (:import-from :alexandria
-                :with-gensyms))
+                :with-gensyms)
+  (:import-from :ps-experiment.package
+                :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
 (defun js-array-to-list (js-array)
@@ -29,7 +32,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 4)
+(plan 7)
 
 (subtest
     "Test setf-with"
@@ -50,6 +53,16 @@
                   '(2 1)))
 
 (subtest
+    "Test every"
+  (prove-in-both (ok (every (lambda (x) (> x 2)) '(3 4 5))))
+  (prove-in-both (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
+
+(subtest
+    "Test some"
+  (prove-in-both (ok (some (lambda (x) (< x 2)) '(2 1 3))))
+  (prove-in-both (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
+
+(subtest
     "Test remove-if"
   (is-list-of.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if (lambda (x) (> x 2)) lst))
@@ -68,5 +81,21 @@
                     (remove-if-not (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
+
+
+;; --- affect global env --- ;;
+(defstruct.ps+ test1 a)
+(defstruct.ps+ (test2 (:include test1)) b)
+(defstruct.ps+ test3 a)
+
+(subtest
+    "Test typep"
+  (prove-in-both (ok (typep (make-test1) 'test1)))
+  (prove-in-both (ok (typep (make-test2) 'test1)))
+  (prove-in-both (ok (not (typep (make-test1) 'test3))))
+  (prove-in-both (ok (let ((type 'test1))
+                       (typep (make-test1) type))) :prints-js t))
+
+(unintern-all-ps-symbol)
 
 (finalize)

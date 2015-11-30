@@ -4,8 +4,11 @@
         :cl-ppcre
         :parenscript)
   (:export :defvar.ps
+           :defvar.ps+
            :defun.ps
-           :defstruct.ps)
+           :defun.ps+
+           :defstruct.ps
+           :defstruct.ps+)
   (:import-from :anaphora
                 :aif
                 :it)
@@ -19,12 +22,30 @@
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment.defines)
 
+;; ----- .ps ----- ;;
+
 (def-ps-definer defun.ps (name args &body body)
   `(defun ,name ,args ,@body))
 
 (def-ps-definer defvar.ps (name initial-value)
   `(defvar ,name ,initial-value))
 
+(def-ps-definer defstruct.ps (name-and-options &rest slot-description)
+  `(defstruct ,name-and-options ,@slot-description))
+
+;; ----- .ps+ ----- ;;
+
+(defmacro defun.ps+ (name args &body body)
+  `(progn (defun.ps ,name ,args ,@body)
+          (defun ,name ,args ,@body)))
+
+(defmacro defvar.ps+ (name initial-value)
+  `(progn (defvar.ps ,name ,initial-value)
+          (defvar ,name ,initial-value)))
+
+(defmacro defstruct.ps+ (name-and-options &rest slot-description)
+  `(progn (defstruct.ps ,name-and-options ,@slot-description)
+          (defstruct ,name-and-options ,@slot-description)))
 
 ;; ----- defstruct ----- ;;
 
@@ -81,9 +102,6 @@ value = ({(slot-name slot-init-form}*)")
 
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
-
-(def-ps-definer defstruct.ps (name-and-options &rest slot-description)
-  `(defstruct ,name-and-options ,@slot-description))
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
