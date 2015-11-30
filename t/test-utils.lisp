@@ -25,11 +25,11 @@
     (run-js js-str)))
 
 (defmacro prove-macro-expand-error (code expected-error)
-  `(is-error (eval ',code)
+  `(is-error (macroexpand-1 ',code)
              ,expected-error))
 
 (defmacro prove-psmacro-expand-error (code expected-error)
-  `(is-error (eval '(ps ,code))
+  `(is-error (macroexpand-1 '(ps ,code))
              ,expected-error))
 
 (defmacro prove-in-both ((prove body &rest rest) &key (use '(:this)) (prints-js nil))
