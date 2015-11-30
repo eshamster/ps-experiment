@@ -36,11 +36,14 @@
   (with-gensyms (js)
     `(progn
        (princ "Common Lisp: ")
+       (fresh-line)
        (,prove ,body ,@rest)
        (princ "JavaScript: ")
+       (fresh-line)
        (let ((,js (with-use-ps-pack ,use ,body)))
          (when ,prints-js
            (print ,js))
          (,prove (run-js ,js) ,@rest))
-       (princ "------"))))
+       (princ "------")
+       (fresh-line))))
 
