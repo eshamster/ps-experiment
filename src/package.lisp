@@ -31,9 +31,9 @@
 
 (defun make-ps-definer (kind name body) 
   (let ((register-name (symbolicate '_ kind '_ name)))
-    (register-ps-func register-name)
-    `(defun ,register-name ()
-       (ps. ,body))))
+    `(progn (register-ps-func ',register-name)
+            (defun ,register-name ()
+              (ps. ,body)))))
 
 (defun parse-name (name)
   (if (consp name)
