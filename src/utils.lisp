@@ -48,7 +48,7 @@
                         (eq (car type-specifier) 'quote)
                         (symbolp (cadr type-specifier)))))
     (if is-symbol
-        `(instanceof ,object ,(eval type-specifier))
+        `(instanceof ,object ,(cadr type-specifier))
         `(instanceof ,object (if (stringp ,type-specifier)
                                  (eval ,type-specifier)
                                  ,type-specifier)))))
