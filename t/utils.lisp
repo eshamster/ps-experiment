@@ -32,7 +32,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 8)
+(plan 9)
 
 (subtest
     "Test setf-with"
@@ -93,6 +93,13 @@
                        (setf (gethash 'x tbl) 100)
                        (gethash 'x tbl))
                      100)))
+
+(subtest
+    "Test error"
+  (prove-in-both (is-error (error 'simple-error)
+                           'simple-error))
+  (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
+                           'type-error)))
 
 ;; --- affect global env --- ;;
 (defstruct.ps+ test1 a)

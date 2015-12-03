@@ -66,3 +66,8 @@
         `(instanceof ,object (if (stringp ,type-specifier)
                                  (eval ,type-specifier)
                                  ,type-specifier)))))
+
+(defpsmacro error (datum &rest args)
+  (if (null args)
+      `(throw ,datum)
+      `(throw ,(format nil "~A: ~A" datum args))))

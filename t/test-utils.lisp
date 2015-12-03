@@ -6,6 +6,7 @@
                 :with-use-ps-pack)
   (:import-from :cl-js
                 :run-js
+                :js-condition
                 :with-js-env
                 :empty-lib
                 :undefined-variable)
@@ -43,7 +44,9 @@
        (let ((,js (with-use-ps-pack ,use ,body)))
          (when ,prints-js
            (print ,js))
-         (,prove (run-js ,js) ,@rest))
+         ,(if (eq prove 'prove:is-error)
+              `(,prove (run-js ,js) 'js-condition)
+              `(,prove (run-js ,js) ,@rest)))
        (princ "------")
        (fresh-line))))
 
