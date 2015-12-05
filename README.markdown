@@ -52,10 +52,10 @@ Example:
 Syntax:
 
 ```text
-defstruct name-and-options {slot-description}*
-name-and-options::= structure-name | (structure-name (:include included-structure-name))
+name-and-options::= structure-name | (structure-name (:include included-structure-name {inherit-slot-description}*))
 slot-description::= slot-name | (slot-name slot-init-form)
- 
+inherit-slot-description::= (slot-name slot-init-form)
+
 included-structure-name---a symbol.
 structure-name---a symbol.
 slot-name---a symbol.
@@ -64,7 +64,10 @@ slot-init-form---a form.
 
 ### Some top-level definitions and Easy package system
 
-The ps-experiment provides some top-level definitions, `defvar.ps`, `defun.ps`, `defstruct.ps`.
+The ps-experiment provides some top-level definitions, `defvar.ps(+)`, `defun.ps(+)`, `defstruct.ps(+).
+
+- `.ps` (Ex. `defvar.ps`): defines only for Parenscript
+- `.ps+` (Ex. `defvar.ps+`): defines both for Parenscript and for Common Lisp
 
 Then, you can output these definitions as JavaScript by with-use-ps-pack macro per package. 
 
