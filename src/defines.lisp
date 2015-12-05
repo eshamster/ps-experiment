@@ -54,13 +54,13 @@
 
 ;; ----- defstruct ----- ;;
 
-(eval-when (:execute :compile-toplevel :load-toplevel) 
+(eval-when (:execute :compile-toplevel :load-toplevel)
   (defun parse-defstruct-name (name)
     (if (symbolp name)
         name
         (error 'type-error :expected-type 'symbol :datum name)))
   
-  (defun parse-defstruct-options (options)
+  (defun parse-defstruct-include-option (options)
     (unless (eq (car options) :include)
       (error "unknown DEFSTRUCT.PS option:~% ~S" options))
     (unless (symbolp (cadr options))
@@ -70,7 +70,7 @@
   (defun parse-defstruct-name-and-options (name-and-options)
     (if (listp name-and-options)
         (values (parse-defstruct-name (car name-and-options))
-                (parse-defstruct-options (cadr name-and-options)))
+                (parse-defstruct-include-option (cadr name-and-options)))
         (values (parse-defstruct-name name-and-options) nil)))
 
   (defun parse-defstruct-slot-description (slot-description)
