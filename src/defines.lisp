@@ -11,6 +11,7 @@
            :defstruct.ps+)
   (:import-from :anaphora
                 :aif
+                :sif
                 :it)
   (:import-from :alexandria
                 :symbolicate)
@@ -64,7 +65,7 @@
     (error "unknown DEFSTRUCT.PS option:~% ~S" options))
   (unless (symbolp (cadr options))
     (error 'type-error :expected-type 'symbol :datum (cadr options)))
-  (cadr options))
+  (cdr options))
   
 (defun parse-defstruct-name-and-options (name-and-options)
   (if (listp name-and-options)
@@ -94,11 +95,29 @@ value = ({(slot-name slot-init-form}*)")
   (aif (gethash parent *ps-struct-slots*)
        it
        (error 'unbound-variable :name parent)))
-  
-(defun merge-defstruct-slots (parent slots)
-  (if (null parent)
+
+;; Note: Ex. parent-info := (name (slot1 value1) (slot2 value2))
+(defun modify-parent-slots (slots parent-info)
+  (let ((modified-slots nil))
+    (dolist (slot slots)
+      (push (list (car slot) (cadr slot)) modified-slots))
+    (setf modified-slots (nreverse modified-slots))
+    (dolist (mod-slot (cdr parent-info))
+      (unless (and (listp mod-slot) (= (length mod-slot) 2))
+        (error "~A is invalid slot-description" mod-slot))
+      (sif (find-if (lambda (slot) (eq (car slot)
+                                       (car mod-slot)))
+                    modified-slots)
+           (setf (cadr it) (cadr mod-slot))
+           (error "~A doesn't have the slot ~A" (car parent-info) (car mod-slot))))
+    modified-slots))
+
+(defun merge-defstruct-slots (parent-info slots)
+  (if (null parent-info)
       slots
-      (let ((merged-slots (append (find-defstruct-slots parent)
+      (let ((merged-slots (append (modify-parent-slots
+                                   (find-defstruct-slots (car parent-info))
+                                   parent-info)
                                   slots)))
         (if (= (length merged-slots)
                (length (remove-duplicates merged-slots)))
@@ -119,11 +138,12 @@ value = ({(slot-name slot-init-form}*)")
     structure-name---a symbol.
     slot-name---a symbol.
     slot-init-form---a form."
-  (bind:bind (((:values name parent)
+  (bind:bind (((:values name parent-info)
                (parse-defstruct-name-and-options name-and-options))
+              (parent (car parent-info))
               (slots
                (parse-defstruct-slot-description slot-description)))
-    (setf slots (merge-defstruct-slots parent slots))
+    (setf slots (merge-defstruct-slots parent-info slots))
     (register-defstruct-slots name slots)
     `(progn
        (defun ,name ()
