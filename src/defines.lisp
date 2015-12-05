@@ -131,8 +131,9 @@ value = ({(slot-name slot-init-form}*)")
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
 (defpsmacro defstruct (name-and-options &rest slot-description)
   "This is the tiny subset of defsturt in terms of syntax.
-    name-and-options::= structure-name | (structure-name (:include included-structure-name))
+    name-and-options::= structure-name | (structure-name (:include included-structure-name {inherit-slot-description}*))
     slot-description::= slot-name | (slot-name slot-init-form)
+    inherit-slot-description::= (slot-name slot-init-form)
 
     included-structure-name---a symbol.
     structure-name---a symbol.
