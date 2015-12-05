@@ -25,6 +25,9 @@
 
 ;; --- array utils --- ;;
 
+(defpsmacro nth (n list)
+  `(aref ,list ,n))
+
 (defpsmacro push (item place)
   `(progn ((@ ,place unshift) ,item)
           ,place))

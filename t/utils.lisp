@@ -32,7 +32,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 9)
+(plan 10)
 
 (subtest
     "Test setf-with"
@@ -44,6 +44,11 @@
                (setf x 100
                      y 200
                      z 300))))
+
+(subtest
+    "Test nth"
+  (prove-in-both (is (nth 2 '(1 2 3 4)) 3))
+  (prove-in-both (ok (null (nth 2 '(1 2))))))
 
 (subtest
     "Test push"
