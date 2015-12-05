@@ -17,7 +17,16 @@
     `(with-slots ,(extract-slots nil rest) ,target
        (setf ,@rest))))
 
+(defun quoted-symbolp (object)
+  (and (listp object)
+       (= (length object) 2)
+       (eq (car object) 'quote)
+       (symbolp (cadr object))))
+
 ;; --- array utils --- ;;
+
+(defpsmacro nth (n list)
+  `(aref ,list ,n))
 
 (defpsmacro push (item place)
   `(progn ((@ ,place unshift) ,item)
@@ -39,16 +48,29 @@
     `(let ((,copy ,sequence))
        ((@ ,copy filter) ,test))))
 
+;; --- hash utils --- ;;
+
+(defpsmacro make-hash-table ()
+  `(list))
+
+;; TODO: Support &optional default
+(defpsmacro gethash (key hash-table)
+  (if (quoted-symbolp key)
+      `(aref ,hash-table ,(string (cadr key)))
+      `(aref ,hash-table ,key)))
+
 ;; --- have not classified utils --- ;;
 
 "Limitation: Now, this can judge the type only of objects"
 (defpsmacro typep (object type-specifier) 
-  (let ((is-symbol (and (listp type-specifier)
-                        (= (length type-specifier) 2)
-                        (eq (car type-specifier) 'quote)
-                        (symbolp (cadr type-specifier)))))
+  (let ((is-symbol (quoted-symbolp type-specifier)))
     (if is-symbol
-        `(instanceof ,object ,(eval type-specifier))
+        `(instanceof ,object ,(cadr type-specifier))
         `(instanceof ,object (if (stringp ,type-specifier)
                                  (eval ,type-specifier)
                                  ,type-specifier)))))
+
+(defpsmacro error (datum &rest args)
+  (if (null args)
+      `(throw ,datum)
+      `(throw ,(format nil "~A: ~A" datum args))))

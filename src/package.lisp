@@ -29,9 +29,10 @@
     (unless (find name_sym target-lst)
        (push name_sym target-lst))))
 
-(defun make-ps-definer (kind name body) 
+(defun make-ps-definer (&key kind name before body) 
   (let ((register-name (symbolicate '_ kind '_ name)))
-    `(progn (register-ps-func ',register-name)
+    `(progn ,before
+            (register-ps-func ',register-name)
             (defun ,register-name ()
               (ps. ,body)))))
 
@@ -40,10 +41,12 @@
       (parse-name (car name))
       name))
 
-(defmacro def-ps-definer (def-name (name &rest rest-args) &body body)
+(defmacro def-ps-definer (def-name (name &rest rest-args) (&key before) &body body)
   `(defmacro ,def-name (,name ,@rest-args)
-     (make-ps-definer ',def-name (parse-name ,name)
-                      ,@body)))
+     (make-ps-definer :kind ',def-name
+                      :name (parse-name ,name)
+                      :before ,before
+                      :body ,@body)))
 
 (defun find-ps-symbol (string &optional (package (package-name *package*)))
   (let ((found-package (find-package package)))

@@ -122,7 +122,7 @@ test1
 ;; --- affect global env --- ;;
 (unintern-all-ps-symbol)
 
-(def-ps-definer defhoge.ps (name value)
+(def-ps-definer defhoge.ps (name value) ()
   `(defvar ,name ,value))
 
 (defhoge.ps x 100)

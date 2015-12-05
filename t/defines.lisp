@@ -30,6 +30,7 @@
 
 (defstruct.ps parent (a 10) (b 20))
 (defstruct.ps (child (:include parent)) (c 30))
+(defstruct.ps (mod-child (:include parent (a 100))))
 
 (defmacro exec-in-this (&body body)
   `(execute-js (with-use-ps-pack (:this)
@@ -93,7 +94,12 @@
       (is (exec-in-this
            (defvar x (make-child :a 100 :c 200))
            (+ x.a x.c))
-          300)))
+          300))
+    (subtest
+        "Test override the initial value of parent's slot"
+      (is (exec-in-this
+           (mod-child-a (make-mod-child)))
+          100)))
   (subtest
       "Test syntax errors"
     (subtest
@@ -108,7 +114,13 @@
         "Test slot name"
       (prove-psmacro-expand-error (defstruct test_error 12 b) 'type-error)
       (prove-psmacro-expand-error (defstruct test "test" b) 'type-error)
-      (prove-psmacro-expand-error (defstruct test a (12 12)) 'type-error)))
+      (prove-psmacro-expand-error (defstruct test a (12 12)) 'type-error))
+    (subtest
+        "Test override the initial value of parent's slot"
+      (prove-psmacro-expand-error (defstruct (test (:include parent (not-found 20)))) 'simple-error)
+      (prove-psmacro-expand-error (defstruct (test (:include parent a))) 'simple-error)
+      (prove-psmacro-expand-error (defstruct (test (:include parent (a 20 30)))) 'simple-error)
+      ))
 
 (subtest
     "Test inline defstruct"

@@ -32,7 +32,7 @@
                      (js-array-to-list ,js-expected)
                      (js-array-to-list ,js-got)))))))
 
-(plan 7)
+(plan 10)
 
 (subtest
     "Test setf-with"
@@ -44,6 +44,11 @@
                (setf x 100
                      y 200
                      z 300))))
+
+(subtest
+    "Test nth"
+  (prove-in-both (is (nth 2 '(1 2 3 4)) 3))
+  (prove-in-both (ok (null (nth 2 '(1 2))))))
 
 (subtest
     "Test push"
@@ -82,6 +87,24 @@
                     lst)
                   '(1 2 3 4)))
 
+(subtest
+    "Test hash table"
+  (is (ps (make-hash-table)) "[];" :test #'equal)
+  (is (ps (gethash key tbl)) "tbl[key];" :test #'equal)
+  (is (ps (gethash 'key tbl)) "tbl['KEY'];" :test #'equal)
+  (is (ps (gethash 0 tbl)) "tbl[0];" :test #'equal)
+  (is (ps (gethash (+ 1 2) tbl)) "tbl[1 + 2];" :test #'equal)
+  (prove-in-both (is (let ((tbl (make-hash-table)))
+                       (setf (gethash 'x tbl) 100)
+                       (gethash 'x tbl))
+                     100)))
+
+(subtest
+    "Test error"
+  (prove-in-both (is-error (error 'simple-error)
+                           'simple-error))
+  (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
+                           'type-error)))
 
 ;; --- affect global env --- ;;
 (defstruct.ps+ test1 a)
@@ -94,7 +117,7 @@
   (prove-in-both (ok (typep (make-test2) 'test1)))
   (prove-in-both (ok (not (typep (make-test1) 'test3))))
   (prove-in-both (ok (let ((type 'test1))
-                       (typep (make-test1) type))) :prints-js t))
+                       (typep (make-test1) type)))))
 
 (unintern-all-ps-symbol)
 
