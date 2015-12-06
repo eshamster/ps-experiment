@@ -53,13 +53,20 @@
 ;; --- hash utils --- ;;
 
 (defpsmacro make-hash-table ()
-  `(list))
+  `(@ {}))
 
 ;; TODO: Support &optional default
 (defpsmacro gethash (key hash-table)
   (if (quoted-symbolp key)
       `(aref ,hash-table ,(string (cadr key)))
       `(aref ,hash-table ,key)))
+
+;; Limitation: Even if keys are registered as number,
+;;             it is interpreted as string.
+(defpsmacro maphash (func hash-table)
+  (ps-once-only (hash-table)
+    `(dolist (key ((@ -object keys) ,hash-table))
+       (funcall ,func key (gethash key ,hash-table)))))
 
 ;; --- have not classified utils --- ;;
 
