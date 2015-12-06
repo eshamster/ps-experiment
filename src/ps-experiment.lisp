@@ -6,6 +6,7 @@
   (:import-from :ps-experiment.base
                 :ps.
                 :defmacro.ps
+                :defmacro.ps+
                 :enable-ps-experiment-syntax)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack)
@@ -26,4 +27,5 @@
            :with-use-ps-pack
            :ps.
            :defmacro.ps
+           :defmacro.ps+
            :enable-ps-experiment-syntax))

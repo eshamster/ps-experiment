@@ -6,6 +6,7 @@
   (:export :replace-dot-in-tree
            :ps.
            :defmacro.ps
+           :defmacro.ps+
            :enable-ps-experiment-syntax))
 (in-package :ps-experiment.base)
 
@@ -57,5 +58,9 @@
   `(ps ,@(replace-dot-in-tree body)))
 
 (defmacro defmacro.ps (name args &body body)
+  `(defpsmacro ,name ,args
+     ,@(replace-dot-in-tree body)))
+
+(defmacro defmacro.ps+ (name args &body body)
   `(defmacro+ps ,name ,args
      ,@(replace-dot-in-tree body)))
