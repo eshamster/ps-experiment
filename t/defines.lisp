@@ -29,7 +29,7 @@
 (defstruct.ps test-str2 (a2 s.b1))
 
 (defstruct.ps parent (a 10) (b 20))
-(defstruct.ps (child (:include parent)) (c 30))
+(defstruct.ps (child (:include parent)) (c (lambda () 10)))
 (defstruct.ps (mod-child (:include parent (a 100))))
 
 (defmacro exec-in-this (&body body)
