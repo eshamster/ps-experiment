@@ -58,9 +58,8 @@
   `(ps ,@(replace-dot-in-tree body)))
 
 (defmacro defmacro.ps (name args &body body)
-  `(defpsmacro ,name ,args
-     ,@(replace-dot-in-tree body)))
+  `(ps. (defmacro ,name ,args ,@body)))
 
 (defmacro defmacro.ps+ (name args &body body)
-  `(defmacro+ps ,name ,args
-     ,@(replace-dot-in-tree body)))
+  `(progn (defmacro.ps ,name ,args ,@body)
+          (defmacro ,name ,args ,@body)))
