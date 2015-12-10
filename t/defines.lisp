@@ -104,31 +104,23 @@
       "Test syntax errors"
     (subtest
         "Test struct name"
-      (prove-psmacro-expand-error (defstruct 12 a b) 'type-error)
-      (prove-psmacro-expand-error (defstruct "test" a b) 'type-error))
+      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error))
     (subtest
         "Test option"
-      (prove-psmacro-expand-error (defstruct (test (:include 123) a b)) 'type-error)
-      (prove-psmacro-expand-error (defstruct (test (:include "test") a b)) 'type-error)))
+      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)))
     (subtest
         "Test slot name"
-      (prove-psmacro-expand-error (defstruct test_error 12 b) 'type-error)
-      (prove-psmacro-expand-error (defstruct test "test" b) 'type-error)
-      (prove-psmacro-expand-error (defstruct test a (12 12)) 'type-error))
+      (prove-macro-expand-error (defstruct.ps test_error 12 b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error))
     (subtest
         "Test override the initial value of parent's slot"
-      (prove-psmacro-expand-error (defstruct (test (:include parent (not-found 20)))) 'simple-error)
-      (prove-psmacro-expand-error (defstruct (test (:include parent a))) 'simple-error)
-      (prove-psmacro-expand-error (defstruct (test (:include parent (a 20 30)))) 'simple-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include parent (not-found 20)))) 'simple-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include parent a))) 'simple-error)
+      (prove-macro-expand-error (defstruct.ps (test (:include parent (a 20 30)))) 'simple-error)
       ))
-
-(subtest
-    "Test inline defstruct"
-  (is (execute-js
-       (ps:ps (defstruct test-inline (a 10) b)
-              (defvar x (make-test-inline))
-              (test-inline-a x)))
-      10))
 
 (defun.ps+ test-func-plus (a b)
   (+ a b))

@@ -16,10 +16,12 @@
   (:import-from :alexandria
                 :symbolicate)
   (:import-from :ps-experiment.base
-                :ps.)
+                :ps.
+                :defmacro.ps)
   (:import-from :ps-experiment.package
                 :make-ps-definer
                 :def-ps-definer
+                :def-top-level-form.ps
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment.defines)
 
@@ -30,14 +32,6 @@
 
 (def-ps-definer defvar.ps (name initial-value) ()
   `(defvar ,name ,initial-value))
-
-"Note: register-defstruct-ps is called in (defpsmacro defstruct ... ), too.
-      However, because it is executed at expanding time, there is the case
-      where the result of registration is not remained after loading."
-(def-ps-definer defstruct.ps (name-and-options &rest slot-description)
-    (:before `(register-defstruct-slots (parse-defstruct-name-and-options ',name-and-options)
-                                        (parse-defstruct-slot-description ',slot-description)))
-  `(defstruct ,name-and-options ,@slot-description))
 
 ;; ----- .ps+ ----- ;;
 
@@ -130,7 +124,7 @@ value = ({(slot-name slot-init-form}*)")
 
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
-(defpsmacro defstruct (name-and-options &rest slot-description)
+(defmacro defstruct.ps (name-and-options &rest slot-description)
   "This is the tiny subset of defsturt in terms of syntax.
     name-and-options::= structure-name | (structure-name (:include included-structure-name {inherit-slot-description}*))
     slot-description::= slot-name | (slot-name slot-init-form)
@@ -146,29 +140,35 @@ value = ({(slot-name slot-init-form}*)")
               (slots
                (parse-defstruct-slot-description slot-description)))
     (setf slots (merge-defstruct-slots parent-info slots))
-    (register-defstruct-slots name slots)
     `(progn
-       (defun ,name ()
+       (register-defstruct-slots ',name ',slots)
+       (defun.ps ,name ()
          ,@(mapcar (lambda (slot)
                      `(setf (@ this ,(car slot)) ,(cadr slot)))
                    slots)
          this)
-       (defun ,(symbolicate 'make- name) (&key ,@slots)
+       (defun.ps ,(symbolicate 'make- name) (&key ,@slots)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)
                        `(setf (@ result ,(car elem)) ,(car elem)))
                      slots)
            result))
        ,@(mapcar (lambda (slot)
-                   `(defmacro ,(symbolicate name '- (car slot)) (obj)
+                   `(defmacro.ps ,(symbolicate name '- (car slot)) (obj)
                       `(@ ,obj ,',(car slot))))
                  slots)
-       (defun ,(symbolicate name '-p) (obj)
+       (defun.ps ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        ,(when parent
-              `(funcall (lambda ()
-                          (defun temp-ctor ())
-                          (setf (@ temp-ctor prototype) (@ ,parent prototype))
-                          (setf (@ ,name super-class_) (@ ,parent prototype))
-                          (setf (@ ,name prototype) (new (temp-ctor)))
-                          (setf (@ ,name prototype constructor) ,name)))))))
+              `(def-top-level-form.ps ,(symbolicate '_defstruct-inherit_ name)
+                 (funcall (lambda ()
+                            (labels ((temp-ctor ()))
+                              (setf (@ temp-ctor prototype) (@ ,parent prototype))
+                              (setf (@ ,name super-class_) (@ ,parent prototype))
+                              (setf (@ ,name prototype) (new (temp-ctor)))
+                              (setf (@ ,name prototype constructor) ,name)))))))))
+
+#|
+(defstruct.ps test (a 10) b)
+(defstruct.ps (test2 (:include test)) c)
+|#
