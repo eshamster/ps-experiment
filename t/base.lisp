@@ -47,10 +47,10 @@
     "Test defmacro.ps[+] macro"
   (is-expand (defmacro.ps test (a b)
                (+ a.x b.y))
-             (progn (ps. (defmacro test (a b) (+ a.x b.y)))
-                    (defpsmacro test (a b) (+ (@ a x) (@ b y)))))
+             (eval-when (:compile-toplevel :load-toplevel :execute)
+               (defpsmacro test (a b) (+ (@ a x) (@ b y)))))
   (is-expand (ps. (defmacro test (a b)
-                    (+ a.x b.y)))
+                    (+ a.x b.y))) 
              (ps (defmacro test (a b)
                    (+ (@ a x) (@ b y)))))
   (is-expand (defmacro.ps+ test (a b)

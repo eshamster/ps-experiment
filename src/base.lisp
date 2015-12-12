@@ -58,11 +58,11 @@
   `(ps ,@(replace-dot-in-tree body)))
 
 (defmacro defmacro.ps (name args &body body)
-  "Note: Need to define twice in different ways.
-- `(ps. (defmacro ...) ...)` is called only at compile time before `ps` macro
-- `(defpsmacro ...)` is called at load time after `ps` macro"
-  `(progn (ps. (defmacro ,name ,args ,@body))
-          (defpsmacro ,name ,args ,@(replace-dot-in-tree body))))
+  "Note: 2015/12/12
+The eval-when in defpsmacro has been added to the master branch of Parenscript repository.
+However, the version has not been registered into quicklisp"
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (defpsmacro ,name ,args ,@(replace-dot-in-tree body))))
 
 (defmacro defmacro.ps+ (name args &body body)
   `(progn (defmacro.ps ,name ,args ,@body)
