@@ -35,22 +35,30 @@
   `(is-error (macroexpand-1 '(ps ,code))
              ,expected-error))
 
+(defmacro prove-in-both% ((cl-prove)
+                          ((js-code js-body) js-prove)
+                          &key (use '(:this)) (prints-js nil))
+  `(progn
+     (princ "Common Lisp: ")
+     (fresh-line)
+     ,cl-prove
+     (princ "JavaScript: ")
+     (fresh-line)
+     (let ((,js-code (with-use-ps-pack ,use ,js-body)))
+       (when ,prints-js
+         (print ,js-code))
+       ,js-prove)
+     (princ "------")
+     (fresh-line)))
+
 (defmacro prove-in-both ((prove body &rest rest) &key (use '(:this)) (prints-js nil))
-  (with-gensyms (js)
-    `(progn
-       (princ "Common Lisp: ")
-       (fresh-line)
-       (,prove ,body ,@rest)
-       (princ "JavaScript: ")
-       (fresh-line)
-       (let ((,js (with-use-ps-pack ,use ,body)))
-         (when ,prints-js
-           (print ,js))
-         ,(if (eq prove 'prove:is-error)
-              `(,prove (run-js ,js) 'js-condition)
-              `(,prove (run-js ,js) ,@rest)))
-       (princ "------")
-       (fresh-line))))
+  `(prove-in-both%
+    ((,prove ,body ,@rest))
+    ((js ,body) ,(if (eq prove 'prove:is-error)
+                     `(,prove (run-js js) 'js-condition)
+                     `(,prove (run-js js) ,@rest)))
+    :use ,use
+    :prints-js ,prints-js))
 
 (defun js-array-to-list (js-array)
   (let ((result nil))
@@ -58,17 +66,17 @@
       (push (cl-js:js-aref js-array i) result))
     (nreverse result)))
 
-(defmacro is-list.ps+ (got expected)
+(defmacro is-list.ps+ (got expected &key (use '(:this)) (prints-js nil))
   (if (not (listp expected))
       (error 'type-error :expected-type 'list :datum expected))
   (with-gensyms (js-got js-expected)
-    `(progn
-       (print "Common Lisp: ")
-       (is ,got ,expected :test #'equalp)
-       (print "JavaScript: ")
-       (let ((,js-got (cl-js:run-js (ps. ,got)))
-             (,js-expected (cl-js:run-js (ps. ,expected))))
-         (is ,js-got ,js-expected :test #'equalp
-             (format nil "~A is expected (got: ~A)"
-                     (js-array-to-list ,js-expected)
-                     (js-array-to-list ,js-got)))))))
+    `(prove-in-both%
+      ((is ,got ,expected :test #'equalp))
+      ((js ,got) (let ((js-got (cl-js:run-js js))
+                       (js-expected (cl-js:run-js (ps. ,expected))))
+                   (is js-got js-expected :test #'equalp
+                       (format nil "~A is expected (got: ~A)"
+                               (js-array-to-list js-expected)
+                               (js-array-to-list js-got)))))
+      :use ,use
+      :prints-js ,prints-js)))
