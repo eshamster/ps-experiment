@@ -75,8 +75,8 @@
       ((js ,got) (let ((js-got (cl-js:run-js js))
                        (js-expected (cl-js:run-js (ps. ,expected))))
                    (is js-got js-expected :test #'equalp
-                       (format nil "~A is expected (got: ~A)"
-                               (js-array-to-list js-expected)
-                               (js-array-to-list js-got)))))
+                       (format nil "~A is expected to be ~A"
+                               (js-array-to-list js-got)
+                               (js-array-to-list js-expected)))))
       :use ,use
       :prints-js ,prints-js)))
