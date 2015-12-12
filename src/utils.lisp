@@ -45,6 +45,9 @@
     `(let ((,copy ,sequence))
        ((@ ,copy filter) (lambda (x) (not (funcall ,test x)))))))
 
+(defpsmacro remove (item sequence)
+  `(remove-if (lambda (target) (eq ,item target)) ,sequence))
+
 (defpsmacro remove-if-not (test sequence)
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))
