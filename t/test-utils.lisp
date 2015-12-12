@@ -3,7 +3,8 @@
   (:use :cl
         :prove)
   (:import-from :ps-experiment
-                :with-use-ps-pack)
+                :with-use-ps-pack
+                :ps.)
   (:import-from :cl-js
                 :run-js
                 :js-condition
@@ -18,6 +19,7 @@
            :prove-macro-expand-error
            :prove-psmacro-expand-error
            :prove-in-both
+           :is-list.ps+
            :undefined-variable))
 (in-package :ps-experiment-test.test-utils)
 
@@ -50,3 +52,23 @@
        (princ "------")
        (fresh-line))))
 
+(defun js-array-to-list (js-array)
+  (let ((result nil))
+    (dotimes (i (cl-js:js-array-length js-array))
+      (push (cl-js:js-aref js-array i) result))
+    (nreverse result)))
+
+(defmacro is-list.ps+ (got expected)
+  (if (not (listp expected))
+      (error 'type-error :expected-type 'list :datum expected))
+  (with-gensyms (js-got js-expected)
+    `(progn
+       (print "Common Lisp: ")
+       (is ,got ,expected :test #'equalp)
+       (print "JavaScript: ")
+       (let ((,js-got (cl-js:run-js (ps. ,got)))
+             (,js-expected (cl-js:run-js (ps. ,expected))))
+         (is ,js-got ,js-expected :test #'equalp
+             (format nil "~A is expected (got: ~A)"
+                     (js-array-to-list ,js-expected)
+                     (js-array-to-list ,js-got)))))))
