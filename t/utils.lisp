@@ -11,28 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(defun js-array-to-list (js-array)
-  (let ((result nil))
-    (dotimes (i (cl-js:js-array-length js-array))
-      (push (cl-js:js-aref js-array i) result))
-    (nreverse result)))
-
-(defmacro is-list-of.ps+ (got expected)
-  (if (not (listp expected))
-      (error 'type-error :expected-type 'list :datum expected))
-  (with-gensyms (js-got js-expected)
-    `(progn
-       (print "Common Lisp: ")
-       (is ,got ,expected :test #'equalp)
-       (print "JavaScript: ")
-       (let ((,js-got (cl-js:run-js (ps. ,got)))
-             (,js-expected (cl-js:run-js (ps. ,expected))))
-         (is ,js-got ,js-expected :test #'equalp
-             (format nil "~A is expected (got: ~A)"
-                     (js-array-to-list ,js-expected)
-                     (js-array-to-list ,js-got)))))))
-
-(plan 10)
+(plan 13)
 
 (subtest
     "Test setf-with"
@@ -52,7 +31,7 @@
 
 (subtest
     "Test push"
-  (is-list-of.ps+ (let ((x '()))
+  (is-list.ps+ (let ((x '()))
                     (push 1 x)
                     (push 2 x))
                   '(2 1)))
@@ -68,28 +47,48 @@
   (prove-in-both (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
 
 (subtest
+    "Test find"
+  (prove-in-both (is (find 3 '(1 2 3 4)) 3))
+  (prove-in-both (ok (not (find 5 '(1 2 3 4))))))
+
+(subtest
+    "Test find-if"
+  (prove-in-both (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3))
+  (prove-in-both (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
+
+(subtest
+    "Test remove"
+  (is-list.ps+ (let ((lst '(1 2 3 2 4)))
+                 (remove 2 lst))
+               '(1 3 4))
+  (is-list.ps+ (let ((lst '(1 2 3 2 4)))
+                    (remove 2 lst)
+                    lst)
+               '(1 2 3 2 4)))
+
+(subtest
     "Test remove-if"
-  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+  (is-list.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if (lambda (x) (> x 2)) lst))
                   '(1 2))
-  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+  (is-list.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
 
 (subtest
     "Test remove-if-not"
-  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+  (is-list.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if-not (lambda (x) (> x 2)) lst))
                   '(3 4))
-  (is-list-of.ps+ (let ((lst '(1 2 3 4)))
+  (is-list.ps+ (let ((lst '(1 2 3 4)))
                     (remove-if-not (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
 
 (subtest
     "Test hash table"
-  (is (ps (make-hash-table)) "[];" :test #'equal)
+  ;;  (is (ps (make-hash-table)) "{};" :test #'equal)
   (is (ps (gethash key tbl)) "tbl[key];" :test #'equal)
   (is (ps (gethash 'key tbl)) "tbl['KEY'];" :test #'equal)
   (is (ps (gethash 0 tbl)) "tbl[0];" :test #'equal)
@@ -97,7 +96,23 @@
   (prove-in-both (is (let ((tbl (make-hash-table)))
                        (setf (gethash 'x tbl) 100)
                        (gethash 'x tbl))
-                     100)))
+                     100))
+  (subtest
+      "Test maphash"
+    (prove-in-both (is (let ((tbl (make-hash-table))
+                             (sum-key 0)
+                             (sum-value 0))
+                         (setf (gethash 10 tbl) 100)
+                         (setf (gethash 20 tbl) 200)
+                         (setf (gethash 30 tbl) 300)
+                         (maphash (lambda (k v)
+                                    (incf sum-key k)
+                                    (incf sum-value v))
+                                  tbl)
+                         ;;(+ sum-key sum-value)
+                         sum-value)
+                       600)
+                   :prints-js t)))
 
 (subtest
     "Test error"

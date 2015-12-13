@@ -44,10 +44,18 @@
                  (setf (@ obj a x) 100))))
 
 (subtest
-    "Test defmacro.ps macro"
+    "Test defmacro.ps[+] macro"
   (is-expand (defmacro.ps test (a b)
                (+ a.x b.y))
-             (defmacro+ps test (a b)
-               (+ (@ a x) (@ b y)))))
+             (eval-when (:compile-toplevel :load-toplevel :execute)
+               (defpsmacro test (a b) (+ (@ a x) (@ b y)))))
+  (is-expand (ps. (defmacro test (a b)
+                    (+ a.x b.y))) 
+             (ps (defmacro test (a b)
+                   (+ (@ a x) (@ b y)))))
+  (is-expand (defmacro.ps+ test (a b)
+               (+ a.x b.y))
+             (progn (defmacro.ps test (a b) (+ a.x b.y))
+                    (defmacro test (a b) (+ a.x b.y)))))
 
 (finalize)

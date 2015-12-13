@@ -8,6 +8,7 @@
   (:import-from :ps-experiment.package
                 :register-ps-func
                 :find-ps-symbol
+                :def-top-level-form.ps
                 :def-ps-definer
                 :unintern-all-ps-symbol)
   (:import-from :alexandria
@@ -56,7 +57,7 @@
 
 (register-ps-func 'test1)
 
-(plan 5)
+(plan 6)
 
 (subtest
     "Test find-ps-symbol"
@@ -134,6 +135,20 @@ test1
       "var x = 100;
 "
       :test #'equal))
+
+;; --- affect global env --- ;;
+(unintern-all-ps-symbol)
+
+(def-top-level-form.ps test-top-level 
+  (+ 1 2)
+  (* 3 4))
+
+(subtest
+    "Test def-top-level-form.ps"
+  (is (with-use-ps-pack (:this))
+      "1 + 2;
+3 * 4;
+"))
 
 (unintern-all-ps-symbol)
 

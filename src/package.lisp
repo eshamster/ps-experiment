@@ -4,6 +4,7 @@
         :parenscript)
   (:export :register-ps-func
            :def-ps-definer
+           :def-top-level-form.ps
            :with-use-ps-pack
            :find-ps-symbol
            :unintern-all-ps-symbol
@@ -46,7 +47,10 @@
      (make-ps-definer :kind ',def-name
                       :name (parse-name ,name)
                       :before ,before
-                      :body ,@body)))
+                      :body (progn ,@body))))
+
+(def-ps-definer def-top-level-form.ps (id-name &body body) ()
+  `(progn ,@body))
 
 (defun find-ps-symbol (string &optional (package (package-name *package*)))
   (let ((found-package (find-package package)))

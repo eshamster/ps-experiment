@@ -6,6 +6,7 @@
   (:export :replace-dot-in-tree
            :ps.
            :defmacro.ps
+           :defmacro.ps+
            :enable-ps-experiment-syntax))
 (in-package :ps-experiment.base)
 
@@ -57,5 +58,12 @@
   `(ps ,@(replace-dot-in-tree body)))
 
 (defmacro defmacro.ps (name args &body body)
-  `(defmacro+ps ,name ,args
-     ,@(replace-dot-in-tree body)))
+  "Note: 2015/12/12
+The eval-when in defpsmacro has been added to the master branch of Parenscript repository.
+However, the version has not been registered into quicklisp"
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (defpsmacro ,name ,args ,@(replace-dot-in-tree body))))
+
+(defmacro defmacro.ps+ (name args &body body)
+  `(progn (defmacro.ps ,name ,args ,@body)
+          (defmacro ,name ,args ,@body)))
