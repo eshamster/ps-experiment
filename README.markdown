@@ -40,7 +40,7 @@ In \#j. (sharp j dot) read macro, camel cases are supported. To enable this synt
 
 ### defstruct.ps[+]
 
-The ps-experiment provides the subset of defstruct. When you define a struct 'abc' with slots 'slot1' and 'slot2', followings are defined automatically. These structs can be used in ps:ps environment.
+The ps-experiment provides the subset of defstruct. When you define a struct 'abc' with slots 'slot1' and 'slot2', followings are defined automatically. These macros and functions can be used in ps:ps environment.
 
 - Macros
   - abc-slot1
