@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 11)
+(plan 13)
 
 (subtest
     "Test setf-with"
@@ -45,6 +45,16 @@
     "Test some"
   (prove-in-both (ok (some (lambda (x) (< x 2)) '(2 1 3))))
   (prove-in-both (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
+
+(subtest
+    "Test find"
+  (prove-in-both (is (find 3 '(1 2 3 4)) 3))
+  (prove-in-both (ok (not (find 5 '(1 2 3 4))))))
+
+(subtest
+    "Test find-if"
+  (prove-in-both (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3))
+  (prove-in-both (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
 
 (subtest
     "Test remove"

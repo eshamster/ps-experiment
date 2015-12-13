@@ -40,6 +40,14 @@
 (defpsmacro some (predicate sequence)
   `((@ ,sequence some) ,predicate))
 
+(defpsmacro find-if (predicate sequence)
+  `(dolist (x ,sequence)
+     (when (funcall ,predicate x)
+       (return x))))
+
+(defpsmacro find (item sequence)
+  `(find-if (lambda (target) (eq ,item target)) ,sequence))
+
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))
