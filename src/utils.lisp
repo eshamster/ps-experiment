@@ -41,12 +41,14 @@
   `((@ ,sequence some) ,predicate))
 
 (defpsmacro find-if (predicate sequence)
-  `(dolist (x ,sequence)
-     (when (funcall ,predicate x)
-       (return x))))
+  (with-ps-gensyms (x)
+    `(dolist (,x ,sequence)
+       (when (funcall ,predicate ,x)
+         (return ,x)))))
 
 (defpsmacro find (item sequence)
-  `(find-if (lambda (target) (eq ,item target)) ,sequence))
+  (with-ps-gensyms (target)
+    `(find-if (lambda (,target) (eq ,item ,target)) ,sequence)))
 
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
@@ -54,7 +56,8 @@
        ((@ ,copy filter) (lambda (x) (not (funcall ,test x)))))))
 
 (defpsmacro remove (item sequence)
-  `(remove-if (lambda (target) (eq ,item target)) ,sequence))
+  (with-ps-gensyms (target)
+    `(remove-if (lambda (,target) (eq ,item ,target)) ,sequence)))
 
 (defpsmacro remove-if-not (test sequence)
   (with-ps-gensyms (copy)
