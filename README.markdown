@@ -38,15 +38,24 @@ In \#j. (sharp j dot) read macro, camel cases are supported. To enable this synt
 -t-h-r-e-e.-web-g-l-renderer
 ```
 
-### defstruct
+### defstruct.ps[+]
 
-The ps-experiment provides the subset of defstruct.
+The ps-experiment provides the subset of defstruct. When you define a struct 'abc' with slots 'slot1' and 'slot2', followings are defined automatically. These structs can be used in ps:ps environment.
+
+- Macros
+  - abc-slot1
+  - abc-slot2
+- Functions
+  - make-abc
+  - abc-p
 
 Example:
 
 ```lisp
-(ps:ps (defstruct test1 a (b 10))
-       (defstruct (test2 (:include test1)) c))
+;; If you use defstruct.ps+ instead of defstruct.ps,
+;; the struct is defined also in Common Lisp's environment.
+(defstruct.ps test1 a (b 10))
+(defstruct.ps (test2 (:include test1 (a 20)) c))
 ```
 
 Syntax:
@@ -136,7 +145,7 @@ incNum(decNum(10));
 
 ## Installation
 
-This library is not submitted to quicklisp repository. So please do "git clone" this to a proper directory. Then,
+This library is "not" submitted to quicklisp repository. So please do "git clone" this to a proper directory. Then,
 
 ```lisp
 (ql:quickload :ps-experiment)

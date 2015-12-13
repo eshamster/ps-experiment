@@ -167,8 +167,3 @@ value = ({(slot-name slot-init-form}*)")
                               (setf (@ ,name super-class_) (@ ,parent prototype))
                               (setf (@ ,name prototype) (new (temp-ctor)))
                               (setf (@ ,name prototype constructor) ,name)))))))))
-
-#|
-(defstruct.ps test (a 10) b)
-(defstruct.ps (test2 (:include test)) c)
-|#
