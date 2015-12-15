@@ -140,7 +140,7 @@ value = ({(slot-name slot-init-form}*)")
               (slots
                (parse-defstruct-slot-description slot-description)))
     (setf slots (merge-defstruct-slots parent-info slots))
-    `(progn
+    `(eval-when (:compile-toplevel :load-toplevel :execute)
        (register-defstruct-slots ',name ',slots)
        (defun.ps ,name ()
          ,@(mapcar (lambda (slot)
