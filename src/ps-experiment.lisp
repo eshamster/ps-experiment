@@ -9,7 +9,8 @@
                 :defmacro.ps+
                 :enable-ps-experiment-syntax)
   (:import-from :ps-experiment.package
-                :with-use-ps-pack)
+                :with-use-ps-pack
+                :def-top-level-form.ps)
   (:import-from :ps-experiment.defines
                 :defvar.ps
                 :defvar.ps+
@@ -28,4 +29,5 @@
            :ps.
            :defmacro.ps
            :defmacro.ps+
+           :def-top-level-form.ps
            :enable-ps-experiment-syntax))

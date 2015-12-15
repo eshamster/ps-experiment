@@ -8,7 +8,6 @@
   (:import-from :ps-experiment.package
                 :register-ps-func
                 :find-ps-symbol
-                :def-top-level-form.ps
                 :def-ps-definer
                 :unintern-all-ps-symbol)
   (:import-from :alexandria
