@@ -118,6 +118,9 @@
     "Test error"
   (prove-in-both (is-error (error 'simple-error)
                            'simple-error))
+  (prove-in-both (is-error (let ((x 1))
+                             (error "test ~A ~A ~A ~A" 1 "a" x 'test))
+                           'simple-error))
   (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
                            'type-error)))
 
