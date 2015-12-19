@@ -9,7 +9,7 @@ res=0
 for target in ${targets[@]}; do
     ros use ${target}
     ros run -- --version
-    ros -e '(ql:update-all-dists)'
+    ros -e '(ql:update-all-dists :prompt nil)'
     run-prove *-test.asd
 
     temp=$?
