@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 5)
+(plan 4)
 
 (defvar.ps a 20)
 

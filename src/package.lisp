@@ -62,12 +62,12 @@
                            :external)))
            (t (values nil nil)))))
 
+(defvar *unintern-all-ps-symbol-hook* nil)
+
 (defun unintern-all-ps-symbol ()
   (setf *ps-func-store* (make-hash-table))
   (dolist (hook *unintern-all-ps-symbol-hook*)
     (funcall hook)))
-
-(defvar *unintern-all-ps-symbol-hook* nil)
 
 (defun add-unintern-all-ps-symbol-hook (hook)
   (if (functionp hook)
@@ -93,17 +93,16 @@
 
 ;; TODO: prevent infinite loop when there is circular reference
 (defun make-package-list-with-depend (package-lst)
-  (let ((registered-packges (hash-table-keys *ps-func-store*)))
-    (labels ((rec (package)
-               (when package
-                 (append
-                  (apply #'append
-                         (loop for p
-                            in (package-use-list package)
-                            collect (rec p)))
-                  (list package)))))
-      (remove-duplicates
-       (apply #'append (loop for p in package-lst collect (rec p)))))))
+  (labels ((rec (package)
+             (when package
+               (append
+                (apply #'append
+                       (loop for p
+                          in (package-use-list package)
+                          collect (rec p)))
+                (list package)))))
+    (remove-duplicates
+     (apply #'append (loop for p in package-lst collect (rec p))))))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
   (with-gensyms (pack-lst func-lst)

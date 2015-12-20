@@ -94,6 +94,9 @@
                                  ,type-specifier)))))
 
 (defpsmacro error (datum &rest args)
-  (if (null args)
-      `(throw ,datum)
-      `(throw ,(format nil "~A: ~A" datum args))))
+  (cond ((null args) `(throw ,datum))
+        ((stringp datum) `(throw ,(eval `(format nil ,datum
+                                                 ,@(mapcar (lambda (arg)
+                                                             (format nil "~A" arg))
+                                                           args)))))
+        (t `(throw ,(format nil "~A: ~A" datum args)))))
