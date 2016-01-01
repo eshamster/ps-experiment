@@ -27,6 +27,23 @@
 
 ;; --- array utils --- ;;
 
+;; c[ad]{1-2}r
+;; Limitaton: cd[ad]*r cannot be used for setting
+
+(defpsmacro car (x)
+  `(@ ,x 0))
+(defpsmacro cdr (x)
+  (ps-once-only (x)
+    `((@ ,x slice) 1 (@ ,x length))))
+(defpsmacro caar (x)
+  `(@ ,x 0 0))
+(defpsmacro cadr (x)
+  `(@ ,x 1))
+(defpsmacro cdar (x)
+  `(cdr (@ ,x 0)))
+(defpsmacro cddr (x)
+  `(cdr (cdr ,x)))
+
 (defpsmacro nth (n list)
   `(aref ,list ,n))
 
