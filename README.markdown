@@ -24,7 +24,7 @@ Limitation:
 this conversion is done after reading. So the following example is not supported. 
 
 ```lisp
-;; this can't be support
+;; this can't be supported
 (ps. `(setf ,pnt.x 100))
 ```
 
@@ -34,8 +34,10 @@ In \#j. (sharp j dot) read macro, camel cases are supported. To enable this synt
 
 ```lisp
 > (enable-ps-experiment-syntax)
-> #j.THREE.WebGLRenderer#
--t-h-r-e-e.-web-g-l-renderer
+> '#j.div.innerHTML#
+DIV.INNER-H-T-M-L
+> (ps. (setf #j.div.innerHTML# "sample text"))
+"div.innerHTML = 'sample text';"
 ```
 
 ### defstruct.ps[+]
@@ -54,8 +56,12 @@ Example:
 ```lisp
 ;; If you use defstruct.ps+ instead of defstruct.ps,
 ;; the struct is defined also in Common Lisp's environment.
-(defstruct.ps test1 a (b 10))
-(defstruct.ps (test2 (:include test1 (a 20)) c))
+> (defstruct.ps test1 a (b 10))
+TEST1
+> (defstruct.ps (test2 (:include test1 (a 20)) c))
+TEST2
+> (ps. (setf (test2-a x) 100))
+"x.a = 100;"
 ```
 
 Syntax:
@@ -140,6 +146,17 @@ incNum(decNum(10));
 ```
 
 ***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
+
+### Other functionalities
+
+#### `--` macro
+
+This is only the alias of `ps:chain`
+
+```lisp
+> (ps. (-- a (b c) d))
+;; => "a.b(c).d"
+```
 
 ----
 

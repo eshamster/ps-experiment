@@ -7,7 +7,8 @@
                 :ps.
                 :defmacro.ps
                 :defmacro.ps+
-                :enable-ps-experiment-syntax)
+                :enable-ps-experiment-syntax
+                :--)
   (:import-from :ps-experiment.package
                 :with-use-ps-pack
                 :def-top-level-form.ps)
@@ -30,4 +31,5 @@
            :defmacro.ps
            :defmacro.ps+
            :def-top-level-form.ps
-           :enable-ps-experiment-syntax))
+           :enable-ps-experiment-syntax
+           :--))

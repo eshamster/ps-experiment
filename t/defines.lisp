@@ -39,6 +39,12 @@
 (subtest
     "Test defstruct.ps"
   (subtest
+      "Test return value"
+    (is (defstruct.ps test-defstruct-return-value a b c)
+        'test-defstruct-return-value)
+    (is (defstruct.ps (test-defstruct-return-value-child (:include parent)))
+        'test-defstruct-return-value-child))
+  (subtest
       "Test initilization"
     (is (exec-in-this (defvar x (new (test-str2))) 
                       x.a2)
