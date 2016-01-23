@@ -8,9 +8,15 @@
                 :replace-dot-in-tree))
 (in-package :ps-experiment-test.utils.common)
 
-(plan 4)
+(plan 5)
 
 (enable-ps-experiment-syntax)
+
+(subtest
+    "Test -- macro"
+  (is (ps (-- a (b c) d (e)))
+      "a.b(c).d.e();"
+      :test #'equal))
 
 (subtest
     "Test #j. reader macro"

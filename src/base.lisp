@@ -7,9 +7,12 @@
            :ps.
            :defmacro.ps
            :defmacro.ps+
-           :enable-ps-experiment-syntax))
+           :enable-ps-experiment-syntax
+           :--))
 (in-package :ps-experiment.base)
 
+(defpsmacro -- (&rest rest)
+  `(chain ,@rest))
 
 (defun j.-reader (stream &rest rest)
   (declare (ignore rest))
