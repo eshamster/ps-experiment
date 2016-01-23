@@ -145,6 +145,8 @@ function decNum(x) {
 incNum(decNum(10));
 ```
 
+***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
+
 ### Other functionalities
 
 #### `--` macro
@@ -155,8 +157,6 @@ This is only the alias of `ps:chain`
 > (ps. (-- a (b c) d))
 ;; => "a.b(c).d"
 ```
-
-***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
 
 ----
 
