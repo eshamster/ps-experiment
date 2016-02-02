@@ -25,7 +25,8 @@
 
 
 (defstruct.ps test-str1 a1 (b1 20))
-(defvar.ps s (new (test-str1)))
+(defvar.ps s (new (test-str1))
+  "Test comment")
 (defstruct.ps test-str2 (a2 s.b1))
 
 (defstruct.ps parent (a 10) (b 20))
@@ -134,7 +135,8 @@
 
 (defstruct.ps+ test-struct-plus1 (a 100) b)
 (defstruct.ps+ (test-struct-plus2 (:include test-struct-plus1)) c)
-(defvar.ps+ str-plus (make-test-struct-plus2 :c 20))
+(defvar.ps+ str-plus (make-test-struct-plus2 :c 20)
+  "Test comment")
 
 (subtest
     "Test xxx.ps+ macros"
