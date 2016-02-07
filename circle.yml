@@ -5,7 +5,12 @@ machine:
 dependencies:
   pre:
     - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
-    - ros install ccl-bin
+    - case $CIRCLE_NODE_INDEX in
+        0) ros use sbcl-bin ;;
+        1) ros install ccl-bin;
+           ros use ccl-bin ;;
+      esac
+    - ros run -- --version
   override:
     - git clone https://github.com/fukamachi/prove ~/lisp/prove
     - ros -l ~/lisp/prove/prove.asd install prove
@@ -17,6 +22,5 @@ dependencies:
 
 test:
   override:
-    - ./test.sh sbcl-bin ccl-bin
-
+    - run-prove *-test.asd
     
