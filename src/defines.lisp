@@ -30,8 +30,8 @@
 (def-ps-definer defun.ps (name args &body body) ()
   `(defun ,name ,args ,@body))
 
-(def-ps-definer defvar.ps (name initial-value) ()
-  `(defvar ,name ,initial-value))
+(def-ps-definer defvar.ps (name initial-value &optional (documentation "")) ()
+  `(defvar ,name ,initial-value ,documentation))
 
 ;; ----- .ps+ ----- ;;
 
@@ -39,9 +39,9 @@
   `(progn (defun.ps ,name ,args ,@body)
           (defun ,name ,args ,@body)))
 
-(defmacro defvar.ps+ (name initial-value)
-  `(progn (defvar.ps ,name ,initial-value)
-          (defvar ,name ,initial-value)))
+(defmacro defvar.ps+ (name initial-value &optional (documentation ""))
+  `(progn (defvar.ps ,name ,initial-value ,documentation)
+          (defvar ,name ,initial-value ,documentation)))
 
 (defmacro defstruct.ps+ (name-and-options &rest slot-description)
   `(progn (defstruct.ps ,name-and-options ,@slot-description)
