@@ -91,18 +91,17 @@
 ")
           (list ps-body))))
 
-;; TODO: prevent infinite loop when there is circular reference
 (defun make-package-list-with-depend (package-lst)
-  (labels ((rec (package)
-             (when package
-               (append
-                (apply #'append
-                       (loop for p
-                          in (package-use-list package)
-                          collect (rec p)))
-                (list package)))))
-    (remove-duplicates
-     (apply #'append (loop for p in package-lst collect (rec p))))))
+  (let ((result-lst nil))
+    (labels ((rec (unchecked-lst)
+               (when unchecked-lst
+                 (let ((pack (car unchecked-lst)))
+                   (if (find pack result-lst)
+                       (rec (cdr unchecked-lst))
+                       (progn (push pack result-lst)
+                              (rec (append (package-use-list pack) (cdr unchecked-lst)))))))))
+      (rec (reverse package-lst))
+      result-lst)))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
   (with-gensyms (pack-lst func-lst)
