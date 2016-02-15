@@ -12,6 +12,7 @@
                 :unintern-all-ps-symbol)
   (:import-from :alexandria
                 :symbolicate))
+(in-package :ps-experiment-test.package)
 
 (defmacro def-test-package (name)
   `(defpackage ,name
@@ -56,7 +57,7 @@
 
 (register-ps-func 'test1)
 
-(plan 6)
+(plan 7)
 
 (subtest
     "Test find-ps-symbol"
@@ -105,9 +106,7 @@ test-b2
 test1
 "))
 
-(in-package :test.package.pack-b)
-(use-package :test.package.pack-a)
-(in-package :ps-experiment-test.package)
+(use-package :test.package.pack-a :test.package.pack-b)
 
 (subtest
     "Test cascaded dependencies by 'use'"
@@ -147,6 +146,30 @@ test1
   (is (with-use-ps-pack (:this))
       "1 + 2;
 3 * 4;
+"))
+
+;; --- affect global env --- ;;
+(unintern-all-ps-symbol)
+
+(def-test-package test.package.loop-a)
+(def-test-package test.package.loop-b)
+
+(use-package :test.package.loop-a :test.package.loop-b)
+(use-package :test.package.loop-b :test.package.loop-a)
+
+(in-package :test.package.loop-a)
+(def-top-level-form.ps test-loop-a
+  (+ 3 4))
+(in-package :test.package.loop-b)
+(def-top-level-form.ps test-loop-b
+  (* 5 8))
+(in-package :ps-experiment-test.package)
+
+(subtest
+    "Test circular reference between packages"
+  (is (with-use-ps-pack (:test.package.loop-a))
+      "5 * 8;
+3 + 4;
 "))
 
 (unintern-all-ps-symbol)
