@@ -168,8 +168,6 @@ This library is "not" submitted to quicklisp repository. So please do "git clone
 (ql:quickload :ps-experiment)
 ```
 
-***Note: The test of this project depends on the fixed version of cl-javascript. Thus, if you want to pass the test, you need to clone the master branch of <https://github.com/akapav/js>.***
-
 ## Author
 
 * eshamster (hamgoostar@gmail.com)
