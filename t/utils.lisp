@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 14)
+(plan 15)
 
 (subtest
     "Test setf-with"
@@ -162,6 +162,15 @@
   (prove-in-both (ok (not (typep (make-test1) 'test3))))
   (prove-in-both (ok (let ((type 'test1))
                        (typep (make-test1) type)))))
+
+(subtest
+    "Test check-type"
+  (prove-in-both (ok (let ((obj (make-test1)))
+                       (check-type obj test1)
+                       t)))
+  (prove-in-both (is-error (let ((obj (make-test1)))
+                             (check-type obj test3))
+                           'type-error)))
 
 (unintern-all-ps-symbol)
 

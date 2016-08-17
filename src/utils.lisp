@@ -117,3 +117,9 @@
                                                              (format nil "~A" arg))
                                                            args)))))
         (t `(throw ,(format nil "~A: ~A" datum args)))))
+
+(defpsmacro check-type (place type-specifier)
+  `(unless (typep ,place ,type-specifier)
+     (error 'type-error
+            ,(format nil "The place is '~A'. The expected type is '~A'"
+                     place type-specifier))))
