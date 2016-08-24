@@ -170,7 +170,14 @@
                        t)))
   (prove-in-both (is-error (let ((obj (make-test1)))
                              (check-type obj test3))
-                           'type-error)))
+                           'type-error))
+  (subtest
+      "Test string type"
+    (prove-in-both (ok (let ((str "abc"))
+                         (check-type str string)
+                         t)))
+    (prove-in-both (is-error (let ((num 12)) (check-type num string))
+                             'type-error))))
 
 (unintern-all-ps-symbol)
 
