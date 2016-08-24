@@ -103,12 +103,11 @@
 
 "Limitation: Now, this can judge the type only of objects"
 (defpsmacro typep (object type-specifier) 
-  (let ((is-symbol (quoted-symbolp type-specifier)))
-    (if is-symbol
-        `(instanceof ,object ,(cadr type-specifier))
-        `(instanceof ,object (if (stringp ,type-specifier)
-                                 (eval ,type-specifier)
-                                 ,type-specifier)))))
+  (if (quoted-symbolp type-specifier)
+      `(typep ,object ,(cadr type-specifier))
+      `(instanceof ,object (if (stringp ,type-specifier)
+                               (eval ,type-specifier)
+                               ,type-specifier))))
 
 (defpsmacro error (datum &rest args)
   (cond ((null args) `(throw ,datum))
@@ -119,7 +118,9 @@
         (t `(throw ,(format nil "~A: ~A" datum args)))))
 
 (defpsmacro check-type (place type-specifier)
-  `(unless (typep ,place ,type-specifier)
-     (error 'type-error
-            ,(format nil "The place is '~A'. The expected type is '~A'"
-                     place type-specifier))))
+  `(unless ,(if (string= (symbol-name type-specifier) "STRING")
+                `(stringp ,place)
+                `(typep ,place ,type-specifier))
+       (error 'type-error
+              ,(format nil "The place is '~A'. The expected type is '~A'"
+                       place type-specifier))))
