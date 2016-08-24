@@ -81,6 +81,14 @@
     `(let ((,copy ,sequence))
        ((@ ,copy filter) ,test))))
 
+(defpsmacro nreverse (sequence)
+  `((@ ,sequence reverse)))
+
+(defpsmacro reverse (sequence)
+  (with-ps-gensyms (copy)
+    `(let ((,copy ((@ ,sequence concat))))
+       (nreverse ,copy))))
+
 ;; --- hash utils --- ;;
 
 (defpsmacro make-hash-table ()

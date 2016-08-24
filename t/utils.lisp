@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 15)
+(plan 16)
 
 (subtest
     "Test setf-with"
@@ -111,6 +111,21 @@
                     (remove-if-not (lambda (x) (> x 2)) lst)
                     lst)
                   '(1 2 3 4)))
+
+(subtest
+    "Test reverse and nreverse"
+  (is-list.ps+ (let ((lst '(1 2 3)))
+                 (reverse lst))
+               '(3 2 1))
+  (is-list.ps+ (let ((lst '(1 2 3)))
+                 (reverse lst)
+                 lst)
+               '(1 2 3))
+  (is-list.ps+ (let ((lst (list 1 2 3)))
+                 (nreverse lst))
+               '(3 2 1))
+  ;; Note: The state of the lst after nreverse is not defined in CL
+  )
 
 (subtest
     "Test hash table"
