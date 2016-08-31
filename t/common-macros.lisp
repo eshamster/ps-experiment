@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.common-macros)
 
-(plan 1)
+(plan 2)
 
 (subtest
     "Test setf-with"
@@ -23,5 +23,14 @@
                (setf x 100
                      y 200
                      z 300))))
+
+(subtest
+    "Test with-slots-pair"
+  (is-expand (with-slots-pair ((a (x b)) obj1
+                               (c d e) obj2)
+               (print (+ a x c d e)))
+             (with-slots (a (x b)) obj1
+               (with-slots (c d e) obj2
+                 (print (+ a x c d e))))))
 
 (finalize)

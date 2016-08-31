@@ -3,7 +3,8 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:export :setf-with)
+  (:export :setf-with
+           :with-slots-pair)
   (:import-from :ps-experiment.base
                 :defmacro.ps+))
 (in-package :ps-experiment.common-macros)
@@ -21,3 +22,13 @@
                  (nreverse result))))
     `(with-slots ,(extract-slots nil rest) ,target
        (setf ,@rest))))
+
+(defmacro.ps+ with-slots-pair (pair &body body)
+  (unless (evenp (length pair))
+    (error "with-slots-pair needs an even number length list as a first argument"))
+  (labels ((rec (rest-pair)
+             (if rest-pair
+                 `((with-slots ,(car rest-pair) ,(cadr rest-pair)
+                     ,@(rec (cddr rest-pair))))
+                 body)))
+    (car (rec pair))))
