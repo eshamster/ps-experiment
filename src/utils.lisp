@@ -3,21 +3,9 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:export :setf-with)
   (:import-from :ps-experiment.base
                 :defmacro.ps+))
 (in-package :ps-experiment.utils)
-
-(defmacro.ps+ setf-with (target &body rest)
-  (unless (evenp (length rest))
-    (error "odd number of args to SETF-WITH"))
-  (labels ((extract-slots (result rest)
-             (if rest
-                 (extract-slots (cons (car rest) result)
-                                (cddr rest))
-                 (nreverse result))))
-    `(with-slots ,(extract-slots nil rest) ,target
-       (setf ,@rest))))
 
 (defun quoted-symbolp (object)
   (and (listp object)

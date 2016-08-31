@@ -1,8 +1,7 @@
 (in-package :cl-user)
 (defpackage ps-experiment 
   (:nicknames :pse)
-  (:import-from :ps-experiment.utils
-                :setf-with)
+  (:import-from :ps-experiment.utils)
   (:import-from :ps-experiment.base
                 :ps.
                 :defmacro.ps
@@ -19,8 +18,7 @@
                 :defun.ps+
                 :defstruct.ps
                 :defstruct.ps+)
-  (:export :setf-with 
-           :defvar.ps
+  (:export :defvar.ps
            :defvar.ps+
            :defun.ps
            :defun.ps+
