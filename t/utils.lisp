@@ -11,18 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 16)
-
-(subtest
-    "Test setf-with"
-  (is-expand (setf-with obj
-               x 100
-               y 200
-               z 300)
-             (with-slots (x y z) obj
-               (setf x 100
-                     y 200
-                     z 300))))
+(plan 15)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"

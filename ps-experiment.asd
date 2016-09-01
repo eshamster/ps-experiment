@@ -27,6 +27,7 @@
                  (:file "package")
                  (:file "defines")
                  (:file "utils")
+                 (:file "common-macros")
                  (:file "ps-experiment"))))
   :description "This is the experimental utils for parenscript"
   :long-description
