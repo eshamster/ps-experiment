@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 15)
+(plan 16)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -115,6 +115,15 @@
                '(3 2 1))
   ;; Note: The state of the lst after nreverse is not defined in CL
   )
+
+(subtest
+    "Test mapcar"
+  (is-list.ps+ (mapcar #'(lambda (x) (* x 2)) '(1 2 3))
+               '(2 4 6))
+  (is-list.ps+ (let ((lst '(1 2 3)))
+                 (mapcar #'(lambda (x) (* x 2)) lst)
+                 lst)
+               '(1 2 3)))
 
 (subtest
     "Test hash table"

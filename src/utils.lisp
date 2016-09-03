@@ -77,6 +77,10 @@
     `(let ((,copy ((@ ,sequence concat))))
        (nreverse ,copy))))
 
+;; TODO: Implement as (function list &rest rest-lists)
+(defpsmacro mapcar (function list)
+  `((@ ,list map) ,function))
+
 ;; --- hash utils --- ;;
 
 (defpsmacro make-hash-table ()
