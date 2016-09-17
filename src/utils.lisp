@@ -55,6 +55,12 @@
   (with-ps-gensyms (target)
     `(find-if (lambda (,target) (eq ,item ,target)) ,sequence)))
 
+;; Note: This doesn't support some builtin functions such as min
+;; because, for example, #'min is not automatically interpreted
+;; as Math.min in Parenscript.
+(defpsmacro reduce (function sequence)
+  `((@ ,sequence reduce) ,function))
+
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
     `(let ((,copy ,sequence))
