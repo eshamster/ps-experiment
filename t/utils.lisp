@@ -45,6 +45,13 @@
   (prove-in-both (ok (null (nth 2 '(1 2))))))
 
 (subtest
+    "Test subseq"
+  (is-list.ps+ (subseq '(1 2 3) 1)
+               '(2 3))
+  (is-list.ps+ (subseq '(1 2 3 4) 2 3)
+               '(3)))
+
+(subtest
     "Test push"
   (is-list.ps+ (let ((x '()))
                     (push 1 x)

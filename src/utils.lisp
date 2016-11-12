@@ -39,6 +39,12 @@
   `(progn ((@ ,place unshift) ,item)
           ,place))
 
+;; TODO: Throw error if the range beyond the sequence.
+(defpsmacro subseq (sequence start &optional end)
+  (if end
+      `((@ ,sequence slice) ,start ,end)
+      `((@ ,sequence slice) ,start)))
+
 (defpsmacro every (predicate sequence)
   `((@ ,sequence every) ,predicate))
 
