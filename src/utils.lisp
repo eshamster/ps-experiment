@@ -39,6 +39,12 @@
   `(progn ((@ ,place unshift) ,item)
           ,place))
 
+;; TODO: Throw error if the range beyond the sequence.
+(defpsmacro subseq (sequence start &optional end)
+  (if end
+      `((@ ,sequence slice) ,start ,end)
+      `((@ ,sequence slice) ,start)))
+
 (defpsmacro every (predicate sequence)
   `((@ ,sequence every) ,predicate))
 
@@ -54,6 +60,12 @@
 (defpsmacro find (item sequence)
   (with-ps-gensyms (target)
     `(find-if (lambda (,target) (eq ,item ,target)) ,sequence)))
+
+;; Note: This doesn't support some builtin functions such as min
+;; because, for example, #'min is not automatically interpreted
+;; as Math.min in Parenscript.
+(defpsmacro reduce (function sequence)
+  `((@ ,sequence reduce) ,function))
 
 (defpsmacro remove-if (test sequence)
   (with-ps-gensyms (copy)
