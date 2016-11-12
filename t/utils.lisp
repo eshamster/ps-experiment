@@ -49,7 +49,11 @@
   (is-list.ps+ (subseq '(1 2 3) 1)
                '(2 3))
   (is-list.ps+ (subseq '(1 2 3 4) 2 3)
-               '(3)))
+               '(3))
+  (is-list.ps+ (let* ((x '(1 2 3 4))
+                      (y (subseq x 2 3)))
+                 (list x y))
+               '((1 2 3 4) (3))))
 
 (subtest
     "Test push"
