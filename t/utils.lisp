@@ -45,6 +45,23 @@
   (prove-in-both (ok (null (nth 2 '(1 2))))))
 
 (subtest
+    "Test listp and atom"
+  (subtest
+      "Test listp"
+    (prove-in-both (ok (listp nil)))
+    (prove-in-both (ok (listp '())))
+    (prove-in-both (ok (listp '(1 2 3))))
+    (prove-in-both (ok (not (listp 12))))
+    (prove-in-both (ok (not (listp 'abc)))))
+  (subtest
+      "Test atom"
+    (prove-in-both (ok (atom nil)))
+    (prove-in-both (ok (atom '())))
+    (prove-in-both (ok (not (atom '(1 2 3)))))
+    (prove-in-both (ok (atom 12)))
+    (prove-in-both (ok (atom 'abc)))))
+
+(subtest
     "Test subseq"
   (is-list.ps+ (subseq '(1 2 3) 1)
                '(2 3))

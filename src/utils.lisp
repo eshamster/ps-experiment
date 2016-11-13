@@ -35,6 +35,20 @@
 (defpsmacro nth (n list)
   `(aref ,list ,n))
 
+(defpsmacro listp (object)
+  (if (null object)
+      t
+      `(instanceof ,object -array)))
+
+(defpsmacro atom (object)
+  (if (or (null object)
+          (and (listp object)
+               (= (length object) 2)
+               (eq (car object) 'quote)
+               (null (cadr object))))
+      t
+      `(not (listp ,object))))
+
 (defpsmacro push (item place)
   `(progn ((@ ,place unshift) ,item)
           ,place))
