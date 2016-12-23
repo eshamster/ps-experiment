@@ -20,7 +20,7 @@ test:
   override:
     - ros run -- --version
     - case $CIRCLE_NODE_INDEX in
-        0) OVERALLS=true ;
+        0) COVERALLS=true ;
            run-prove *-test.asd ;;
         *) run-prove *-test.asd ;;
       esac
