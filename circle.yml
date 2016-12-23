@@ -1,10 +1,9 @@
 machine:
   environment:
     PATH: ~/.roswell/bin:${PATH}
+    COVERAGE_EXCLUDE: t
 
 dependencies:
-  environment:
-    COVERAGE_EXCLUDE: t
   pre:
     - case $CIRCLE_NODE_INDEX in
         0) LISP=sbcl-bin ;
