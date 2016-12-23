@@ -1,4 +1,5 @@
-![Build Status](https://circleci.com/gh/eshamster/ps-experiment.png?style=shield)
+[![Build Status](https://travis-ci.org/eshamster/ps-experiment.svg?branch=master)](https://travis-ci.org/eshamster/ps-experiment)
+[![Coverage Status](https://coveralls.io/repos/github/eshamster/ps-experiment/badge.svg?branch=master)](https://coveralls.io/github/eshamster/ps-experiment?branch=master)
 
 # Ps-Experiment
 
