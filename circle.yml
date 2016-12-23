@@ -3,15 +3,16 @@ machine:
     PATH: ~/.roswell/bin:${PATH}
 
 dependencies:
+  environment:
+    COVERAGE_EXCLUDE: t
   pre:
-    - export COVERAGE_EXCLUDE=t
     - case $CIRCLE_NODE_INDEX in
-        0) export LISP=sbcl-bin ;
-           export COVERALLS=true ;;
-        1) export LISP=ccl-bin ;;
+        0) LISP=sbcl-bin ;
+           curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh ;;
+        1) LISP=ccl-bin ;
+           curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh ;;
       esac
   override:
-    - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
     - ros install prove
   cache_directories:
     - ~/.roswell
@@ -19,5 +20,9 @@ dependencies:
 test:
   override:
     - ros run -- --version
-    - run-prove *-test.asd
+    - case $CIRCLE_NODE_INDEX in
+        0) OVERALLS=true ;
+           run-prove *-test.asd ;;
+        *) run-prove *-test.asd ;;
+      esac
     
