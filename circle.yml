@@ -4,20 +4,20 @@ machine:
 
 dependencies:
   pre:
-    - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
+    - export COVERAGE_EXCLUDE=t
     - case $CIRCLE_NODE_INDEX in
-        0) ros use sbcl-bin ;;
-        1) ros install ccl-bin;
-           ros use ccl-bin ;;
+        0) export LISP=sbcl-bin ;
+           export COVERALLS=true ;;
+        1) export LISP=ccl-bin ;;
       esac
-    - ros run -- --version
   override:
-    - git clone https://github.com/fukamachi/prove ~/lisp/prove
-    - ros -l ~/lisp/prove/prove.asd install prove
+    - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
+    - ros install prove
   cache_directories:
     - ~/.roswell
 
 test:
   override:
+    - ros run -- --version
     - run-prove *-test.asd
     
