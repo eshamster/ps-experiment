@@ -107,6 +107,12 @@ value = ({(slot-name slot-init-form}*)")
            (error "~A doesn't have the slot ~A" (car parent-info) (car mod-slot))))
     modified-slots))
 
+(defun check-slot-name-duplication (slots)
+  (unless (= (length slots)
+             (length (remove-duplicates slots
+                                        :test (lambda (a b) (eql (car a) (car b))))))
+    (error "duplicate slot name")))
+
 (defun merge-defstruct-slots (parent-info slots)
   (if (null parent-info)
       slots
@@ -114,10 +120,7 @@ value = ({(slot-name slot-init-form}*)")
                                    (find-defstruct-slots (car parent-info))
                                    parent-info)
                                   slots)))
-        (if (= (length merged-slots)
-               (length (remove-duplicates merged-slots)))
-            merged-slots
-            (error 'simple-error "duplicate slot name")))))
+        merged-slots)))
 
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
@@ -140,6 +143,7 @@ value = ({(slot-name slot-init-form}*)")
               (slots
                (parse-defstruct-slot-description slot-description)))
     (setf slots (merge-defstruct-slots parent-info slots))
+    (check-slot-name-duplication slots)
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        (register-defstruct-slots ',name ',slots)
        (defun.ps ,name ()

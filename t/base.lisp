@@ -20,7 +20,9 @@
 
 (subtest
     "Test #j. reader macro"
-  (is '#j.TEST.AbCd# '-t-e-s-t.-ab-cd))
+  (is '#j.TEST.AbCd# '-t-e-s-t.-ab-cd)
+  (is-error (read-from-string "'#jWithoutDotAfterJ#")
+            'simple-error))
 
 (subtest
     "Test replace-dot-in-tree"
