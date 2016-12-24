@@ -22,7 +22,13 @@
              (with-slots (x y z) obj
                (setf x 100
                      y 200
-                     z 300))))
+                     z 300)))
+  (subtest
+      "Test error cases"
+    (prove-macro-expand-error (setf-with obj
+                                x 100
+                                y)
+                              'simple-error)))
 
 (subtest
     "Test with-slots-pair"
@@ -31,6 +37,12 @@
                (print (+ a x c d e)))
              (with-slots (a (x b)) obj1
                (with-slots (c d e) obj2
-                 (print (+ a x c d e))))))
+                 (print (+ a x c d e)))))
+  (subtest
+      "Test error cases"
+    (prove-macro-expand-error (with-slots-pair ((a (x b)) obj1
+                                                (c d e))
+                                (print (+ a x c d e)))
+                              'simple-error)))
 
 (finalize)

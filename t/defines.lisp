@@ -116,18 +116,22 @@
     (subtest
         "Test option"
       (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)))
+      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)
+      (prove-macro-expand-error (defstruct.ps (test (:not-exist abc) a b)) 'simple-error)))
     (subtest
         "Test slot name"
       (prove-macro-expand-error (defstruct.ps test_error 12 b) 'type-error)
       (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error))
+      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error)
+      (prove-macro-expand-error (defstruct.ps test_duplicated-name a b a) 'simple-error))
     (subtest
         "Test override the initial value of parent's slot"
       (prove-macro-expand-error (defstruct.ps (test (:include parent (not-found 20)))) 'simple-error)
       (prove-macro-expand-error (defstruct.ps (test (:include parent a))) 'simple-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include parent (a 20 30)))) 'simple-error)
-      ))
+      (prove-macro-expand-error (defstruct.ps (test (:include parent (a 20 30)))) 'simple-error))
+    (subtest
+        "Test not-exist included-structure-name"
+      (prove-macro-expand-error (defstruct.ps (test (:include not-exist))) 'unbound-variable)))
 
 (defun.ps+ test-func-plus (a b)
   (+ a b))
