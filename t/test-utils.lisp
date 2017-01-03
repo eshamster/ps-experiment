@@ -12,6 +12,7 @@
                 :empty-lib
                 :undefined-variable)
   (:import-from :parenscript
+                :defpsmacro
                 :ps)
   (:import-from :alexandria
                 :with-gensyms)
@@ -80,3 +81,89 @@
                                (js-array-to-list js-expected)))))
       :use ,use
       :prints-js ,prints-js)))
+
+;; --- prove for let --- ;;
+
+;; [WIP]
+;; TODO: (re)use implementations of 'prove'.
+
+(defstruct ps-prove-definition
+  name-symbol
+  arg-list
+  arg-list-to-call
+  tester
+  success-printer
+  failure-printer)
+
+(defvar *ps-prove-table* '())
+
+(defun add-ps-prove-definition (&key name-symbol
+                                  arg-list
+                                  arg-list-to-call
+                                  tester
+                                  success-printer
+                                  failure-printer)
+  (let ((def (make-ps-prove-definition
+              :name-symbol name-symbol
+              :arg-list arg-list
+              :arg-list-to-call arg-list-to-call
+              :tester tester
+              :success-printer success-printer
+              :failure-printer failure-printer)))
+    (setf *ps-prove-table*
+          (remove-if (lambda (old-def)
+                       (eq (ps-prove-definition-name-symbol old-def)
+                           name-symbol))
+                     *ps-prove-table*))
+    (push def *ps-prove-table*)))
+
+(defun construct-ps-prove-definition (def)
+  (check-type def ps-prove-definition)
+  (with-slots (name-symbol
+               arg-list
+               arg-list-to-call
+               tester
+               success-printer
+               failure-printer) def
+    `(,name-symbol ,arg-list
+        (if (funcall ,tester ,@arg-list-to-call)
+            (print (+ "  ✓ " (funcall ,success-printer ,@arg-list-to-call)))
+            (print (+ "  × " (funcall ,failure-printer ,@arg-list-to-call)))))))
+
+;; This is for checking ps-prove-definition in REPL.
+(defun test-ps-prove (prove-name &rest rest)
+  (let ((def (find-if (lambda (old-def)
+                        (eq (ps-prove-definition-name-symbol old-def)
+                            prove-name))
+                      *ps-prove-table*)))
+    (assert (not (null def)))
+    (cl-js:run-js (ps:ps* `(flet (,(construct-ps-prove-definition def))
+                             (,prove-name ,@rest))))))
+
+(defpsmacro with-ps-prove (() &body body)
+  `(flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
+                  *ps-prove-table*)
+     ,@body))
+
+;; - default proves - ;;
+
+;; Note: (ps:ps (funcall eq x y)) is compiled
+;;           to 'eq(1, 2)'
+;;       not to '1 === 2'.
+(let ((args '(got expected &key (test (lambda (a b) (eq a b))))))
+  (add-ps-prove-definition
+   :name-symbol 'is
+   :arg-list args
+   :arg-list-to-call '(got expected :test test)
+   :tester `(lambda ,args (funcall test got expected))
+   :success-printer `(lambda ,args (+ got " is expected to be " expected))
+   :failure-printer `(lambda ,args (+ got " is expected to be " expected))))
+
+(let ((args '(got)))
+  (add-ps-prove-definition
+   :name-symbol 'ok
+   :arg-list args
+   :arg-list-to-call args
+   :tester `(lambda ,args got)
+   :success-printer `(lambda ,args (+ got " is expected to be T"))
+   :failure-printer `(lambda ,args (+ got " is expected to be T"))))
