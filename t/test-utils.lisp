@@ -20,6 +20,7 @@
            :prove-macro-expand-error
            :prove-psmacro-expand-error
            :prove-in-both
+           :with-prove-in-both
            :is-list.ps+
            :undefined-variable))
 (in-package :ps-experiment-test.test-utils)
@@ -144,6 +145,19 @@
   `(flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
                   *ps-prove-table*)
      ,@body))
+
+(defmacro with-prove-in-both ((&key (use '(:this))) &body body)
+  `(progn
+     (princ "Common Lisp: ")
+     (fresh-line)
+     ,@body
+     (princ "JavaScript: ")
+     (fresh-line)
+     (run-js (with-use-ps-pack (,@use)
+               (with-ps-prove ()
+                 ,@body)))
+     (princ "------")
+     (fresh-line)))
 
 ;; - default proves - ;;
 
