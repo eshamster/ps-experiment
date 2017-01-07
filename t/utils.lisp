@@ -199,6 +199,8 @@
 
 (subtest
     "Test error"
+  ;; Note: Should not use 'with-prove-in-both' in this subtest
+  ;;       because it depends on 'error'.
   (prove-in-both (is-error (error 'simple-error)
                            'simple-error))
   (prove-in-both (is-error (let ((x 1))
@@ -223,19 +225,21 @@
 
 (subtest
     "Test check-type"
-  (prove-in-both (ok (let ((obj (make-test1)))
-                       (check-type obj test1)
-                       t)))
-  (prove-in-both (is-error (let ((obj (make-test1)))
-                             (check-type obj test3))
-                           'type-error))
+  (with-prove-in-both ()
+    (ok (let ((obj (make-test1)))
+          (check-type obj test1)
+          t))
+    (is-error (let ((obj (make-test1)))
+                (check-type obj test3))
+              'type-error))
   (subtest
       "Test string type"
-    (prove-in-both (ok (let ((str "abc"))
-                         (check-type str string)
-                         t)))
-    (prove-in-both (is-error (let ((num 12)) (check-type num string))
-                             'type-error))))
+    (with-prove-in-both ()
+      (ok (let ((str "abc"))
+            (check-type str string)
+            t))
+      (is-error (let ((num 12)) (check-type num string))
+                'type-error))))
 
 (unintern-all-ps-symbol)
 
