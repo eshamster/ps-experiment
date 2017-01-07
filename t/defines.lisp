@@ -144,13 +144,13 @@
 
 (subtest
     "Test xxx.ps+ macros"
-  (prove-in-both (is (test-func-plus 10 20) 30))
-  (prove-in-both (is test-var-plus 100))
-  (prove-in-both (is (test-struct-plus2-a str-plus) 100))
-  (prove-in-both (is (test-struct-plus2-c str-plus) 20))
-  (prove-in-both (ok (test-struct-plus1-p str-plus)))
-  (prove-in-both (ok (not (let ((target (make-test-struct-plus1)))
-                            (test-struct-plus2-p target))))))
+  (with-prove-in-both ()
+    (is test-var-plus 100)
+    (is (test-struct-plus2-a str-plus) 100)
+    (is (test-struct-plus2-c str-plus) 20)
+    (ok (test-struct-plus1-p str-plus))
+    (ok (not (let ((target (make-test-struct-plus1)))
+               (test-struct-plus2-p target))))))
 
 (unintern-all-ps-symbol)
 (is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)
