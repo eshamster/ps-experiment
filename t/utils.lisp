@@ -41,25 +41,28 @@
 
 (subtest
     "Test nth"
-  (prove-in-both (is (nth 2 '(1 2 3 4)) 3))
-  (prove-in-both (ok (null (nth 2 '(1 2))))))
+  (with-prove-in-both ()
+    (is (nth 2 '(1 2 3 4)) 3)
+    (ok (null (nth 2 '(1 2))))))
 
 (subtest
     "Test listp and atom"
   (subtest
       "Test listp"
-    (prove-in-both (ok (listp nil)))
-    (prove-in-both (ok (listp '())))
-    (prove-in-both (ok (listp '(1 2 3))))
-    (prove-in-both (ok (not (listp 12))))
-    (prove-in-both (ok (not (listp 'abc)))))
+    (with-prove-in-both ()
+      (ok (listp nil))
+      (ok (listp '()))
+      (ok (listp '(1 2 3)))
+      (ok (not (listp 12)))
+      (ok (not (listp 'abc)))))
   (subtest
       "Test atom"
-    (prove-in-both (ok (atom nil)))
-    (prove-in-both (ok (atom '())))
-    (prove-in-both (ok (not (atom '(1 2 3)))))
-    (prove-in-both (ok (atom 12)))
-    (prove-in-both (ok (atom 'abc)))))
+    (with-prove-in-both ()
+      (ok (atom nil))
+      (ok (atom '()))
+      (ok (not (atom '(1 2 3))))
+      (ok (atom 12))
+      (ok (atom 'abc)))))
 
 (subtest
     "Test subseq"
@@ -81,23 +84,27 @@
 
 (subtest
     "Test every"
-  (prove-in-both (ok (every (lambda (x) (> x 2)) '(3 4 5))))
-  (prove-in-both (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
+  (with-prove-in-both ()
+    (ok (every (lambda (x) (> x 2)) '(3 4 5)))
+    (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
 
 (subtest
     "Test some"
-  (prove-in-both (ok (some (lambda (x) (< x 2)) '(2 1 3))))
-  (prove-in-both (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
+  (with-prove-in-both ()
+    (ok (some (lambda (x) (< x 2)) '(2 1 3)))
+    (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
 
 (subtest
     "Test find"
-  (prove-in-both (is (find 3 '(1 2 3 4)) 3))
-  (prove-in-both (ok (not (find 5 '(1 2 3 4))))))
+  (with-prove-in-both ()
+    (is (find 3 '(1 2 3 4)) 3)
+    (ok (not (find 5 '(1 2 3 4))))))
 
 (subtest
     "Test find-if"
-  (prove-in-both (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3))
-  (prove-in-both (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
+  (with-prove-in-both ()
+    (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3)
+    (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
 
 (subtest
     "Test reduce"
@@ -192,6 +199,8 @@
 
 (subtest
     "Test error"
+  ;; Note: Should not use 'with-prove-in-both' in this subtest
+  ;;       because it depends on 'error'.
   (prove-in-both (is-error (error 'simple-error)
                            'simple-error))
   (prove-in-both (is-error (let ((x 1))
@@ -207,27 +216,30 @@
 
 (subtest
     "Test typep"
-  (prove-in-both (ok (typep (make-test1) 'test1)))
-  (prove-in-both (ok (typep (make-test2) 'test1)))
-  (prove-in-both (ok (not (typep (make-test1) 'test3))))
-  (prove-in-both (ok (let ((type 'test1))
-                       (typep (make-test1) type)))))
+  (with-prove-in-both ()
+    (ok (typep (make-test1) 'test1))
+    (ok (typep (make-test2) 'test1))
+    (ok (not (typep (make-test1) 'test3)))
+    (ok (let ((type 'test1))
+          (typep (make-test1) type)))))
 
 (subtest
     "Test check-type"
-  (prove-in-both (ok (let ((obj (make-test1)))
-                       (check-type obj test1)
-                       t)))
-  (prove-in-both (is-error (let ((obj (make-test1)))
-                             (check-type obj test3))
-                           'type-error))
+  (with-prove-in-both ()
+    (ok (let ((obj (make-test1)))
+          (check-type obj test1)
+          t))
+    (is-error (let ((obj (make-test1)))
+                (check-type obj test3))
+              'type-error))
   (subtest
       "Test string type"
-    (prove-in-both (ok (let ((str "abc"))
-                         (check-type str string)
-                         t)))
-    (prove-in-both (is-error (let ((num 12)) (check-type num string))
-                             'type-error))))
+    (with-prove-in-both ()
+      (ok (let ((str "abc"))
+            (check-type str string)
+            t))
+      (is-error (let ((num 12)) (check-type num string))
+                'type-error))))
 
 (unintern-all-ps-symbol)
 
