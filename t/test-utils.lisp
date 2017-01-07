@@ -181,3 +181,35 @@
    :tester `(lambda ,args got)
    :success-printer `(lambda ,args (+ got " is expected to be T"))
    :failure-printer `(lambda ,args (+ got " is expected to be T"))))
+
+(let ((args '(desc)))
+  (add-ps-prove-definition
+   :name-symbol 'pass
+   :arg-list args
+   :arg-list-to-call args
+   :tester `(lambda ,args t)
+   :success-printer `(lambda ,args desc)
+   :failure-printer `(lambda ,args (error "internal error. should pass."))))
+
+(let ((args '(desc)))
+  (add-ps-prove-definition
+   :name-symbol 'fail
+   :arg-list args
+   :arg-list-to-call args
+   :tester `(lambda ,args nil)
+   :success-printer `(lambda ,args (error "internal error. should fail."))
+   :failure-printer `(lambda ,args desc)))
+
+;; TODO: check kind of error
+(defpsmacro is-error (form error-kind)
+  (ps:with-ps-gensyms (error-p)
+    `(let ((,error-p nil))
+       (ps:try ,form
+               (:catch (e)
+                 (setf ,error-p t))
+               (:finally
+                (if ,error-p
+                    (pass ,(format nil "~A is expected to raise an error" form))
+                    (fail ,(format nil "~A is expected to raise a condition ~D"
+                                   form
+                                   error-kind))))))))
