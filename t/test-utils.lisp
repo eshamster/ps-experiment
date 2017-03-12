@@ -22,8 +22,15 @@
            :prove-in-both
            :with-prove-in-both
            :is-list.ps+
-           :undefined-variable))
+           :undefined-variable
+           :*enable-js-prove*))
 (in-package :ps-experiment-test.test-utils)
+
+(defvar *enable-js-prove* t)
+
+(defun skip-js-prove ()
+  (assert (not *enable-js-prove*))
+  (pass "--- Skip js test ---"))
 
 (defun execute-js (js-str)
   (with-js-env ((empty-lib))
@@ -46,10 +53,12 @@
      ,cl-prove
      (princ "JavaScript: ")
      (fresh-line)
-     (let ((,js-code (with-use-ps-pack ,use ,js-body)))
-       (when ,prints-js
-         (print ,js-code))
-       ,js-prove)
+     (if *enable-js-prove*
+         (let ((,js-code (with-use-ps-pack ,use ,js-body)))
+           (when ,prints-js
+             (print ,js-code))
+           ,js-prove)
+         (skip-js-prove))
      (princ "------")
      (fresh-line)))
 
@@ -153,9 +162,11 @@
      ,@body
      (princ "JavaScript: ")
      (fresh-line)
-     (run-js (with-use-ps-pack (,@use)
-               (with-ps-prove ()
-                 ,@body)))
+     (if *enable-js-prove*
+         (run-js (with-use-ps-pack (,@use)
+                   (with-ps-prove ()
+                     ,@body)))
+         (skip-js-prove))
      (princ "------")
      (fresh-line)))
 
