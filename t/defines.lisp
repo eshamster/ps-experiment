@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 4)
+(plan 5)
 
 (defvar.ps a 20)
 
@@ -23,6 +23,19 @@
          a))
       120))
 
+(defmacro exec-in-this (&body body)
+  `(execute-js (with-use-ps-pack (:this)
+                 ,@body)))
+
+(defun.ps test-fn1 (a b) (+ a b))
+
+(subtest
+    "Test defun.ps"
+  (is (exec-in-this
+        (test-fn1 10 20))
+      30)
+  (is-error (test-fn1 10 20)
+            'undefined-function))
 
 (defstruct.ps test-str1 a1 (b1 20))
 (defvar.ps s (new (test-str1))
@@ -32,10 +45,6 @@
 (defstruct.ps parent (a 10) (b 20))
 (defstruct.ps (child (:include parent)) (c (lambda () 10)))
 (defstruct.ps (mod-child (:include parent (a 100))))
-
-(defmacro exec-in-this (&body body)
-  `(execute-js (with-use-ps-pack (:this)
-                 ,@body)))
 
 (subtest
     "Test defstruct.ps"
