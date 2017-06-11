@@ -6,6 +6,7 @@
   (:export :defvar.ps
            :defvar.ps+
            :defun.ps
+           :defun.ps-only
            :defun.ps+
            :defstruct.ps
            :defstruct.ps+)
@@ -14,7 +15,8 @@
                 :sif
                 :it)
   (:import-from :alexandria
-                :symbolicate)
+                :symbolicate
+                :parse-ordinary-lambda-list)
   (:import-from :ps-experiment.base
                 :ps.
                 :defmacro.ps)
@@ -27,7 +29,30 @@
 
 ;; ----- .ps ----- ;;
 
-(def-ps-definer defun.ps (name args &body body) ()
+(defun extract-arg-names (lambda-list)
+  (multiple-value-bind (required optional rest
+                        keys allow-other-keys aux keyp)
+      (parse-ordinary-lambda-list lambda-list
+                                  :normalize nil)
+    (declare (ignore allow-other-keys keyp))
+    (labels ((make-a-list (got)
+               (if (listp got)
+                   (mapcar (lambda (elem)
+                             (if (atom elem) elem (car elem)))
+                           got)
+                   (list got))))
+      (mapcan #'make-a-list
+              (list required optional rest keys aux)))))
+
+(def-ps-definer defun.ps-only (name args &body body) ()
+  `(defun ,name ,args ,@body))
+
+(def-ps-definer defun.ps (name args &body body)
+    (:before `(defun ,name ,args
+                (declare ,(cons 'ignore
+                                (extract-arg-names args)))
+                (error (format nil "~A is only defined but not implemented as a CL function"
+                               ',name))))
   `(defun ,name ,args ,@body))
 
 (def-ps-definer defvar.ps (name initial-value &optional (documentation "")) ()

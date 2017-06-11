@@ -15,11 +15,13 @@
                 :defvar.ps
                 :defvar.ps+
                 :defun.ps
+                :defun.ps-only
                 :defun.ps+
                 :defstruct.ps
                 :defstruct.ps+)
   (:export :defvar.ps
            :defvar.ps+
+           :defun.ps-only
            :defun.ps
            :defun.ps+
            :defstruct.ps

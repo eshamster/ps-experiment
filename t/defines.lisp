@@ -9,7 +9,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.defines)
 
-(plan 4)
+(plan 6)
 
 (defvar.ps a 20)
 
@@ -23,6 +23,32 @@
          a))
       120))
 
+(defmacro exec-in-this (&body body)
+  `(execute-js (with-use-ps-pack (:this)
+                 ,@body)))
+
+(defun.ps test-fn0 () 0)
+(defun.ps test-fn1 (a b) (+ a b))
+(defun.ps-only test-fn2 (a b) (+ a b))
+
+(subtest
+    "Test defun.ps"
+  (subtest
+      "Test functions defined by defun.ps"
+    (is (exec-in-this (test-fn0)) 0)
+    (is (exec-in-this
+          (test-fn1 10 20))
+        30)
+    ;; The CL function is defined but not implemented
+    (is-error (test-fn1 10 20)
+              'simple-error))
+  (subtest
+      "Test functions defined by defun.ps-only"
+    (is (exec-in-this
+          (test-fn2 10 20))
+        30)
+    (is-error (test-fn2 10 20)
+              'undefined-function)))
 
 (defstruct.ps test-str1 a1 (b1 20))
 (defvar.ps s (new (test-str1))
@@ -32,10 +58,6 @@
 (defstruct.ps parent (a 10) (b 20))
 (defstruct.ps (child (:include parent)) (c (lambda () 10)))
 (defstruct.ps (mod-child (:include parent (a 100))))
-
-(defmacro exec-in-this (&body body)
-  `(execute-js (with-use-ps-pack (:this)
-                 ,@body)))
 
 (subtest
     "Test defstruct.ps"
@@ -154,5 +176,20 @@
 
 (unintern-all-ps-symbol)
 (is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)
+
+;; ----- Test internals ----- ;;
+
+(subtest
+    "Test internal functions"
+  (labels ((fn (lambda-list)
+             (ps-experiment.defines::extract-arg-names lambda-list))
+           (is-list (got expected)
+             (is got expected :test #'equalp)))
+    (is-list (fn '()) '())
+    (is-list (fn '(a b )) '(a b))
+    (is-list (fn '(a b &optional (c 0) d)) '(a b c d))
+    (is-list (fn '(a b &optional (c 0) d &key (e 0) f)) '(a b c d e f))
+    (is-list (fn '(a b &optional (c 0) d &rest rest)) '(a b c d rest))
+    (is-list (fn '(a b &aux (au 0) x)) '(a b au x))))
 
 (finalize)
