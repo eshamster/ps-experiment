@@ -61,7 +61,7 @@
 ;; ----- .ps+ ----- ;;
 
 (defmacro defun.ps+ (name args &body body)
-  `(progn (defun.ps ,name ,args ,@body)
+  `(progn (defun.ps-only ,name ,args ,@body)
           (defun ,name ,args ,@body)))
 
 (defmacro defvar.ps+ (name initial-value &optional (documentation ""))
