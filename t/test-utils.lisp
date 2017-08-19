@@ -36,13 +36,21 @@
   (with-js-env ((empty-lib))
     (run-js js-str)))
 
-(defmacro prove-macro-expand-error (code expected-error)
-  `(is-error (macroexpand-1 ',code)
-             ,expected-error))
+(defun prove-macro-expand-error-impl (code expected-error &key for-ps expand-times)
+  (labels ((rec-expand (result rest-times)
+             (if (> rest-times 0)
+                 (rec-expand `(macroexpand-1 ,result) (1- rest-times))
+                 result)))
+    `(is-error ,(rec-expand (if for-ps `(ps ,code) `(quote ,code)) expand-times)
+               ,expected-error)))
 
-(defmacro prove-psmacro-expand-error (code expected-error)
-  `(is-error (macroexpand-1 '(ps ,code))
-             ,expected-error))
+(defmacro prove-macro-expand-error (code expected-error &key (expand-times 1))
+  (prove-macro-expand-error-impl code expected-error
+                                 :for-ps nil :expand-times expand-times))
+
+(defmacro prove-psmacro-expand-error (code expected-error &key (expand-times 1))
+  (prove-macro-expand-error-impl code expected-error
+                                 :for-ps t :expand-times expand-times))
 
 (defmacro prove-in-both% ((cl-prove)
                           ((js-code js-body) js-prove)
