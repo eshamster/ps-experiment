@@ -91,6 +91,10 @@
     (ok (not (exec-in-this
               (test-str1-p "test")))))
   (subtest
+      "Test if CL function is defined but not implemented"
+    (is-error (test-fn1 10 20)
+              'simple-error))
+  (subtest
       "Test accessors"
     (is (exec-in-this
          (test-str1-a1 (make-test-str1 :a1 100)))
@@ -133,27 +137,40 @@
       "Test syntax errors"
     (subtest
         "Test struct name"
-      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error))
+      (prove-macro-expand-error (defstruct.ps 12 a b) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps "test" a b) 'type-error
+                                :expand-times 2))
     (subtest
         "Test option"
-      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error)
-      (prove-macro-expand-error (defstruct.ps (test (:not-exist abc) a b)) 'simple-error)))
+      (prove-macro-expand-error (defstruct.ps (test (:include 123) a b)) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps (test (:include "test") a b)) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps (test (:not-exist abc) a b)) 'simple-error
+                                :expand-times 2)))
     (subtest
         "Test slot name"
-      (prove-macro-expand-error (defstruct.ps test_error 12 b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error)
-      (prove-macro-expand-error (defstruct.ps test_duplicated-name a b a) 'simple-error))
+      (prove-macro-expand-error (defstruct.ps test_error 12 b) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps test "test" b) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps test a (12 12)) 'type-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps test_duplicated-name a b a) 'simple-error
+                                :expand-times 2))
     (subtest
         "Test override the initial value of parent's slot"
-      (prove-macro-expand-error (defstruct.ps (test (:include parent (not-found 20)))) 'simple-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include parent a))) 'simple-error)
-      (prove-macro-expand-error (defstruct.ps (test (:include parent (a 20 30)))) 'simple-error))
+      (prove-macro-expand-error (defstruct.ps (test (:include parent (not-found 20)))) 'simple-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps (test (:include parent a))) 'simple-error
+                                :expand-times 2)
+      (prove-macro-expand-error (defstruct.ps (test (:include parent (a 20 30)))) 'simple-error
+                                :expand-times 2))
     (subtest
         "Test not-exist included-structure-name"
-      (prove-macro-expand-error (defstruct.ps (test (:include not-exist))) 'unbound-variable)))
+      (prove-macro-expand-error (defstruct.ps (test (:include not-exist))) 'unbound-variable
+                                :expand-times 2)))
 
 (defun.ps+ test-func-plus (a b)
   (+ a b))

@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 17)
+(plan 20)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -196,6 +196,21 @@
                          sum-value)
                        600)
                    :prints-js t)))
+
+(subtest
+    "Test very simple format"
+  ;; The current simple format output completely different string from CL's format.
+  ;; So only test in PS.
+  (subtest
+      "Test format"
+    (with-prove-in-ps ()
+      (is (format nil "test") "test")
+      (is (format nil "test~D~A" 1 "a") "test~D~A; 1; a")))
+  (subtest
+      "Test format print"
+    ;; Because is-print for PS has not been implemented, only make sure that it thorw no error.
+    (with-prove-in-both ()
+      (ok (not (format t "test"))))))
 
 (subtest
     "Test error"

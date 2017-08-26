@@ -69,7 +69,7 @@
           (defvar ,name ,initial-value ,documentation)))
 
 (defmacro defstruct.ps+ (name-and-options &rest slot-description)
-  `(progn (defstruct.ps ,name-and-options ,@slot-description)
+  `(progn (defstruct.ps-impl (t) ,name-and-options ,@slot-description)
           (defstruct ,name-and-options ,@slot-description)))
 
 ;; ----- defstruct ----- ;;
@@ -150,9 +150,17 @@ value = ({(slot-name slot-init-form}*)")
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
 
+(defmacro defstruct.ps (name-and-options &rest slot-description)
+  `(defstruct.ps-impl (nil) ,name-and-options ,@slot-description))
+
+(defmacro defun-wrapper (ps-only-p name arg-list &body body)
+  (if ps-only-p
+      `(defun.ps-only ,name ,arg-list ,@body)
+      `(defun.ps ,name ,arg-list ,@body)))
+
 ;; We refered goog.inherits for the inheritance code
 ;; https://github.com/google/closure-library/blob/master/closure/goog/base.js#L2170
-(defmacro defstruct.ps (name-and-options &rest slot-description)
+(defmacro defstruct.ps-impl ((ps-only-p) name-and-options &rest slot-description)
   "This is the tiny subset of defsturt in terms of syntax.
     name-and-options::= structure-name | (structure-name (:include included-structure-name {inherit-slot-description}*))
     slot-description::= slot-name | (slot-name slot-init-form)
@@ -171,12 +179,12 @@ value = ({(slot-name slot-init-form}*)")
     (check-slot-name-duplication slots)
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        (register-defstruct-slots ',name ',slots)
-       (defun.ps ,name ()
+       (defun-wrapper ,ps-only-p ,name ()
          ,@(mapcar (lambda (slot)
                      `(setf (@ this ,(car slot)) ,(cadr slot)))
                    slots)
          this)
-       (defun.ps ,(symbolicate 'make- name) (&key ,@slots)
+       (defun-wrapper ,ps-only-p ,(symbolicate 'make- name) (&key ,@slots)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)
                        `(setf (@ result ,(car elem)) ,(car elem)))
@@ -186,7 +194,7 @@ value = ({(slot-name slot-init-form}*)")
                    `(defmacro.ps ,(symbolicate name '- (car slot)) (obj)
                       `(@ ,obj ,',(car slot))))
                  slots)
-       (defun.ps ,(symbolicate name '-p) (obj)
+       (defun-wrapper ,ps-only-p ,(symbolicate name '-p) (obj)
          (instanceof obj ,name))
        ,(when parent
               `(def-top-level-form.ps ,(symbolicate '_defstruct-inherit_ name)

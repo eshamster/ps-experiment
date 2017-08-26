@@ -21,6 +21,7 @@
            :prove-psmacro-expand-error
            :prove-in-both
            :with-prove-in-both
+           :with-prove-in-ps
            :is-list.ps+
            :undefined-variable
            :*enable-js-prove*))
@@ -36,13 +37,21 @@
   (with-js-env ((empty-lib))
     (run-js js-str)))
 
-(defmacro prove-macro-expand-error (code expected-error)
-  `(is-error (macroexpand-1 ',code)
-             ,expected-error))
+(defun prove-macro-expand-error-impl (code expected-error &key for-ps expand-times)
+  (labels ((rec-expand (result rest-times)
+             (if (> rest-times 0)
+                 (rec-expand `(macroexpand-1 ,result) (1- rest-times))
+                 result)))
+    `(is-error ,(rec-expand (if for-ps `(ps ,code) `(quote ,code)) expand-times)
+               ,expected-error)))
 
-(defmacro prove-psmacro-expand-error (code expected-error)
-  `(is-error (macroexpand-1 '(ps ,code))
-             ,expected-error))
+(defmacro prove-macro-expand-error (code expected-error &key (expand-times 1))
+  (prove-macro-expand-error-impl code expected-error
+                                 :for-ps nil :expand-times expand-times))
+
+(defmacro prove-psmacro-expand-error (code expected-error &key (expand-times 1))
+  (prove-macro-expand-error-impl code expected-error
+                                 :for-ps t :expand-times expand-times))
 
 (defmacro prove-in-both% ((cl-prove)
                           ((js-code js-body) js-prove)
@@ -150,10 +159,15 @@
     (cl-js:run-js (ps:ps* `(flet (,(construct-ps-prove-definition def))
                              (,prove-name ,@rest))))))
 
-(defpsmacro with-ps-prove (() &body body)
+(defpsmacro with-prove-in-ps% (() &body body)
   `(flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
                   *ps-prove-table*)
      ,@body))
+
+(defmacro with-prove-in-ps ((&key (use '(:this))) &body body)
+  `(run-js (with-use-ps-pack (,@use)
+             (with-prove-in-ps% ()
+               ,@body))))
 
 (defmacro with-prove-in-both ((&key (use '(:this))) &body body)
   `(progn
@@ -163,9 +177,8 @@
      (princ "JavaScript: ")
      (fresh-line)
      (if *enable-js-prove*
-         (run-js (with-use-ps-pack (,@use)
-                   (with-ps-prove ()
-                     ,@body)))
+         (with-prove-in-ps (:use ,use)
+           ,@body)
          (skip-js-prove))
      (princ "------")
      (fresh-line)))

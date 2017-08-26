@@ -125,6 +125,27 @@
     `(dolist (key ((@ -object keys) ,hash-table))
        (funcall ,func key (gethash key ,hash-table)))))
 
+;; --- very simple format --- ;;
+
+;; The first purpose of this tiny "format" is to create a common interface
+;; with CL to output string with arguments.
+;; If required or if I feel like it, it will be enhanced.
+
+(defun interpret-ps-format (control-string arg-list)
+  (unless arg-list
+    (return-from interpret-ps-format control-string))
+  (let ((result `(,control-string +)))
+    (dolist (arg arg-list)
+      (push "; " result)
+      (push arg result))
+    (reverse result)))
+
+(defpsmacro format (stream control-string &rest args)
+  (let ((temp (interpret-ps-format control-string args)))
+    (if stream
+        `(print ,temp)
+        temp)))
+
 ;; --- have not classified utils --- ;;
 
 "Limitation: Now, this can judge the type only of objects"
