@@ -21,6 +21,7 @@
            :prove-psmacro-expand-error
            :prove-in-both
            :with-prove-in-both
+           :with-prove-in-ps
            :is-list.ps+
            :undefined-variable
            :*enable-js-prove*))
@@ -158,10 +159,15 @@
     (cl-js:run-js (ps:ps* `(flet (,(construct-ps-prove-definition def))
                              (,prove-name ,@rest))))))
 
-(defpsmacro with-ps-prove (() &body body)
+(defpsmacro with-prove-in-ps% (() &body body)
   `(flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
                   *ps-prove-table*)
      ,@body))
+
+(defmacro with-prove-in-ps ((&key (use '(:this))) &body body)
+  `(run-js (with-use-ps-pack (,@use)
+             (with-prove-in-ps% ()
+               ,@body))))
 
 (defmacro with-prove-in-both ((&key (use '(:this))) &body body)
   `(progn
@@ -171,9 +177,8 @@
      (princ "JavaScript: ")
      (fresh-line)
      (if *enable-js-prove*
-         (run-js (with-use-ps-pack (,@use)
-                   (with-ps-prove ()
-                     ,@body)))
+         (with-prove-in-ps (:use ,use)
+           ,@body)
          (skip-js-prove))
      (princ "------")
      (fresh-line)))
