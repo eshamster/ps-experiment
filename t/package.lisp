@@ -167,10 +167,8 @@ test1
 
 (subtest
     "Test circular reference between packages"
-  (is (with-use-ps-pack (:test.package.loop-a))
-      "5 * 8;
-3 + 4;
-"))
+  (is-error (with-use-ps-pack (:test.package.loop-a))
+            'simple-error))
 
 (unintern-all-ps-symbol)
 

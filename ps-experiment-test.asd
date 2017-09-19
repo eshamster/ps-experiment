@@ -14,12 +14,14 @@
   :depends-on (:ps-experiment
                :parenscript
                :alexandria
+               :anaphora
                :cl-js
                :prove)
   :components ((:module "t"
                 :components
                 ((:file "test-utils")
                  (:test-file "base")
+                 (:test-file "util-sorter")
                  (:test-file "package" :depends-on ("test-utils"))
                  (:test-file "defines" :depends-on ("test-utils"))
                  (:test-file "utils" :depends-on ("test-utils"))

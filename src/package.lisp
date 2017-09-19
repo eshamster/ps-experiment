@@ -20,10 +20,28 @@
                 :aif
                 :it)
   (:import-from :ps-experiment.base
-                :ps.))
+                :ps.)
+  (:import-from :ps-experiment.util-sorter
+                :get-node-name
+                :node-equalp
+                :get-children
+                :sort-tree-node))
 (in-package :ps-experiment.package)
 
 (defparameter *ps-func-store* (make-hash-table))
+
+;; --- Define methods to sort packages --- ;;
+
+(defmethod get-node-name ((node package))
+  (package-name node))
+
+(defmethod get-children ((node package))
+  (package-use-list node))
+
+(defmethod node-equalp ((node1 package) (node2 package))
+  (eq node1 node2))
+
+;; --- ;;
 
 (defun register-ps-func (name_sym)
   (symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
@@ -91,17 +109,11 @@
 ")
           (list ps-body))))
 
+;; The reverse is heuristic to sort packages according to the order of input
+;; as far as possible.
+;; The sort-tree-node doesn't guarantee order between independent nodes.
 (defun make-package-list-with-depend (package-lst)
-  (let ((result-lst nil))
-    (labels ((rec (unchecked-lst)
-               (when unchecked-lst
-                 (let ((pack (car unchecked-lst)))
-                   (if (find pack result-lst)
-                       (rec (cdr unchecked-lst))
-                       (progn (push pack result-lst)
-                              (rec (append (package-use-list pack) (cdr unchecked-lst)))))))))
-      (rec (reverse package-lst))
-      result-lst)))
+  (sort-tree-node (reverse package-lst)))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
   (with-gensyms (pack-lst func-lst)
