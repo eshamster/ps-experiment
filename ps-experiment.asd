@@ -24,6 +24,7 @@
                 :serial t
                 :components
                 ((:file "base")
+                 (:file "util-sorter")
                  (:file "package")
                  (:file "defines")
                  (:file "utils")
