@@ -76,11 +76,23 @@
                '((1 2 3 4) (3))))
 
 (subtest
-    "Test push"
-  (is-list.ps+ (let ((x '()))
-                    (push 1 x)
-                    (push 2 x))
-                  '(2 1)))
+    "Test macros like push"
+  (subtest
+      "Test push"
+    (is-list.ps+ (let ((x '()))
+                   (push 1 x)
+                   (push 2 x))
+                 '(2 1)))
+  (subtest
+      "Test pushnew"
+    (is-list.ps+ (let ((x '(1 2)))
+                   (pushnew 3 x)
+                   (pushnew 2 x))
+                 '(3 1 2))
+    (is-list.ps+ (let ((x '(1 2)))
+                   (pushnew 12 x :test (lambda (a b) (= (/ a 6) b)))
+                   (pushnew 6 x :test (lambda (a b) (= a (/ b 6)))))
+                 '(6 1 2))))
 
 (subtest
     "Test every"

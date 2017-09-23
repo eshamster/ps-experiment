@@ -53,6 +53,15 @@
   `(progn ((@ ,place unshift) ,item)
           ,place))
 
+(defpsmacro pushnew (item place &key test)
+  `(progn (unless (find-if (lambda (elem)
+                             ,(if test
+                                  `(funcall ,test ,item elem)
+                                  `(eq ,item elem)))
+                           ,place)
+            (push ,item ,place))
+          ,place))
+
 ;; TODO: Throw error if the range beyond the sequence.
 (defpsmacro subseq (sequence start &optional end)
   (if end
