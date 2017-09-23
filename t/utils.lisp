@@ -11,7 +11,7 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 20)
+(plan 21)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -237,6 +237,37 @@
     (ok (not (typep (make-test1) 'test3)))
     (ok (let ((type 'test1))
           (typep (make-test1) type)))))
+
+(subtest
+    "Test typecase and etypecase"
+  (subtest
+      "Test typecase"
+    (with-prove-in-both ()
+      (labels ((test-case (x)
+                 (typecase x
+                   (test1 1)
+                   (test3 2)
+                   (t 99))))
+        (is (test-case (make-test1)) 1)
+        (is (test-case (make-test3)) 2)
+        (is (test-case 111) 99))
+      (labels ((test-case (x)
+                 (typecase x
+                   (test1 1)
+                   (test3 2))))
+        (is (test-case (make-test1)) 1)
+        (is (test-case (make-test3)) 2)
+        (ok (not (test-case 111))))))
+  (subtest
+      "Test etypecase"
+    (with-prove-in-both ()
+      (labels ((test-case (x)
+                 (etypecase x
+                   (test1 1)
+                   (test3 2))))
+        (is (test-case (make-test1)) 1)
+        (is (test-case (make-test3)) 2)
+        (is-error (test-case 111) 'type-error)))))
 
 (subtest
     "Test check-type"

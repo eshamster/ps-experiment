@@ -146,7 +146,7 @@
         `(print ,temp)
         temp)))
 
-;; --- have not classified utils --- ;;
+;; --- type utils --- ;;
 
 "Limitation: Now, this can judge the type only of objects"
 (defpsmacro typep (object type-specifier) 
@@ -156,13 +156,21 @@
                                (eval ,type-specifier)
                                ,type-specifier))))
 
-(defpsmacro error (datum &rest args)
-  (cond ((null args) `(throw ,datum))
-        ((stringp datum) `(throw ,(eval `(format nil ,datum
-                                                 ,@(mapcar (lambda (arg)
-                                                             (format nil "~A" arg))
-                                                           args)))))
-        (t `(throw ,(format nil "~A: ~A" datum args)))))
+(defpsmacro typecase (keyform &body clauses)
+  (with-ps-gensyms (g-keyform)
+    `(let ((,g-keyform ,keyform))
+       (cond ,@(mapcar (lambda (clause)
+                         (if (eq (car clause) t)
+                             `(t ,@(cdr clause))
+                             `((typep ,g-keyform ,(car clause)) ,@(cdr clause))))
+                      clauses)))))
+
+(defpsmacro etypecase (keyform &body clauses)
+  `(typecase ,keyform
+     ,@clauses
+     (t (error 'type-error
+               ,(format nil "The place is '~A'. The expected type is '~A'"
+                        keyform (cons :or (mapcar #'car clauses)))))))
 
 (defpsmacro check-type (place type-specifier)
   `(unless ,(if (string= (symbol-name type-specifier) "STRING")
@@ -171,3 +179,14 @@
        (error 'type-error
               ,(format nil "The place is '~A'. The expected type is '~A'"
                        place type-specifier))))
+
+;; --- have not classified utils --- ;;
+
+(defpsmacro error (datum &rest args)
+  (cond ((null args) `(throw ,datum))
+        ((stringp datum) `(throw ,(eval `(format nil ,datum
+                                                 ,@(mapcar (lambda (arg)
+                                                             (format nil "~A" arg))
+                                                           args)))))
+        (t `(throw ,(format nil "~A: ~A" datum args)))))
+
