@@ -199,3 +199,6 @@
                                                            args)))))
         (t `(throw ,(format nil "~A: ~A" datum args)))))
 
+(defpsmacro assert (test-form)
+  `(when (not ,test-form)
+     (error "Failed assertion: ~A" ,test-form)))

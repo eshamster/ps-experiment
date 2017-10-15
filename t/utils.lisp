@@ -11,7 +11,9 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment-test.utils)
 
-(plan 21)
+(declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
+
+(plan 22)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -235,6 +237,16 @@
                            'simple-error))
   (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
                            'type-error)))
+(print (cl-js:run-js (ps:ps (progn (let ((x 1))
+                                     (assert (= x 1)))
+                                   1000))))
+
+(subtest
+    "Test assert"
+  (prove-in-both (ok (progn (assert (= 1 1))
+                            t)))
+  (prove-in-both (is-error (assert (= 1 2))
+                           'simple-error)))
 
 ;; --- affect global env --- ;;
 (defstruct.ps+ test1 a)
