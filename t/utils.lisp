@@ -237,9 +237,6 @@
                            'simple-error))
   (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
                            'type-error)))
-(print (cl-js:run-js (ps:ps (progn (let ((x 1))
-                                     (assert (= x 1)))
-                                   1000))))
 
 (subtest
     "Test assert"
