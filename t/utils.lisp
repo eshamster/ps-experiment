@@ -13,7 +13,7 @@
 
 (declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
 
-(plan 22)
+(plan 23)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -244,6 +244,15 @@
                             t)))
   (prove-in-both (is-error (assert (= 1 2))
                            'simple-error)))
+
+(subtest
+    "Test ecase"
+  (prove-in-both (is (let ((x 2))
+                       (ecase x (1 111) (2 222)))
+                     222))
+  (prove-in-both  (is-error (let ((x 3))
+                              (ecase x (1 111) (2 222)))
+                            'error)))
 
 ;; --- affect global env --- ;;
 (defstruct.ps+ test1 a)

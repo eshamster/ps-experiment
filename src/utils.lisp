@@ -202,3 +202,9 @@
 (defpsmacro assert (test-form)
   `(when (not ,test-form)
      (error "Failed assertion: ~A" ,test-form)))
+
+(defpsmacro ecase (key &body forms)
+  `(case ,key
+     ,@forms
+     (t (error "The value ~A is not of the expected type (MEMBER ~A)"
+               ,key ,(mapcar #'car forms)))))
