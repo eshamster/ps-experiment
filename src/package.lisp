@@ -2,8 +2,7 @@
 (defpackage ps-experiment.package
   (:use :cl
         :parenscript)
-  (:export :register-ps-func
-           :def-ps-definer
+  (:export :def-ps-definer
            :def-top-level-form.ps
            :with-use-ps-pack
            :find-ps-symbol
@@ -43,17 +42,20 @@
 
 ;; --- ;;
 
-(defun register-ps-func (name_sym)
-  (symbol-macrolet ((target-lst (gethash *package* *ps-func-store*)))
-    (unless (find name_sym target-lst)
-       (push name_sym target-lst))))
+(defun convert-symbol-to-ps-definer (symbol package)
+  (intern (string-upcase (format nil "_ps_definer_~A" symbol))
+          package))
 
-(defun make-ps-definer (&key kind name before body) 
-  (let ((register-name (symbolicate '_ kind '_ name)))
-    `(progn ,before
-            (register-ps-func ',register-name)
-            (defun ,register-name ()
-              (ps. ,body)))))
+(defun register-ps-func (name-sym package)
+  (symbol-macrolet ((target-lst (gethash package *ps-func-store*)))
+    (unless (find name-sym target-lst)
+       (push name-sym target-lst))))
+
+(defun make-ps-definer (&key name before body)
+  `(progn ,before
+          (register-ps-func ',name *package*)
+          (defun ,(convert-symbol-to-ps-definer name *package*) ()
+            (ps. ,body))))
 
 (defun parse-name (name)
   (if (consp name)
@@ -62,8 +64,7 @@
 
 (defmacro def-ps-definer (def-name (name &rest rest-args) (&key before) &body body)
   `(defmacro ,def-name (,name ,@rest-args)
-     (make-ps-definer :kind ',def-name
-                      :name (parse-name ,name)
+     (make-ps-definer :name (parse-name ,name)
                       :before ,before
                       :body (progn ,@body))))
 
@@ -100,14 +101,14 @@
                       (cdr rest)))))
     (rec nil lst)))
 
-(defun import-ps-funcs (ps-lst ps-body)
-  (apply #'concatenate 'string
-         (append
-          (interleave (mapcar (lambda (elem) (funcall elem))
-                              ps-lst)
-                      "
-")
-          (list ps-body))))
+(defun import-ps-funcs (pack-lst ps-body)
+  (format nil "~{~A~%~}~A"
+          (mapcan (lambda (pack)
+                    (mapcar (lambda (sym)
+                              (funcall (convert-symbol-to-ps-definer sym pack)))
+                            (reverse (gethash pack *ps-func-store*))))
+                  pack-lst)
+          ps-body))
 
 ;; The reverse is heuristic to sort packages according to the order of input
 ;; as far as possible.
@@ -116,7 +117,7 @@
   (sort-tree-node (reverse package-lst)))
 
 (defmacro with-use-ps-pack (pack-sym-lst &body body)
-  (with-gensyms (pack-lst func-lst)
+  (with-gensyms (pack-lst)
     `(let* ((,pack-lst (if (equal (symbol-name (car ',pack-sym-lst)) "ALL")
                            (hash-table-keys *ps-func-store*)
                            (mapcar (lambda (sym)
@@ -126,9 +127,5 @@
                                            (aif (find-package name)
                                                 it
                                                 (error "There is no package named \"~A\"." name)))))
-                                   ',pack-sym-lst)))
-            (,func-lst (flatten
-                        (mapcar (lambda (pack)
-                                  (reverse (gethash pack *ps-func-store*)))
-                                (make-package-list-with-depend ,pack-lst)))))
-       (import-ps-funcs ,func-lst (ps. ,@body)))))
+                                   ',pack-sym-lst))))
+       (import-ps-funcs (make-package-list-with-depend ,pack-lst) (ps. ,@body)))))
