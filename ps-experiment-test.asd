@@ -24,7 +24,7 @@
                  (:test-file "util-sorter")
                  (:test-file "package" :depends-on ("test-utils"))
                  (:test-file "defines" :depends-on ("test-utils"))
-                 (:test-file "utils" :depends-on ("test-utils"))
+                 (:test-file "ps-macros-for-compatibility" :depends-on ("test-utils"))
                  (:test-file "common-macros" :depends-on ("test-utils"))
                  (:test-file "ps-experiment"))))
   :description "Test system for ps-experiment"

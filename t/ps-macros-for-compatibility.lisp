@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.utils
+(defpackage ps-experiment-test.ps-macros-for-compatibility
   (:use :cl
         :ps-experiment
         :ps-experiment-test.test-utils
@@ -9,7 +9,7 @@
                 :with-gensyms)
   (:import-from :ps-experiment.package
                 :unintern-all-ps-symbol))
-(in-package :ps-experiment-test.utils)
+(in-package :ps-experiment-test.ps-macros-for-compatibility)
 
 (declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
 

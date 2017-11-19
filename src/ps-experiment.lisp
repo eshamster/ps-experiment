@@ -1,7 +1,7 @@
 (in-package :cl-user)
 (defpackage ps-experiment 
   (:nicknames :pse)
-  (:import-from :ps-experiment.utils)
+  (:import-from :ps-experiment.ps-macros-for-compatibility)
   (:import-from :ps-experiment.base
                 :ps.
                 :defmacro.ps
