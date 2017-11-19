@@ -27,7 +27,7 @@
                  (:file "util-sorter")
                  (:file "package")
                  (:file "defines")
-                 (:file "utils")
+                 (:file "ps-macros-for-compatibility")
                  (:file "common-macros")
                  (:file "ps-experiment"))))
   :description "This is the experimental utils for parenscript"
