@@ -6,7 +6,6 @@
   (:export :defvar.ps
            :defvar.ps+
            :defun.ps
-           :defun.ps-only
            :defun.ps+
            :defstruct.ps
            :defstruct.ps+)
@@ -24,6 +23,8 @@
                 :make-ps-definer
                 :def-ps-definer
                 :def-top-level-form.ps
+                :defun.ps-only
+                :register-ps-type
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment.defines)
 
@@ -43,9 +44,6 @@
                    (list got))))
       (mapcan #'make-a-list
               (list required optional rest keys aux)))))
-
-(def-ps-definer defun.ps-only (name args &body body) ()
-  `(defun ,name ,args ,@body))
 
 (def-ps-definer defun.ps (name args &body body)
     (:before `(defun ,name ,args
@@ -184,6 +182,7 @@ value = ({(slot-name slot-init-form}*)")
                      `(setf (@ this ,(car slot)) ,(cadr slot)))
                    slots)
          this)
+       (register-ps-type ',name)
        (defun-wrapper ,ps-only-p ,(symbolicate 'make- name) (&key ,@slots)
          (let ((result (new (,name))))
            ,@(mapcar (lambda (elem)

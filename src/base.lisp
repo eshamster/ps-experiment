@@ -8,6 +8,8 @@
            :defmacro.ps
            :defmacro.ps+
            :enable-ps-experiment-syntax
+           ;; The following used only in ps-experiment.package
+           :*original-package*
            :--))
 (in-package :ps-experiment.base)
 
@@ -57,8 +59,19 @@
                (rest (replace-dot-sep rest)))))
     (rec tree)))
 
+;; In ps:ps, the *package* will be binded to "COMMON-LISP-USER" package
+;; (to be exact, ps::parenscript-print that called from ps:ps uses
+;; with-standard-io-syntax).
+;; So *original-package* saves an original package before that. Then
+;; it will be used in the ps-experiment.package package.
+;;
+;; Note: Maybe some refactoring is required to place ps. and fucntions
+;; related to this in a same package
+(defvar *original-package* nil)
+
 (defmacro ps. (&body body)
-  `(ps ,@(replace-dot-in-tree body)))
+  `(let ((*original-package* ,*package*))
+     (macroexpand '(ps ,@(replace-dot-in-tree body)))))
 
 (defmacro defmacro.ps (name args &body body)
   "Note: 2015/12/12
