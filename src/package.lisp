@@ -212,14 +212,6 @@ you cannot edit ps-func itself."
       (push hook *unintern-all-ps-symbol-hook*)
       (error 'type-error :expected-type 'function :datum hook)))
 
-(defun interleave (lst delim)
-  (labels ((rec (result rest)
-             (if (null rest)
-                 result
-                 (rec (append result (list (car rest) delim))
-                      (cdr rest)))))
-    (rec nil lst)))
-
 (defun get-symbol-status (sym pack)
   (multiple-value-bind (found status)
       (find-symbol (symbol-name sym) pack)
