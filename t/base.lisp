@@ -40,16 +40,19 @@
 
 (subtest
     "Test ps. macro"
-  (is-expand (ps. (with-slots (a b) obj
-                    (setf a.x 100)
-                    (setf (@ a x) 200)
-                    (setf b 300))
-                  (setf obj.a.x 100))
-             (ps (with-slots (a b) obj
-                   (setf (@ a x) 100)
-                   (setf (@ a x) 200)
-                   (setf b 300))
-                 (setf (@ obj a x) 100))))
+  (is (macroexpand-1 '(ps. (with-slots (a b) obj
+                             (setf a.x 100)
+                             (setf (@ a x) 200)
+                             (setf b 300))
+                       (setf obj.a.x 100)))
+      `(let ((ps-experiment.base:*original-package* ,*package*))
+         (macroexpand '(ps (with-slots (a b)
+                               obj
+                             (setf (@ a x) 100)
+                             (setf (@ a x) 200)
+                             (setf b 300))
+                        (setf (@ obj a x) 100))))
+      :test #'equal))
 
 (subtest
     "Test defmacro.ps[+] macro"
@@ -57,10 +60,11 @@
                (+ a.x b.y))
              (eval-when (:compile-toplevel :load-toplevel :execute)
                (defpsmacro test (a b) (+ (@ a x) (@ b y)))))
-  (is-expand (ps. (defmacro test (a b)
-                    (+ a.x b.y))) 
-             (ps (defmacro test (a b)
-                   (+ (@ a x) (@ b y)))))
+  (is (macroexpand-1 '(ps. (defmacro test (a b)
+                             (+ a.x b.y))))
+      `(let ((ps-experiment.base:*original-package* ,*package*))
+         (macroexpand '(ps (defmacro test (a b) (+ (@ a x) (@ b y))))))
+      :test #'equal)
   (is-expand (defmacro.ps+ test (a b)
                (+ a.x b.y))
              (progn (defmacro.ps test (a b) (+ a.x b.y))

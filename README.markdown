@@ -85,7 +85,7 @@ The ps-experiment provides some top-level definitions, `defvar.ps(+)`, `defun.ps
 - `.ps` (Ex. `defvar.ps`): defines only for Parenscript
 - `.ps+` (Ex. `defvar.ps+`): defines both for Parenscript and for Common Lisp
 
-Then, you can output these definitions as JavaScript by with-use-ps-pack macro per package. 
+Then, you can output these definitions as JavaScript by `with-use-ps-pack` macro per package.
 
 The sample [Roswell script](https://github.com/snmsts/roswell):
 
@@ -98,11 +98,12 @@ exec ros -Q -- $0 "$@"
 (ql:quickload :ps-experiment)
 
 (defpackage pack-a
-  (:use :cl
-        :ps-experiment))
+  (:use :cl :ps-experiment)
+  (:export :inc-num :negate))
 (defpackage pack-b
-  (:use :cl
-        :ps-experiment))
+  (:use :cl :ps-experiment)
+  (:import-from :pack-a
+                :inc-num))
 
 ;; ----- Package A ----- ;;
 (in-package :pack-a)
@@ -112,41 +113,68 @@ exec ros -Q -- $0 "$@"
 (defun.ps inc-num (x)
   (incf *num* x))
 
-(defun.ps add (x y)
-  (+ x y))
+(defun.ps negate (x)
+  (* x -1))
 
 ;; ----- Package B ----- ;;
 (in-package :pack-b)
 
-;; *num* in pack-a is not guarded
 (defun.ps dec-num (x) 
-  (incf *num* x))
+  (inc-num (pack-a:negate x)))
 
 ;; :this = :pack-b
 (defun main (&rest argv)
   (declare (ignorable argv))
   (print
-   (with-use-ps-pack (:pack-a :this)
-     (inc-num (dec-num 10)))))
+   (with-use-ps-pack (:this)
+     pack-a::*num*)))
 ```
 
 The output is as below.
 
 ```javascript
-var NUM = 0;
-function incNum(x) {
-    return NUM += x;
-};
-function add(x, y) {
-    return x + y;
-};
-function decNum(x) {
-    return NUM -= x;
-};
-incNum(decNum(10));
-```
+var packA = (function() {
+  /* --- import symbols --- */
 
-***Note: If you "use" pack-a in pack-b, you need not write ":pack-a" in the with-use-ps-pack macro.***
+  /* --- define objects --- */
+  var NUM = 0;
+  function incNum(x) {
+      return NUM += x;
+  };
+  function negate(x) {
+      return x * -1;
+  };
+  /* --- extern symbols --- */
+  return {
+    'incNum': incNum,
+    'negate': negate,
+    '_internal': {
+      'NUM': NUM,
+    }
+  };
+})();
+
+var packB = (function() {
+  /* --- import symbols --- */
+  var incNum = packA.incNum;
+  /* --- define objects --- */
+  function decNum(x) {
+      return incNum(packA.negate(x));
+  };
+  function __psMainFunc__() {
+      return packA._internal.NUM;
+  };
+  /* --- extern symbols --- */
+  return {
+    '_internal': {
+      'decNum': decNum,
+      '__psMainFunc__': __psMainFunc__,
+    }
+  };
+})();
+
+packB._internal.__psMainFunc__();
+```
 
 ### Other functionalities
 

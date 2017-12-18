@@ -6,117 +6,24 @@
         :ps-experiment-test.test-utils
         :prove)
   (:import-from :ps-experiment.package
-                :register-ps-func
-                :find-ps-symbol
                 :def-ps-definer
                 :unintern-all-ps-symbol)
   (:import-from :alexandria
                 :symbolicate))
 (in-package :ps-experiment-test.package)
 
+;; TODO: Assure the ps-experiment environment (*ps-func-store*, *ps-type-store*)
+;; is restored after testing.
+
+(import 'ps-experiment.package::find-ps-func)
+
+(plan 6)
+
 (defmacro def-test-package (name)
   `(defpackage ,name
      (:use :cl
            :ps-experiment.package
            :parenscript)))
-
-(def-test-package test.package.pack-a)
-(def-test-package test.package.pack-b)
-
-;; --- package a --- ;;
-(in-package :test.package.pack-a)
-
-(defun test-a1 ()
-  "test-a1")
-
-(defun test-a2 ()
-  "test-a2")
-
-(register-ps-func 'test-a1)
-(register-ps-func 'test-a2)
-
-
-;; --- package b --- ;;
-(in-package :test.package.pack-b)
-
-(defun test-b1 ()
-  "test-b1")
-
-(defun test-b2 ()
-  "test-b2")
-
-(register-ps-func 'test-b1)
-(register-ps-func 'test-b2)
-
-
-;; --- body --- ;;
-(in-package :ps-experiment-test.package)
-
-(defun test1 ()
-  "test1")
-
-(register-ps-func 'test1)
-
-(plan 7)
-
-(subtest
-    "Test find-ps-symbol"
-  (labels ((prove-return (args expected)
-             (multiple-value-bind (left right)
-                 (apply #'find-ps-symbol args)
-               (is (list left right) expected :test #'equal))))
-    (prove-return '("TEST1" "NOT-DEFINED-PACKAGE") '(nil nil))))
-
-(subtest
-    "Test with-use-ps-pack"
-  (is (with-use-ps-pack (:test.package.pack-a
-                         :test.package.pack-b))
-      "test-a1
-test-a2
-test-b1
-test-b2
-"
-      :test #'equal)
-  
-  (pass (with-use-ps-pack (:all)))
-  
-  (is (with-use-ps-pack (:this
-                         :test.package.pack-a)
-        (setf test.abc 100))
-      "test1
-test-a1
-test-a2
-test.abc = 100;"
-      :test #'equal))
-
-;; --- affect global env --- ;;
-(use-package :test.package.pack-b)
-
-(subtest
-    "Test dependencies by 'use'"
-  (is (with-use-ps-pack (:this))
-      "test-b1
-test-b2
-test1
-")
-  (is (with-use-ps-pack (:test.package.pack-b
-                         :this))
-      "test-b1
-test-b2
-test1
-"))
-
-(use-package :test.package.pack-a :test.package.pack-b)
-
-(subtest
-    "Test cascaded dependencies by 'use'"
-  (is (with-use-ps-pack (:this))
-      "test-a1
-test-a2
-test-b1
-test-b2
-test1
-"))
 
 ;; --- affect global env --- ;;
 (unintern-all-ps-symbol)
@@ -125,13 +32,77 @@ test1
   `(defvar ,name ,value))
 
 (defhoge.ps x 100)
+(export 'x)
 
 (subtest
-    "Test make-ps-definer"
-  (ok (find-ps-symbol "_DEFHOGE.PS_X"))
+    "Test def-ps-definer"
+  (ok (find-ps-func "X"))
   (is (with-use-ps-pack (:this))
-      "var x = 100;
-"
+      "var psExperimentTest_package = (function() {
+  /* --- import symbols --- */
+
+  /* --- define objects --- */
+  var x = 100;
+  function __psMainFunc__() {
+      return null;
+  };
+  /* --- extern symbols --- */
+  return {
+    'x': x,
+    '_internal': {
+      '__psMainFunc__': __psMainFunc__,
+    }
+  };
+})();
+
+psExperimentTest_package._internal.__psMainFunc__();"
+      :test #'equal))
+
+(export 'defhoge.ps)
+
+(def-test-package test.package.external)
+(in-package :test.package.external)
+(import 'ps-experiment-test.package:defhoge.ps)
+(import 'ps-experiment-test.package:x)
+
+(defhoge.ps a 10)
+
+(in-package :ps-experiment-test.package)
+
+(subtest
+    "Test print un-exported symbol"
+  (is (with-use-ps-pack (:this :test.package.external))
+      "var psExperimentTest_package = (function() {
+  /* --- import symbols --- */
+
+  /* --- define objects --- */
+  var x = 100;
+  function __psMainFunc__() {
+      return null;
+  };
+  /* --- extern symbols --- */
+  return {
+    'x': x,
+    '_internal': {
+      '__psMainFunc__': __psMainFunc__,
+    }
+  };
+})();
+
+var test_package_external = (function() {
+  /* --- import symbols --- */
+  var x = psExperimentTest_package.x;
+  /* --- define objects --- */
+  var a = 10;
+  /* --- extern symbols --- */
+  return {
+    '_internal': {
+      'a': a,
+    }
+  };
+})();
+
+psExperimentTest_package._internal.__psMainFunc__();"
       :test #'equal))
 
 ;; --- affect global env --- ;;
@@ -144,12 +115,107 @@ test1
 (subtest
     "Test def-top-level-form.ps"
   (is (with-use-ps-pack (:this))
-      "1 + 2;
-3 * 4;
-"))
+      "var psExperimentTest_package = (function() {
+  /* --- import symbols --- */
+
+  /* --- define objects --- */
+  1 + 2;
+  3 * 4;
+  function __psMainFunc__() {
+      return null;
+  };
+  /* --- extern symbols --- */
+  return {
+    '_internal': {
+      '__psMainFunc__': __psMainFunc__,
+    }
+  };
+})();
+
+psExperimentTest_package._internal.__psMainFunc__();"))
 
 ;; --- affect global env --- ;;
+(in-package :ps-experiment-test.package)
 (unintern-all-ps-symbol)
+
+(def-ps-definer defhoge.ps (name value) ()
+  `(defvar ,name ,value))
+
+(def-test-package test.package.un-imported-symbol-a)
+(def-test-package test.package.un-imported-symbol-b)
+
+(in-package :test.package.un-imported-symbol-a)
+(ps-experiment-test.package::defhoge.ps external-sym 100)
+(ps-experiment-test.package::defhoge.ps internal-sym 100)
+(defpsmacro test-macro ()
+  `(+ (external-sym) (internal-sym)))
+
+(export 'external-sym)
+(export 'test-macro)
+
+(in-package :test.package.un-imported-symbol-b)
+(import 'test.package.un-imported-symbol-a:test-macro)
+(ps-experiment-test.package::defhoge.ps sym (test-macro))
+
+(in-package :ps-experiment-test.package)
+(subtest
+    "Test referring un-imported symbol via imported macro"
+  (is (with-use-ps-pack (:test.package.un-imported-symbol-b))
+      "var test_package_unImportedSymbolA = (function() {
+  /* --- import symbols --- */
+
+  /* --- define objects --- */
+  var externalSym = 100;
+  var internalSym = 100;
+  /* --- extern symbols --- */
+  return {
+    'externalSym': externalSym,
+    '_internal': {
+      'internalSym': internalSym,
+    }
+  };
+})();
+
+var test_package_unImportedSymbolB = (function() {
+  /* --- import symbols --- */
+
+  /* --- define objects --- */
+  var sym = test_package_unImportedSymbolA.externalSym() + test_package_unImportedSymbolA._internal.internalSym();
+  /* --- extern symbols --- */
+  return {
+    '_internal': {
+      'sym': sym,
+    }
+  };
+})();
+
+psExperimentTest_package._internal.__psMainFunc__();"))
+
+;; --- affect global env --- ;;
+(in-package :ps-experiment-test.package)
+(unintern-all-ps-symbol)
+
+(def-test-package test.package.type-specifier)
+(in-package :test.package.type-specifier)
+
+(ps-experiment.package:register-ps-type 'test-type)
+(export 'test-type)
+
+(in-package :ps-experiment-test.package)
+(import 'test.package.type-specifier:test-type)
+(subtest
+    "Test quote for type-specifier is removed"
+  (is (ps. 'x) "'x';")
+  (is (ps. 'test-type) "testType;")
+  (is (ps. '(x test-type y z)) "['x', testType, 'y', 'z'];")
+  (is (ps. #(x test-type y z)) "['x', testType, 'y', 'z'];"))
+
+;; --- affect global env --- ;;
+(in-package :ps-experiment-test.package)
+(unintern-all-ps-symbol)
+
+(def-ps-definer defhoge.ps (name value) ()
+  `(defvar ,name ,value))
 
 (def-test-package test.package.loop-a)
 (def-test-package test.package.loop-b)
@@ -158,11 +224,11 @@ test1
 (use-package :test.package.loop-b :test.package.loop-a)
 
 (in-package :test.package.loop-a)
-(def-top-level-form.ps test-loop-a
-  (+ 3 4))
+(ps-experiment-test.package::defhoge.ps xa 100)
+(export 'xa)
 (in-package :test.package.loop-b)
-(def-top-level-form.ps test-loop-b
-  (* 5 8))
+(ps-experiment-test.package::defhoge.ps xb 200)
+(export 'xb)
 (in-package :ps-experiment-test.package)
 
 (subtest
@@ -170,6 +236,7 @@ test1
   (is-error (with-use-ps-pack (:test.package.loop-a))
             'simple-error))
 
+;; --- affect global env --- ;;
 (unintern-all-ps-symbol)
 
 (finalize)

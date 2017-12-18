@@ -1,11 +1,15 @@
 (in-package :cl-user)
-(defpackage ps-experiment.utils
+(defpackage ps-experiment.ps-macros-for-compatibility
   (:use :cl
         :cl-ppcre
         :parenscript)
   (:import-from :ps-experiment.base
                 :defmacro.ps+))
-(in-package :ps-experiment.utils)
+(in-package :ps-experiment.ps-macros-for-compatibility)
+
+#|
+This file defines macros for Parenscript for compatiblity to Common Lisp code.
+|#
 
 (defun quoted-symbolp (object)
   (and (listp object)
