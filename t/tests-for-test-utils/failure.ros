@@ -1,0 +1,38 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp (ql:quickload '(:parenscript
+                              :ps-experiment
+                              :ps-experiment-test
+                              :prove
+                              :uiop)
+                            :silent t))
+
+(defpackage :ros.script.failure.3724219299
+  (:use :cl
+        :prove
+        :parenscript
+        :ps-experiment
+        :ps-experiment-test.test-utils))
+(in-package :ros.script.failure.3724219299)
+
+(defun.ps+ success-func () 0)
+
+(defun failure-func () 1)
+(defun.ps-only failure-func () -1)
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (plan 1)
+  (subtest "group"
+    (with-prove-in-both ()
+      (is (success-func) 0)
+      ;; fail only ps side
+      (is (failure-func) 1)))
+  (unless (finalize)
+    (uiop:quit -1)))
+;;; vim: set ft=lisp lisp:
