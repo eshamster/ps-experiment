@@ -1,0 +1,33 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp (ql:quickload '(:prove :uiop) :silent t))
+
+(defpackage :ros.script.run.3724219287
+  (:use :cl
+        :prove))
+(in-package :ros.script.run.3724219287)
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (plan 2)
+  (ok (not (uiop:run-program "./success.ros")))
+  (is-error (uiop:run-program "./failure.ros")
+            'uiop/run-program:subprocess-error)
+  (unless (finalize)
+    (uiop:quit -1)))
+;;; vim: set ft=lisp lisp:
+
+
+
+
+
+
+
+
+
+

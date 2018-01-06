@@ -16,4 +16,5 @@ install:
 
 script:
   - run-prove *-test.asd
-
+  - cd t/tests-for-test-utils
+  - ./run.ros

@@ -147,7 +147,8 @@
     `(,name-symbol ,arg-list
         (if (funcall ,tester ,@arg-list-to-call)
             (print (+ "  ✓ " (funcall ,success-printer ,@arg-list-to-call)))
-            (print (+ "  × " (funcall ,failure-printer ,@arg-list-to-call)))))))
+            (progn (print (+ "  × " (funcall ,failure-printer ,@arg-list-to-call)))
+                   (setf all-tests-ok-p false))))))
 
 ;; This is for checking ps-prove-definition in REPL.
 (defun test-ps-prove (prove-name &rest rest)
@@ -160,14 +161,17 @@
                              (,prove-name ,@rest))))))
 
 (defpsmacro with-prove-in-ps% (() &body body)
-  `(flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
-                  *ps-prove-table*)
-     ,@body))
+  `(let ((all-tests-ok-p t))
+     (flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
+                    *ps-prove-table*)
+       ,@body
+       all-tests-ok-p)))
 
 (defmacro with-prove-in-ps ((&key (use '(:this))) &body body)
-  `(run-js (with-use-ps-pack (,@use)
-             (with-prove-in-ps% ()
-               ,@body))))
+  `(ok (run-js (with-use-ps-pack (,@use)
+                 (with-prove-in-ps% ()
+                   ,@body)))
+       "Result of JavaScript test[s]"))
 
 (defmacro with-prove-in-both ((&key (use '(:this))) &body body)
   `(progn
