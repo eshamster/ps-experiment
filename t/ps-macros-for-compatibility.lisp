@@ -24,7 +24,7 @@
                              ,expected)))
     ;; car
     (prove-in-both (is (car '(1 2 3)) 1))
-    (prove-setf car '(1 2 3) 4 '(4 2 3))
+    (prove-setf car (list 1 2 3) 4 '(4 2 3))
     (prove-in-both (ok (null (car '()))))
     ;; cdr
     (is-list.ps+ (cdr '(1 2 3)) '(2 3))
@@ -32,10 +32,10 @@
     (is-list.ps+ (cdr '()) '())
     ;; caar
     (prove-in-both (is (caar '((1) 2 3)) 1))
-    (prove-setf caar '((1) 2 3) 4 '((4) 2 3))
+    (prove-setf caar (list (list 1) 2 3) 4 '((4) 2 3))
     ;; cadr
     (prove-in-both (is (cadr '(1 2 3)) 2))
-    (prove-setf cadr '(1 2 3) 4 '(1 4 3))
+    (prove-setf cadr (list 1 2 3) 4 '(1 4 3))
     ;; cdar
     (is-list.ps+ (cdar '((1 4 9) 2 3)) '(4 9))
     ;; cddr
