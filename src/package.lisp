@@ -142,7 +142,7 @@ you cannot edit ps-func itself."
 
 (defun package-to-js-string (pack)
   (ps:symbol-to-js-string
-    (intern (ppcre:regex-replace-all "\\."
+    (intern (ppcre:regex-replace-all "[\\./]"
                                      (package-name pack)
                                      "_")
             "KEYWORD")))

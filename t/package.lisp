@@ -60,8 +60,8 @@ psExperimentTest_package._internal.__psMainFunc__();"
 
 (export 'defhoge.ps)
 
-(def-test-package test.package.external)
-(in-package :test.package.external)
+(def-test-package test.package/external) ; Also try slash in package name
+(in-package :test.package/external)
 (import 'ps-experiment-test.package:defhoge.ps)
 (import 'ps-experiment-test.package:x)
 
@@ -71,7 +71,7 @@ psExperimentTest_package._internal.__psMainFunc__();"
 
 (subtest
     "Test print un-exported symbol"
-  (is (with-use-ps-pack (:this :test.package.external))
+  (is (with-use-ps-pack (:this :test.package/external))
       "var psExperimentTest_package = (function() {
   /* --- import symbols --- */
 
