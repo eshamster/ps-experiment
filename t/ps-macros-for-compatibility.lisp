@@ -13,7 +13,7 @@
 
 (declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
 
-(plan 23)
+(plan 24)
 
 (subtest
     "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
@@ -119,6 +119,15 @@
   (with-prove-in-both ()
     (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3)
     (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
+
+(subtest
+    "Test getf"
+  (with-prove-in-both ()
+    (is (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y) :b) 10)
+    (is (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y)
+              :not-exist
+              999)
+        999)))
 
 (subtest
     "Test reduce"
