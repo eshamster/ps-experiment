@@ -1,18 +1,18 @@
 (in-package :cl-user)
-(defpackage ps-experiment 
-  (:nicknames :pse)
-  (:import-from :ps-experiment.ps-macros-for-compatibility)
-  (:import-from :ps-experiment.base
+(defpackage ps-experiment/main
+  (:nicknames :ps-experiment :pse)
+  (:import-from :ps-experiment/ps-macros-for-compatibility)
+  (:import-from :ps-experiment/base
                 :ps.
                 :defmacro.ps
                 :defmacro.ps+
                 :enable-ps-experiment-syntax
                 :--)
-  (:import-from :ps-experiment.package
+  (:import-from :ps-experiment/package
                 :with-use-ps-pack
                 :def-top-level-form.ps
                 :defun.ps-only)
-  (:import-from :ps-experiment.defines
+  (:import-from :ps-experiment/defines
                 :defvar.ps
                 :defvar.ps+
                 :defun.ps

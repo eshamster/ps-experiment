@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment.package
+(defpackage ps-experiment/package
   (:use :cl
         :parenscript)
   (:export :def-ps-definer
@@ -20,15 +20,15 @@
                 :acond
                 :aif
                 :it)
-  (:import-from :ps-experiment.base
+  (:import-from :ps-experiment/base
                 :ps.
                 :*original-package*)
-  (:import-from :ps-experiment.util-sorter
+  (:import-from :ps-experiment/util-sorter
                 :get-node-name
                 :node-equalp
                 :get-children
                 :sort-tree-node))
-(in-package :ps-experiment.package)
+(in-package :ps-experiment/package)
 
 ;; --- ps-func-store --- ;;
 

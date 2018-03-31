@@ -7,29 +7,16 @@
   Author: eshamster (hamgoostar@gmail.com)
 |#
 
-(in-package :cl-user)
-(defpackage ps-experiment-asd
-  (:use :cl :asdf))
-(in-package :ps-experiment-asd)
-
 (defsystem ps-experiment
   :version "0.1"
   :author "eshamster"
   :license "LLGPL"
+  :class :package-inferred-system
   :depends-on (:parenscript
                :metabang-bind
                :alexandria
-               :anaphora)
-  :components ((:module "src"
-                :serial t
-                :components
-                ((:file "base")
-                 (:file "util-sorter")
-                 (:file "package")
-                 (:file "defines")
-                 (:file "ps-macros-for-compatibility")
-                 (:file "common-macros")
-                 (:file "ps-experiment"))))
+               :anaphora
+               "ps-experiment/main")
   :description "This is the experimental utils for parenscript"
   :long-description
   #.(with-open-file (stream (merge-pathnames
@@ -43,4 +30,4 @@
                                :fill-pointer t)))
           (setf (fill-pointer seq) (read-sequence seq stream))
           seq)))
-  :in-order-to ((test-op (test-op ps-experiment-test))))
+  :in-order-to ((test-op (test-op ps-experiment/t))))

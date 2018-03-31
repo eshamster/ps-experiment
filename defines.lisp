@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment.defines
+(defpackage ps-experiment/defines
   (:use :cl
         :cl-ppcre
         :parenscript)
@@ -16,17 +16,17 @@
   (:import-from :alexandria
                 :symbolicate
                 :parse-ordinary-lambda-list)
-  (:import-from :ps-experiment.base
+  (:import-from :ps-experiment/base
                 :ps.
                 :defmacro.ps)
-  (:import-from :ps-experiment.package
+  (:import-from :ps-experiment/package
                 :make-ps-definer
                 :def-ps-definer
                 :def-top-level-form.ps
                 :defun.ps-only
                 :register-ps-type
                 :add-unintern-all-ps-symbol-hook))
-(in-package :ps-experiment.defines)
+(in-package :ps-experiment/defines)
 
 ;; ----- .ps ----- ;;
 
