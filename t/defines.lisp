@@ -1,13 +1,13 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.defines
+(defpackage ps-experiment/t/defines
   (:use :cl
         :ps-experiment
         :parenscript
-        :ps-experiment-test.test-utils
-        :prove)
-  (:import-from :ps-experiment.package
+        :ps-experiment/t/test-utils
+        :rove)
+  (:import-from :ps-experiment/package
                 :unintern-all-ps-symbol))
-(in-package :ps-experiment-test.defines)
+(in-package :ps-experiment/t/defines)
 
 (plan 6)
 
@@ -192,14 +192,14 @@
                (test-struct-plus2-p target))))))
 
 (unintern-all-ps-symbol)
-(is (hash-table-count ps-experiment.defines::*ps-struct-slots*) 0)
+(is (hash-table-count ps-experiment/defines::*ps-struct-slots*) 0)
 
 ;; ----- Test internals ----- ;;
 
 (subtest
     "Test internal functions"
   (labels ((fn (lambda-list)
-             (ps-experiment.defines::extract-arg-names lambda-list))
+             (ps-experiment/defines::extract-arg-names lambda-list))
            (is-list (got expected)
              (is got expected :test #'equalp)))
     (is-list (fn '()) '())

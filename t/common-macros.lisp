@@ -1,15 +1,15 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.common-macros
+(defpackage ps-experiment/t/common-macros
   (:use :cl
-        :ps-experiment.common-macros
-        :ps-experiment-test.test-utils
+        :ps-experiment/common-macros
+        :ps-experiment/t/test-utils
         :parenscript
-        :prove)
+        :rove)
   (:import-from :alexandria
                 :with-gensyms)
-  (:import-from :ps-experiment.package
+  (:import-from :ps-experiment/package
                 :unintern-all-ps-symbol))
-(in-package :ps-experiment-test.common-macros)
+(in-package :ps-experiment/t/common-macros)
 
 (plan 2)
 

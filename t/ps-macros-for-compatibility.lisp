@@ -1,15 +1,15 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.ps-macros-for-compatibility
+(defpackage ps-experiment/t/ps-macros-for-compatibility
   (:use :cl
         :ps-experiment
-        :ps-experiment-test.test-utils
+        :ps-experiment/t/test-utils
         :parenscript
-        :prove)
+        :rove)
   (:import-from :alexandria
                 :with-gensyms)
-  (:import-from :ps-experiment.package
+  (:import-from :ps-experiment/package
                 :unintern-all-ps-symbol))
-(in-package :ps-experiment-test.ps-macros-for-compatibility)
+(in-package :ps-experiment/t/ps-macros-for-compatibility)
 
 (declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
 

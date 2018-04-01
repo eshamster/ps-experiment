@@ -1,7 +1,7 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.test-utils
+(defpackage ps-experiment/t/test-utils
   (:use :cl
-        :prove)
+        :rove)
   (:import-from :ps-experiment
                 :with-use-ps-pack
                 :ps.)
@@ -25,7 +25,7 @@
            :is-list.ps+
            :undefined-variable
            :*enable-js-prove*))
-(in-package :ps-experiment-test.test-utils)
+(in-package :ps-experiment/t/test-utils)
 
 (defvar *enable-js-prove* t)
 

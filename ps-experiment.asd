@@ -30,4 +30,22 @@
                                :fill-pointer t)))
           (setf (fill-pointer seq) (read-sequence seq stream))
           seq)))
-  :in-order-to ((test-op (test-op ps-experiment/t))))
+  :in-order-to ((test-op (test-op "ps-experiment/t"))))
+
+(defsystem ps-experiment/t
+  :class :package-inferred-system
+  :depends-on (:ps-experiment
+               :parenscript
+               :alexandria
+               :anaphora
+               :cl-js
+               :rove
+               "ps-experiment/t/base"
+               "ps-experiment/t/util-sorter"
+               "ps-experiment/t/package"
+               ;; WIP
+               ;; "ps-experiment/t/defines"
+               ;; "ps-experiment/t/ps-macros-for-compatibility"
+               ;; "ps-experiment/t/common-macros"
+               )
+  :perform (test-op (o c) (symbol-call :rove '#:run c)))

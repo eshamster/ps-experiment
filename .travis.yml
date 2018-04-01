@@ -12,9 +12,9 @@ env:
 
 install:
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/install-for-ci.sh | sh
-  - ros install prove
+  - ros install fukamachi/rove
 
 script:
-  - run-prove *-test.asd
-  - cd t/tests-for-test-utils
-  - ./run.ros
+  - rove *.asd
+#  - cd t/tests-for-test-utils
+#  - ./run.ros
