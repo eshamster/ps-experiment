@@ -29,7 +29,7 @@
     (ok (string= (funcall (intern "RUN-TEST" pack))
                  (symbol-value (intern "*EXPECTED-OUTPUT*" pack))))))
 
-(deftest package
+(deftest ps-experiment-package
   (testing "def-ps-definer"
     (run-package :def-ps-definer))
   (testing "importing symbol"
