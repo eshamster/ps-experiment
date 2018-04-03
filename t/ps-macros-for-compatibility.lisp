@@ -13,322 +13,304 @@
 
 (declaim #+sbcl (sb-ext:muffle-conditions sb-ext:compiler-note))
 
-(plan 24)
+;; --- utilities --- ;;
 
-(subtest
-    "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
-  (macrolet ((prove-setf (cxr base-lst value expected)
-               `(is-list.ps+ (let ((lst ,base-lst))
-                               (setf (,cxr lst) ,value)
-                               lst)
-                             ,expected)))
-    ;; car
-    (prove-in-both (is (car '(1 2 3)) 1))
-    (prove-setf car (list 1 2 3) 4 '(4 2 3))
-    (prove-in-both (ok (null (car '()))))
-    ;; cdr
-    (is-list.ps+ (cdr '(1 2 3)) '(2 3))
-    (is-list.ps+ (cdr '(1)) '())
-    (is-list.ps+ (cdr '()) '())
-    ;; caar
-    (prove-in-both (is (caar '((1) 2 3)) 1))
-    (prove-setf caar (list (list 1) 2 3) 4 '((4) 2 3))
-    ;; cadr
-    (prove-in-both (is (cadr '(1 2 3)) 2))
-    (prove-setf cadr (list 1 2 3) 4 '(1 4 3))
-    ;; cdar
-    (is-list.ps+ (cdar '((1 4 9) 2 3)) '(4 9))
-    ;; cddr
-    (is-list.ps+ (cddr '(1 2 3)) '(3))))
+(defun is-list (lst1 lst2)
+  (equalp lst1 lst2))
 
-(subtest
-    "Test nth"
-  (with-prove-in-both ()
-    (is (nth 2 '(1 2 3 4)) 3)
-    (ok (null (nth 2 '(1 2))))))
+(defun.ps-only is-list (lst1 lst2)
+  (unless (= (length lst1) (length lst2))
+    (return-from is-list nil))
+  (dotimes (i (length lst1))
+    ;; FIXME: The case where types of var1 and var2 is different  will be failed.
+    (let ((var1 (aref lst1 i))
+          (var2 (aref lst2 i)))
+      (unless (if (instanceof var1 -array)
+                  (is-list var1 var2)
+                  (= var1 var2))
+        (return-from is-list nil))))
+  t)
 
-(subtest
-    "Test listp and atom"
-  (subtest
-      "Test listp"
-    (with-prove-in-both ()
-      (ok (listp nil))
-      (ok (listp '()))
-      (ok (listp '(1 2 3)))
-      (ok (not (listp 12)))
-      (ok (not (listp 'abc)))))
-  (subtest
-      "Test atom"
-    (with-prove-in-both ()
-      (ok (atom nil))
-      (ok (atom '()))
-      (ok (not (atom '(1 2 3))))
-      (ok (atom 12))
-      (ok (atom 'abc)))))
+;; test for utilities
+(deftest.ps+ for-is-list
+  (ok (is-list '(1 2 3) (list 1 2 3)))
+  (ok (is-list '(1 (10 20) 2) (list 1 (list 10 20) 2)))
+  (ng (is-list '(1 2 3) (list 1 2)))
+  (ng (is-list '(1 2 3) (list 1 3 2))))
 
-(subtest
-    "Test subseq"
-  (is-list.ps+ (subseq '(1 2 3) 1)
-               '(2 3))
-  (is-list.ps+ (subseq '(1 2 3 4) 2 3)
-               '(3))
-  (is-list.ps+ (let* ((x '(1 2 3 4))
+;; --- test --- ;;
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defmacro.ps+ prove-setf (cxr base-lst value expected)
+    `(is-list (let ((lst ,base-lst))
+                (setf (,cxr lst) ,value)
+                lst)
+              ,expected)))
+
+(deftest.ps+ for-cxxr
+  "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
+  (testing "car"
+    (ok (= (car '(1 2 3)) 1))
+    (ok (prove-setf car (list 1 2 3) 4 '(4 2 3)))
+    (ok (null (car '()))))
+  (testing "cdr"
+    (ok (is-list (cdr '(1 2 3)) '(2 3)))
+    (ok (is-list (cdr '(1)) '()))
+    (ok (is-list (cdr '()) '())))
+  (testing "caar"
+    (ok (= (caar '((1) 2 3)) 1))
+    (ok (prove-setf caar (list (list 1) 2 3) 4 '((4) 2 3))))
+  (testing "cadr"
+    (ok (= (cadr '(1 2 3)) 2))
+    (ok (prove-setf cadr (list 1 2 3) 4 '(1 4 3))))
+  (testing "cdar"
+    (ok (is-list (cdar '((1 4 9) 2 3)) '(4 9))))
+  (testing "cddr"
+    (ok (is-list (cddr '(1 2 3)) '(3)))))
+
+(deftest.ps+ for-nth
+  (ok (= (nth 2 '(1 2 3 4)) 3))
+  (ok (null (nth 2 '(1 2)))))
+
+(deftest.ps+ for-listp_atom
+  (testing "listp"
+    (ok (listp nil))
+    (ok (listp '()))
+    (ok (listp '(1 2 3)))
+    (ok (not (listp 12)))
+    (ok (not (listp 'abc))))
+  (testing "atom"
+    (ok (atom nil))
+    (ok (atom '()))
+    (ok (not (atom '(1 2 3))))
+    (ok (atom 12))
+    (ok (atom 'abc))))
+
+(deftest.ps+ for-subseq
+  (ok (is-list (subseq '(1 2 3) 1)
+               '(2 3)))
+  (ok (is-list (subseq '(1 2 3 4) 2 3)
+               '(3)))
+  (ok (is-list (let* ((x '(1 2 3 4))
                       (y (subseq x 2 3)))
                  (list x y))
-               '((1 2 3 4) (3))))
+               '((1 2 3 4) (3)))))
 
-(subtest
-    "Test macros like push"
-  (subtest
-      "Test push"
-    (is-list.ps+ (let ((x '()))
+(deftest.ps+ for-push_pushnew
+  (testing "push"
+    (ok (is-list (let ((x '()))
                    (push 1 x)
                    (push 2 x))
-                 '(2 1)))
-  (subtest
-      "Test pushnew"
-    (is-list.ps+ (let ((x '(1 2)))
+                 '(2 1))))
+  (testing "pushnew"
+    (ok (is-list (let ((x '(1 2)))
                    (pushnew 3 x)
                    (pushnew 2 x))
-                 '(3 1 2))
-    (is-list.ps+ (let ((x '(1 2)))
+                 '(3 1 2)))
+    (ok (is-list (let ((x '(1 2)))
                    (pushnew 12 x :test (lambda (a b) (= (/ a 6) b)))
                    (pushnew 6 x :test (lambda (a b) (= a (/ b 6)))))
-                 '(6 1 2))))
+                 '(6 1 2)))))
 
-(subtest
-    "Test every"
-  (with-prove-in-both ()
-    (ok (every (lambda (x) (> x 2)) '(3 4 5)))
-    (ok (not (every (lambda (x) (> x 2)) '(2 3 4))))))
+(deftest.ps+ for-every
+  (ok (every (lambda (x) (> x 2)) '(3 4 5)))
+  (ok (not (every (lambda (x) (> x 2)) '(2 3 4)))))
 
-(subtest
-    "Test some"
-  (with-prove-in-both ()
-    (ok (some (lambda (x) (< x 2)) '(2 1 3)))
-    (ok (not (some (lambda (x) (< x 2)) '(2 3 4))))))
+(deftest.ps+ for-some 
+  (ok (some (lambda (x) (< x 2)) '(2 1 3)))
+  (ok (not (some (lambda (x) (< x 2)) '(2 3 4)))))
 
-(subtest
-    "Test find"
-  (with-prove-in-both ()
-    (is (find 3 '(1 2 3 4)) 3)
-    (ok (not (find 5 '(1 2 3 4))))))
+(deftest.ps+ for-find 
+  (ok (= (find 3 '(1 2 3 4)) 3))
+  (ok (not (find 5 '(1 2 3 4)))))
 
-(subtest
-    "Test find-if"
-  (with-prove-in-both ()
-    (is (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3)
-    (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4))))))
+(deftest.ps+ for-find-if
+  (ok (= (find-if (lambda (x) (> x 2)) '(2 1 3 4)) 3))
+  (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4)))))
 
-(subtest
-    "Test getf"
-  (with-prove-in-both ()
-    (is (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y) :b) 10)
-    (is (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y)
-              :not-exist
-              999)
-        999)))
+(deftest.ps+ for-getf
+  (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y) :b) 10))
+  (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y)
+               :not-exist
+               999)
+         999)))
 
-(subtest
-    "Test reduce"
-  (prove-in-both (is (reduce #'(lambda (x y) (+ x y)) '(1 2 3 4))
-                     10))
-  (is-list.ps+ (reduce #'(lambda (x y) (list (+ (car x) (car y))
+(deftest.ps+ for-reduce
+  (ok (= (reduce #'(lambda (x y) (+ x y)) '(1 2 3 4))
+         10))
+  (ok (is-list (reduce #'(lambda (x y) (list (+ (car x) (car y))
                                              (+ (cadr x) (cadr y))))
                        '((1 2) (3 4) (5 6)))
-               '(9 12)))
+               '(9 12))))
 
-(subtest
-    "Test remove"
-  (is-list.ps+ (let ((lst '(1 2 3 2 4)))
+(deftest.ps+ for-remove
+  (ok (is-list (let ((lst '(1 2 3 2 4)))
                  (remove 2 lst))
-               '(1 3 4))
-  (is-list.ps+ (let ((lst '(1 2 3 2 4)))
-                    (remove 2 lst)
-                    lst)
-               '(1 2 3 2 4)))
+               '(1 3 4)))
+  (ok (is-list (let ((lst '(1 2 3 2 4)))
+                 (remove 2 lst)
+                 lst)
+               '(1 2 3 2 4))))
 
-(subtest
-    "Test remove-if"
-  (is-list.ps+ (let ((lst '(1 2 3 4)))
-                    (remove-if (lambda (x) (> x 2)) lst))
-                  '(1 2))
-  (is-list.ps+ (let ((lst '(1 2 3 4)))
-                    (remove-if (lambda (x) (> x 2)) lst)
-                    lst)
-                  '(1 2 3 4)))
+(deftest.ps+ for-remove-if
+  (ok (is-list (let ((lst '(1 2 3 4)))
+                 (remove-if (lambda (x) (> x 2)) lst))
+               '(1 2)))
+  (ok (is-list (let ((lst '(1 2 3 4)))
+                 (remove-if (lambda (x) (> x 2)) lst)
+                 lst)
+               '(1 2 3 4))))
 
-(subtest
-    "Test remove-if-not"
-  (is-list.ps+ (let ((lst '(1 2 3 4)))
-                    (remove-if-not (lambda (x) (> x 2)) lst))
-                  '(3 4))
-  (is-list.ps+ (let ((lst '(1 2 3 4)))
-                    (remove-if-not (lambda (x) (> x 2)) lst)
-                    lst)
-                  '(1 2 3 4)))
+(deftest.ps+ for-remove-if-not
+  (ok (is-list (let ((lst '(1 2 3 4)))
+                 (remove-if-not (lambda (x) (> x 2)) lst))
+               '(3 4)))
+  (ok (is-list (let ((lst '(1 2 3 4)))
+                 (remove-if-not (lambda (x) (> x 2)) lst)
+                 lst)
+               '(1 2 3 4))))
 
-(subtest
-    "Test reverse and nreverse"
-  (is-list.ps+ (let ((lst '(1 2 3)))
+(deftest.ps+ for-reverse_nreverse
+  (ok (is-list (let ((lst '(1 2 3)))
                  (reverse lst))
-               '(3 2 1))
-  (is-list.ps+ (let ((lst '(1 2 3)))
+               '(3 2 1)))
+  (ok (is-list (let ((lst '(1 2 3)))
                  (reverse lst)
                  lst)
-               '(1 2 3))
-  (is-list.ps+ (let ((lst (list 1 2 3)))
+               '(1 2 3)))
+  (ok (is-list (let ((lst (list 1 2 3)))
                  (nreverse lst))
-               '(3 2 1))
+               '(3 2 1)))
   ;; Note: The state of the lst after nreverse is not defined in CL
   )
 
-(subtest
-    "Test mapcar"
-  (is-list.ps+ (mapcar #'(lambda (x) (* x 2)) '(1 2 3))
-               '(2 4 6))
-  (is-list.ps+ (let ((lst '(1 2 3)))
+(deftest.ps+ for-mapcar
+  (ok (is-list (mapcar #'(lambda (x) (* x 2)) '(1 2 3))
+               '(2 4 6)))
+  (ok (is-list (let ((lst '(1 2 3)))
                  (mapcar #'(lambda (x) (* x 2)) lst)
                  lst)
-               '(1 2 3)))
+               '(1 2 3))))
 
-(subtest
-    "Test hash table"
-  ;;  (is (ps (make-hash-table)) "{};" :test #'equal)
-  (is (ps (gethash key tbl)) "tbl[key];" :test #'equal)
-  (is (ps (gethash 'key tbl)) "tbl['KEY'];" :test #'equal)
-  (is (ps (gethash 0 tbl)) "tbl[0];" :test #'equal)
-  (is (ps (gethash (+ 1 2) tbl)) "tbl[1 + 2];" :test #'equal)
-  (prove-in-both (is (let ((tbl (make-hash-table)))
-                       (setf (gethash 'x tbl) 100)
-                       (gethash 'x tbl))
-                     100))
-  (subtest
-      "Test maphash"
-    (prove-in-both (is (let ((tbl (make-hash-table))
-                             (sum-key 0)
-                             (sum-value 0))
-                         (setf (gethash 10 tbl) 100)
-                         (setf (gethash 20 tbl) 200)
-                         (setf (gethash 30 tbl) 300)
-                         (maphash (lambda (k v)
-                                    (incf sum-key k)
-                                    (incf sum-value v))
-                                  tbl)
-                         ;;(+ sum-key sum-value)
-                         sum-value)
-                       600)
-                   :prints-js t)))
+(deftest for-hash-table1
+  ;;  (ok (= (ps (make-hash-table)) "{};"))
+  (ok (string= (ps (gethash key tbl)) "tbl[key];"))
+  (ok (string= (ps (gethash 'key tbl)) "tbl['KEY'];"))
+  (ok (string= (ps (gethash 0 tbl)) "tbl[0];"))
+  (ok (string= (ps (gethash (+ 1 2) tbl)) "tbl[1 + 2];")))
 
-(subtest
-    "Test very simple format"
+(deftest.ps+ for-hash-table2
+  (testing "gethash"
+    (ok (= (let ((tbl (make-hash-table)))
+             (setf (gethash 'x tbl) 100)
+             (gethash 'x tbl))
+           100)))
+  (testing "maphash"
+    (ok (= (let ((tbl (make-hash-table))
+                 (sum-key 0)
+                 (sum-value 0))
+             (setf (gethash 10 tbl) 100)
+             (setf (gethash 20 tbl) 200)
+             (setf (gethash 30 tbl) 300)
+             (maphash (lambda (k v)
+                        (incf sum-key k)
+                        (incf sum-value v))
+                      tbl)
+             ;;(+ sum-key sum-value)
+             sum-value)
+           600))))
+
+(deftest.ps+ for-very-simple-format
   ;; The current simple format output completely different string from CL's format.
   ;; So only test in PS.
-  (subtest
-      "Test format"
-    (with-prove-in-ps ()
-      (is (format nil "test") "test")
-      (is (format nil "test~D~A" 1 "a") "test~D~A; 1; a")))
-  (subtest
-      "Test format print"
-    ;; Because is-print for PS has not been implemented, only make sure that it thorw no error.
-    (with-prove-in-both ()
-      (ok (not (format t "test"))))))
+  (testing "string by format"
+    (ok (string= (format nil "test") "test"))
+    (ok (format nil "test~D~A" 1 "a")))
+  (testing "print by format"
+    ;; Because prints for PS has not been implemented, only make sure that it thorw no error.
+    (ok (not (format t "test")))))
 
-(subtest
-    "Test error"
-  ;; Note: Should not use 'with-prove-in-both' in this subtest
-  ;;       because it depends on 'error'.
-  (prove-in-both (is-error (error 'simple-error)
-                           'simple-error))
-  (prove-in-both (is-error (let ((x 1))
-                             (error "test ~A ~A ~A ~A" 1 "a" x 'test))
-                           'simple-error))
-  (prove-in-both (is-error (error 'type-error :expected-type 'fixnum :datum "abc")
-                           'type-error)))
+(deftest.ps+ for-error
+  (ok (signals (error 'simple-error)
+               'simple-error))
+  (ok (signals (let ((x 1))
+                 (error "test ~A ~A ~A ~A" 1 "a" x 'test))
+               'simple-error))
+  (ok (signals (error 'type-error :expected-type 'fixnum :datum "abc")
+               'type-error)))
 
-(subtest
-    "Test assert"
-  (prove-in-both (ok (progn (assert (= 1 1))
-                            t)))
-  (prove-in-both (is-error (assert (= 1 2))
-                           'simple-error)))
+(deftest.ps+ for-assert
+  (ok (progn (assert (= 1 1))
+             t))
+  (ok (signals (assert (= 1 2))
+               'simple-error)))
 
-(subtest
-    "Test ecase"
-  (prove-in-both (is (let ((x 2))
-                       (ecase x (1 111) (2 222)))
-                     222))
-  (prove-in-both  (is-error (let ((x 3))
-                              (ecase x (1 111) (2 222)))
-                            'error)))
+(deftest.ps+ for-ecase 
+  (ok (= (let ((x 2))
+           (ecase x (1 111) (2 222)))
+         222))
+  (ok (Signals (let ((x 3))
+                 (ecase x (1 111) (2 222)))
+               'error)))
 
-;; --- affect global env --- ;;
 (defstruct.ps+ test1 a)
 (defstruct.ps+ (test2 (:include test1)) b)
 (defstruct.ps+ test3 a)
 
-(subtest
-    "Test typep"
-  (with-prove-in-both ()
-    (ok (typep (make-test1) 'test1))
-    (ok (typep (make-test2) 'test1))
-    (ok (not (typep (make-test1) 'test3)))
-    (ok (let ((type 'test1))
-          (typep (make-test1) type)))))
+(deftest.ps+ for-typep
+  (ok (typep (make-test1) 'test1))
+  (ok (typep (make-test2) 'test1))
+  (ng (typep (make-test1) 'test3))
+  (ok (let ((type 'test1))
+        (typep (make-test1) type))))
 
-(subtest
-    "Test typecase and etypecase"
-  (subtest
-      "Test typecase"
-    (with-prove-in-both ()
-      (labels ((test-case (x)
-                 (typecase x
-                   (test1 1)
-                   (test3 2)
-                   (t 99))))
-        (is (test-case (make-test1)) 1)
-        (is (test-case (make-test3)) 2)
-        (is (test-case 111) 99))
-      (labels ((test-case (x)
-                 (typecase x
-                   (test1 1)
-                   (test3 2))))
-        (is (test-case (make-test1)) 1)
-        (is (test-case (make-test3)) 2)
-        (ok (not (test-case 111))))))
-  (subtest
-      "Test etypecase"
-    (with-prove-in-both ()
-      (labels ((test-case (x)
-                 (etypecase x
-                   (test1 1)
-                   (test3 2))))
-        (is (test-case (make-test1)) 1)
-        (is (test-case (make-test3)) 2)
-        (is-error (test-case 111) 'type-error)))))
 
-(subtest
-    "Test check-type"
-  (with-prove-in-both ()
+(defun.ps+ test-typecase-with-t (x)
+  (typecase x
+    (test1 1)
+    (test3 2)
+    (t 99)))
+
+(defun.ps+ test-typecase-without-t (x)
+  (typecase x
+    (test1 1)
+    (test3 2)))
+
+(defun.ps+ test-etypecase (x)
+  (etypecase x
+    (test1 1)
+    (test3 2)))
+
+(deftest.ps+ for-typecase_etypecase
+  (testing "typecase"
+    (labels ()
+      (ok (= (test-typecase-with-t (make-test1)) 1))
+      (ok (= (test-typecase-with-t (make-test3)) 2))
+      (ok (= (test-typecase-with-t 111) 99)))
+    (labels ()
+      (ok (= (test-typecase-without-t (make-test1)) 1))
+      (ok (= (test-typecase-without-t (make-test3)) 2))
+      (ok (not (test-typecase-without-t 111)))))
+  (testing "etypecase"
+    (labels ()
+      (ok (= (test-etypecase (make-test1)) 1))
+      (ok (= (test-etypecase (make-test3)) 2))
+      (ok (signals (test-etypecase 111) 'type-error)))))
+
+(deftest.ps+ for-check-type
+  (testing "some types"
     (ok (let ((obj (make-test1)))
           (check-type obj test1)
           t))
     (ok (let ((obj (make-test2)))
           (check-type obj test1)
           t))
-    (is-error (let ((obj (make-test1)))
-                (check-type obj test3))
-              'type-error))
-  (subtest
-      "Test string type"
-    (with-prove-in-both ()
-      (ok (let ((str "abc"))
-            (check-type str string)
-            t))
-      (is-error (let ((num 12)) (check-type num string))
-                'type-error))))
-
-(unintern-all-ps-symbol)
-
-(finalize)
+    (ok (signals (let ((obj (make-test1)))
+                   (check-type obj test3))
+                 'type-error)))
+  (testing "string type"
+    (ok (let ((str "abc"))
+          (check-type str string)
+          t))
+    (ok (signals (let ((num 12)) (check-type num string))
+                 'type-error))))

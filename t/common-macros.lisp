@@ -11,38 +11,32 @@
                 :unintern-all-ps-symbol))
 (in-package :ps-experiment/t/common-macros)
 
-(plan 2)
+(deftest for-setf-with
+  (testing "normal case"
+    (ok (expands '(setf-with obj
+                   x 100
+                   y 200
+                   z 300)
+                 '(with-slots (x y z) obj
+                   (setf x 100
+                    y 200
+                    z 300)))))
+  (testing "error case"
+    (ok (signals-when-expand (setf-with obj
+                               x 100
+                               y)
+                             'simple-error))))
 
-(subtest
-    "Test setf-with"
-  (is-expand (setf-with obj
-               x 100
-               y 200
-               z 300)
-             (with-slots (x y z) obj
-               (setf x 100
-                     y 200
-                     z 300)))
-  (subtest
-      "Test error cases"
-    (prove-macro-expand-error (setf-with obj
-                                x 100
-                                y)
-                              'simple-error)))
-
-(subtest
-    "Test with-slots-pair"
-  (is-expand (with-slots-pair ((a (x b)) obj1
-                               (c d e) obj2)
-               (print (+ a x c d e)))
-             (with-slots (a (x b)) obj1
-               (with-slots (c d e) obj2
-                 (print (+ a x c d e)))))
-  (subtest
-      "Test error cases"
-    (prove-macro-expand-error (with-slots-pair ((a (x b)) obj1
-                                                (c d e))
-                                (print (+ a x c d e)))
-                              'simple-error)))
-
-(finalize)
+(deftest for-with-slots-pair
+  (testing "normal case"
+    (ok (expands '(with-slots-pair ((a (x b)) obj1
+                                    (c d e) obj2)
+                   (print (+ a x c d e)))
+                 '(with-slots (a (x b)) obj1
+                   (with-slots (c d e) obj2
+                     (print (+ a x c d e)))))))
+  (testing "error case"
+    (ok (signals-when-expand (with-slots-pair ((a (x b)) obj1
+                                               (c d e))
+                               (print (+ a x c d e)))
+                             'simple-error))))

@@ -43,9 +43,8 @@
                "ps-experiment/t/base"
                "ps-experiment/t/util-sorter"
                "ps-experiment/t/package"
-               ;; WIP
-               ;; "ps-experiment/t/defines"
-               ;; "ps-experiment/t/ps-macros-for-compatibility"
-               ;; "ps-experiment/t/common-macros"
+               "ps-experiment/t/defines"
+               "ps-experiment/t/ps-macros-for-compatibility"
+               "ps-experiment/t/common-macros"
                )
   :perform (test-op (o c) (symbol-call :rove '#:run c)))
