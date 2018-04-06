@@ -5,29 +5,16 @@ exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
   (ros:ensure-asdf)
-  #+quicklisp (ql:quickload '(:prove :uiop) :silent t))
+  #+quicklisp (ql:quickload '(:ps-experiment-tests-for-utils) :silent t))
 
 (defpackage :ros.script.run.3724219287
-  (:use :cl
-        :prove))
+  (:use :cl))
 (in-package :ros.script.run.3724219287)
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (plan 2)
-  (ok (not (uiop:run-program "./success.ros")))
-  (is-error (uiop:run-program "./failure.ros")
-            'uiop/run-program:subprocess-error)
-  (unless (finalize)
-    (uiop:quit -1)))
+  (handler-bind ((error #'(lambda (cond)
+                            (declare (ignore cond))
+                            (uiop:quit -1))))
+    (ps-experiment-tests-for-utils:main)))
 ;;; vim: set ft=lisp lisp:
-
-
-
-
-
-
-
-
-
-
