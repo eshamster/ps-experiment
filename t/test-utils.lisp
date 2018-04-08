@@ -18,15 +18,11 @@
   (:export :execute-js
            :deftest.ps+
            :signals-when-expand
-           :undefined-variable
-           :*enable-js-prove*))
+           :undefined-variable))
 (in-package :ps-experiment/t/test-utils)
 
-(defvar *enable-js-prove* t)
-
-(defun skip-js-prove ()
-  (assert (not *enable-js-prove*))
-  (pass "--- Skip js test ---"))
+(defun js-prove-enable-p ()
+  (not (uiop:getenvp "SKIP_JS")))
 
 (defun execute-js (js-str)
   (with-js-env ((empty-lib))
@@ -77,8 +73,10 @@
        (testing "---- Common Lisp ----"
          ,@body)
        (testing "---- JavaScript ----"
-         (let ((,js-result (deftest-body.ps ,@body)))
-           (ok ,js-result))))))
+         (if (js-prove-enable-p)
+             (let ((,js-result (deftest-body.ps ,@body)))
+               (ok ,js-result))
+             (skip "Skip JavaScript tests"))))))
 
 (defun signals-when-expand-impl (code expected-error &key for-ps expand-times)
   (labels ((rec-expand (result rest-times)
