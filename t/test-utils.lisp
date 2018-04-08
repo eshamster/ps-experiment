@@ -1,7 +1,6 @@
-(in-package :cl-user)
-(defpackage ps-experiment-test.test-utils
+(defpackage ps-experiment/t/test-utils
   (:use :cl
-        :prove)
+        :rove)
   (:import-from :ps-experiment
                 :with-use-ps-pack
                 :ps.)
@@ -17,227 +16,76 @@
   (:import-from :alexandria
                 :with-gensyms)
   (:export :execute-js
-           :prove-macro-expand-error
-           :prove-psmacro-expand-error
-           :prove-in-both
-           :with-prove-in-both
-           :with-prove-in-ps
-           :is-list.ps+
-           :undefined-variable
-           :*enable-js-prove*))
-(in-package :ps-experiment-test.test-utils)
+           :deftest.ps+
+           :signals-when-expand
+           :undefined-variable))
+(in-package :ps-experiment/t/test-utils)
 
-(defvar *enable-js-prove* t)
-
-(defun skip-js-prove ()
-  (assert (not *enable-js-prove*))
-  (pass "--- Skip js test ---"))
+(defun js-prove-enable-p ()
+  (not (uiop:getenvp "SKIP_JS")))
 
 (defun execute-js (js-str)
   (with-js-env ((empty-lib))
     (run-js js-str)))
 
-(defun prove-macro-expand-error-impl (code expected-error &key for-ps expand-times)
+;; TODO: Adjust indent
+(defmacro deftest-body.ps (&body body)
+  `(run-js
+    (with-use-ps-pack (:this)
+      (let ((all-tests-ok-p t))
+        (macrolet
+            ((okng (ok-p form &optional desc)
+               (declare (ignore desc))
+               (ps:with-ps-gensyms (result form-string)
+                 `(let ((,result ,form)
+                        (,form-string ,(format nil "~A" form)))
+                    (if (or (and ,ok-p ,result)
+                            (and (not ,ok-p) (not ,result)))
+                        (print (+ "  ✓ Expect " ,form-string " to be " ,(if ok-p "true" "false")))
+                        (progn (print (+ "  × " ,form-string))
+                               (setf all-tests-ok-p false))))))
+             (ok (form &optional desc)
+               `(okng t ,form ,desc))
+             (ng (form &optional desc)
+               `(okng nil ,form ,desc))
+             (expands (form expanded-form &optional env)
+               ;; not implemented
+               (declare (ignore form expanded-form env)))
+             (signals (form &optional (condition ''error))
+               ;; TODO: check kind of error
+               (declare (ignore condition))
+               (ps:with-ps-gensyms (error-p)
+                 `(let ((,error-p nil))
+                    (ps:try ,form
+                            (:catch (e)
+                              (setf ,error-p t))
+                            (:finally ,error-p)))))
+             (testing (desc &body body)
+               `(progn (print ,desc)
+                       ,@body)))
+          (declare (ignorable ok ng expands signals testing))
+          ,@body
+          all-tests-ok-p)))))
+
+(defmacro deftest.ps+ (name &body body)
+  (with-gensyms ((js-result "JS-RESULT"))
+    `(deftest ,name
+       (testing "---- Common Lisp ----"
+         ,@body)
+       (testing "---- JavaScript ----"
+         (if (js-prove-enable-p)
+             (let ((,js-result (deftest-body.ps ,@body)))
+               (ok ,js-result))
+             (skip "Skip JavaScript tests"))))))
+
+(defun signals-when-expand-impl (code expected-error &key for-ps expand-times)
   (labels ((rec-expand (result rest-times)
              (if (> rest-times 0)
                  (rec-expand `(macroexpand-1 ,result) (1- rest-times))
                  result)))
-    `(is-error ,(rec-expand (if for-ps `(ps ,code) `(quote ,code)) expand-times)
-               ,expected-error)))
+    `(signals ,(rec-expand (if for-ps `(ps ,code) `(quote ,code)) expand-times)
+              ,expected-error)))
 
-(defmacro prove-macro-expand-error (code expected-error &key (expand-times 1))
-  (prove-macro-expand-error-impl code expected-error
-                                 :for-ps nil :expand-times expand-times))
-
-(defmacro prove-psmacro-expand-error (code expected-error &key (expand-times 1))
-  (prove-macro-expand-error-impl code expected-error
-                                 :for-ps t :expand-times expand-times))
-
-(defmacro prove-in-both% ((cl-prove)
-                          ((js-code js-body) js-prove)
-                          &key (use '(:this)) (prints-js nil))
-  `(progn
-     (princ "Common Lisp: ")
-     (fresh-line)
-     ,cl-prove
-     (princ "JavaScript: ")
-     (fresh-line)
-     (if *enable-js-prove*
-         (let ((,js-code (with-use-ps-pack ,use ,js-body)))
-           (when ,prints-js
-             (print ,js-code))
-           ,js-prove)
-         (skip-js-prove))
-     (princ "------")
-     (fresh-line)))
-
-(defmacro prove-in-both ((prove body &rest rest) &key (use '(:this)) (prints-js nil))
-  `(prove-in-both%
-    ((,prove ,body ,@rest))
-    ((js ,body) ,(if (eq prove 'prove:is-error)
-                     `(,prove (run-js js) 'js-condition)
-                     `(,prove (run-js js) ,@rest)))
-    :use ,use
-    :prints-js ,prints-js))
-
-(defun js-array-to-list (js-array)
-  (let ((result nil))
-    (dotimes (i (cl-js:js-array-length js-array))
-      (push (cl-js:js-aref js-array i) result))
-    (nreverse result)))
-
-(defmacro is-list.ps+ (got expected &key (use '(:this)) (prints-js nil))
-  (if (not (listp expected))
-      (error 'type-error :expected-type 'list :datum expected))
-  (with-gensyms (js-got js-expected)
-    `(prove-in-both%
-      ((is ,got ,expected :test #'equalp))
-      ((js ,got) (let ((js-got (cl-js:run-js js))
-                       (js-expected (cl-js:run-js (ps. ,expected))))
-                   (is js-got js-expected :test #'equalp
-                       (format nil "~A is expected to be ~A"
-                               (js-array-to-list js-got)
-                               (js-array-to-list js-expected)))))
-      :use ,use
-      :prints-js ,prints-js)))
-
-;; --- prove for let --- ;;
-
-;; [WIP]
-;; TODO: (re)use implementations of 'prove'.
-
-(defstruct ps-prove-definition
-  name-symbol
-  arg-list
-  arg-list-to-call
-  tester
-  success-printer
-  failure-printer)
-
-(defvar *ps-prove-table* '())
-
-(defun add-ps-prove-definition (&key name-symbol
-                                  arg-list
-                                  arg-list-to-call
-                                  tester
-                                  success-printer
-                                  failure-printer)
-  (let ((def (make-ps-prove-definition
-              :name-symbol name-symbol
-              :arg-list arg-list
-              :arg-list-to-call arg-list-to-call
-              :tester tester
-              :success-printer success-printer
-              :failure-printer failure-printer)))
-    (setf *ps-prove-table*
-          (remove-if (lambda (old-def)
-                       (eq (ps-prove-definition-name-symbol old-def)
-                           name-symbol))
-                     *ps-prove-table*))
-    (push def *ps-prove-table*)))
-
-(defun construct-ps-prove-definition (def)
-  (check-type def ps-prove-definition)
-  (with-slots (name-symbol
-               arg-list
-               arg-list-to-call
-               tester
-               success-printer
-               failure-printer) def
-    `(,name-symbol ,arg-list
-        (if (funcall ,tester ,@arg-list-to-call)
-            (print (+ "  ✓ " (funcall ,success-printer ,@arg-list-to-call)))
-            (progn (print (+ "  × " (funcall ,failure-printer ,@arg-list-to-call)))
-                   (setf all-tests-ok-p false))))))
-
-;; This is for checking ps-prove-definition in REPL.
-(defun test-ps-prove (prove-name &rest rest)
-  (let ((def (find-if (lambda (old-def)
-                        (eq (ps-prove-definition-name-symbol old-def)
-                            prove-name))
-                      *ps-prove-table*)))
-    (assert (not (null def)))
-    (cl-js:run-js (ps:ps* `(flet (,(construct-ps-prove-definition def))
-                             (,prove-name ,@rest))))))
-
-(defpsmacro with-prove-in-ps% (() &body body)
-  `(let ((all-tests-ok-p t))
-     (flet ,(mapcar (lambda (def) (construct-ps-prove-definition def))
-                    *ps-prove-table*)
-       ,@body
-       all-tests-ok-p)))
-
-(defmacro with-prove-in-ps ((&key (use '(:this))) &body body)
-  `(ok (run-js (with-use-ps-pack (,@use)
-                 (with-prove-in-ps% ()
-                   ,@body)))
-       "Result of JavaScript test[s]"))
-
-(defmacro with-prove-in-both ((&key (use '(:this))) &body body)
-  `(progn
-     (princ "Common Lisp: ")
-     (fresh-line)
-     ,@body
-     (princ "JavaScript: ")
-     (fresh-line)
-     (if *enable-js-prove*
-         (with-prove-in-ps (:use ,use)
-           ,@body)
-         (skip-js-prove))
-     (princ "------")
-     (fresh-line)))
-
-;; - default proves - ;;
-
-;; Note: (ps:ps (funcall eq x y)) is compiled
-;;           to 'eq(1, 2)'
-;;       not to '1 === 2'.
-(let ((args '(got expected &key (test (lambda (a b) (eq a b))))))
-  (add-ps-prove-definition
-   :name-symbol 'is
-   :arg-list args
-   :arg-list-to-call '(got expected :test test)
-   :tester `(lambda ,args (funcall test got expected))
-   :success-printer `(lambda ,args (+ got " is expected to be " expected))
-   :failure-printer `(lambda ,args (+ got " is expected to be " expected))))
-
-(let ((args '(got)))
-  (add-ps-prove-definition
-   :name-symbol 'ok
-   :arg-list args
-   :arg-list-to-call args
-   :tester `(lambda ,args got)
-   :success-printer `(lambda ,args (+ got " is expected to be T"))
-   :failure-printer `(lambda ,args (+ got " is expected to be T"))))
-
-(let ((args '(desc)))
-  (add-ps-prove-definition
-   :name-symbol 'pass
-   :arg-list args
-   :arg-list-to-call args
-   :tester `(lambda ,args t)
-   :success-printer `(lambda ,args desc)
-   :failure-printer `(lambda ,args (error "internal error. should pass."))))
-
-(let ((args '(desc)))
-  (add-ps-prove-definition
-   :name-symbol 'fail
-   :arg-list args
-   :arg-list-to-call args
-   :tester `(lambda ,args nil)
-   :success-printer `(lambda ,args (error "internal error. should fail."))
-   :failure-printer `(lambda ,args desc)))
-
-;; TODO: check kind of error
-(defpsmacro is-error (form error-kind)
-  (ps:with-ps-gensyms (error-p)
-    `(let ((,error-p nil))
-       (ps:try ,form
-               (:catch (e)
-                 (setf ,error-p t))
-               (:finally
-                (if ,error-p
-                    (pass ,(format nil "~A is expected to raise an error" form))
-                    (fail ,(format nil "~A is expected to raise a condition ~D"
-                                   form
-                                   error-kind))))))))
+(defmacro signals-when-expand (code expected-error &key (expand-times 1))
+  (signals-when-expand-impl code expected-error
+                            :for-ps nil :expand-times expand-times))

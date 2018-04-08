@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment.util-sorter
+(defpackage ps-experiment/util-sorter
   (:use :cl
         :parenscript)
   (:export :get-node-name
@@ -10,7 +10,7 @@
                 :awhen
                 :aif
                 :it))
-(in-package :ps-experiment.util-sorter)
+(in-package :ps-experiment/util-sorter)
 
 ;; This sorts nodes in a tree considering its dependency.
 ;; It will be used for solving package dependency.

@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment.base
+(defpackage ps-experiment/base
   (:use :cl
         :cl-ppcre
         :parenscript)
@@ -8,10 +8,10 @@
            :defmacro.ps
            :defmacro.ps+
            :enable-ps-experiment-syntax
-           ;; The following used only in ps-experiment.package
+           ;; The following used only in ps-experiment/package
            :*original-package*
            :--))
-(in-package :ps-experiment.base)
+(in-package :ps-experiment/base)
 
 (defpsmacro -- (&rest rest)
   `(chain ,@rest))
@@ -63,7 +63,7 @@
 ;; (to be exact, ps::parenscript-print that called from ps:ps uses
 ;; with-standard-io-syntax).
 ;; So *original-package* saves an original package before that. Then
-;; it will be used in the ps-experiment.package package.
+;; it will be used in the ps-experiment/package package.
 ;;
 ;; Note: Maybe some refactoring is required to place ps. and fucntions
 ;; related to this in a same package

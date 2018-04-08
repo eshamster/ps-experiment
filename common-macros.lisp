@@ -1,13 +1,13 @@
 (in-package :cl-user)
-(defpackage ps-experiment.common-macros
+(defpackage ps-experiment/common-macros
   (:use :cl
         :cl-ppcre
         :parenscript)
   (:export :setf-with
            :with-slots-pair)
-  (:import-from :ps-experiment.base
+  (:import-from :ps-experiment/base
                 :defmacro.ps+))
-(in-package :ps-experiment.common-macros)
+(in-package :ps-experiment/common-macros)
 
 ;; * These macros are not included in Common Lisp but for convinence.
 ;; * Now, they are not exported from the ps-experiment package.
