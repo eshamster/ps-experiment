@@ -1,14 +1,14 @@
 (in-package :cl-user)
-(defpackage ps-experiment-test.util-sorter
+(defpackage ps-experiment/t/util-sorter
   (:use :cl
         :ps-experiment
         :parenscript
-        :ps-experiment.util-sorter
-        :prove)
+        :ps-experiment/util-sorter
+        :rove)
   (:import-from :anaphora
                 :aif
                 :it))
-(in-package :ps-experiment-test.util-sorter)
+(in-package :ps-experiment/t/util-sorter)
 
 ;; --- preparing --- ;;
 
@@ -63,24 +63,18 @@
 
 ;; --- testing --- ;;
 
-(plan 1)
-
 ;; TODO: Test utilities should be tested (especially make-tree).
 
 (defun is-sorted (tree expected)
-  (is (mapcar #'get-node-name (sort-tree-node (make-tree tree)))
-      expected
-      :test #'equal))
+  (ok (equal (mapcar #'get-node-name (sort-tree-node (make-tree tree)))
+             expected)))
 
 (defun is-sort-error (tree)
-  (is-error (sort-tree-node (make-tree tree))
-            'simple-error))
+  (ok (signals (sort-tree-node (make-tree tree))
+               'simple-error)))
 
-(subtest
-    "Test sort-tree-node"
+(deftest for-sort-tree-node
   (is-sorted *simple-tree* '(:B :E :G :F :D :C :A))
   (is-sorted *duplicated-tree* '(:B :E :G :I :H :F :D :C :A))
   (is-sorted *tree-to-test-self-dependency* '(:B :E :G :I :H :F :D :C :A))
   (is-sort-error *circular-tree*))
-
-(finalize)
