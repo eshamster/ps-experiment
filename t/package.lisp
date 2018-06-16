@@ -48,3 +48,9 @@
     (use-package :ps-experiment/t/package/circular-a :ps-experiment/t/package/circular-b)
     (ok (signals (with-use-ps-pack (:ps-experiment/t/package/circular-a))
                  'simple-error))))
+
+(deftest for-def-top-level-form.ps+
+  (ok (expands '(def-top-level-form.ps+ :test-top-level-form
+                 (+ 1 2))
+               '(progn (def-top-level-form.ps :test-top-level-form (+ 1 2))
+                 (progn (+ 1 2))))))
