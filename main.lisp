@@ -11,6 +11,7 @@
   (:import-from :ps-experiment/package
                 :with-use-ps-pack
                 :def-top-level-form.ps
+                :def-top-level-form.ps+
                 :defun.ps-only)
   (:import-from :ps-experiment/defines
                 :defvar.ps
@@ -31,5 +32,6 @@
            :defmacro.ps
            :defmacro.ps+
            :def-top-level-form.ps
+           :def-top-level-form.ps+
            :enable-ps-experiment-syntax
            :--))

@@ -4,6 +4,7 @@
         :parenscript)
   (:export :def-ps-definer
            :def-top-level-form.ps
+           :def-top-level-form.ps+
            :defun.ps-only
            :with-use-ps-pack
            :unintern-all-ps-symbol
@@ -194,6 +195,10 @@ you cannot edit ps-func itself."
 
 (def-ps-definer def-top-level-form.ps (id-name &body body) (:require-exporting-p nil)
   `(progn ,@body))
+
+(defmacro def-top-level-form.ps+ (id-name &body body)
+  `(progn (def-top-level-form.ps ,id-name ,@body)
+          (progn ,@body)))
 
 ;; TODO: Consider in what package we should place defun.ps and defun.ps+
 (def-ps-definer defun.ps-only (name args &body body) ()
