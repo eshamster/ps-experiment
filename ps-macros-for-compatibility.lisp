@@ -144,6 +144,14 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
       `(aref ,hash-table ,(string (cadr key)))
       `(aref ,hash-table ,key)))
 
+(defpsmacro remhash (key hash-table)
+  (let ((true-key (if (quoted-symbolp key)
+                      (string (cadr key))
+                      key)))
+    `(let ((result (in ,true-key ,hash-table)))
+       (delete (@ ,hash-table ,true-key))
+       result)))
+
 ;; Limitation: Even if keys are registered as number,
 ;;             it is interpreted as string.
 (defpsmacro maphash (func hash-table)

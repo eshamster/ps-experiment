@@ -205,6 +205,16 @@
              (setf (gethash 'x tbl) 100)
              (gethash 'x tbl))
            100)))
+  (testing "remhash"
+    (let ((hash (make-hash-table)))
+      (setf (gethash :a hash) 100)
+      (setf (gethash :b hash) 200)
+      (ok (= (gethash :a hash) 100))
+      (ok (= (gethash :b hash) 200))
+      (ok (remhash :a hash))
+      (ok (not (gethash :a hash)))
+      (ok (= (gethash :b hash) 200))
+      (ok (not (remhash :a hash)))))
   (testing "maphash"
     (ok (= (let ((tbl (make-hash-table))
                  (sum-key 0)
