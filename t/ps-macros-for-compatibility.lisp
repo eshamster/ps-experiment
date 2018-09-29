@@ -249,6 +249,15 @@
   (ok (signals (error 'type-error :expected-type 'fixnum :datum "abc")
                'type-error)))
 
+;; Note: console.warn is not implemented in cl-js. So only check expanded JavaScript code.
+(deftest for-warn
+  (ok (string= (ps:ps (warn 'simple-warn))
+               "console.warn('simpleWarn');"))
+  (ok (string= (ps:ps (warn "test: ~A" 100))
+               "console.warn('test: 100');"))
+  (ok (string= (ps:ps (warn 'x 100 200))
+               "console.warn('\\'X: (100 200)');")))
+
 (deftest.ps+ for-assert
   (ok (progn (assert (= 1 1))
              t))

@@ -68,6 +68,8 @@
           all-tests-ok-p)))))
 
 (defmacro deftest.ps+ (name &body body)
+  "Test code as both Common Lisp and JavaScript.
+If \"SKIP_JS\" environment variable is defined, tests for Javascript is skipped."
   (with-gensyms ((js-result "JS-RESULT"))
     `(deftest ,name
        (testing "---- Common Lisp ----"
