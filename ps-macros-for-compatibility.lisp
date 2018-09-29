@@ -233,3 +233,12 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
      ,@forms
      (t (error "The value ~A is not of the expected type (MEMBER ~A)"
                ,key ,(mapcar #'car forms)))))
+
+(defpsmacro warn (datum &rest args)
+  (cond ((null args) `((@ console warn) ,datum))
+        ((stringp datum) `((@ console warn)
+                           ,(eval `(format nil ,datum
+                                           ,@(mapcar (lambda (arg)
+                                                       (format nil "~A" arg))
+                                                     args)))))
+        (t `((@ console warn) ,(format nil "~A: ~A" datum args)))))
