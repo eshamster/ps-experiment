@@ -172,6 +172,20 @@
   (ng (let ((target (make-test-struct-plus1)))
         (test-struct-plus2-p target))))
 
+(defvar.ps+ *test-hoge* 100)
+(defun.ps+ test-get-hoge () *test-hoge*)
+(defsetf.ps+ test-get-hoge
+    () (value)
+    `(setf *test-hoge* ,value))
+
+(deftest.ps+ for-defsetf
+  (let ((pre-value *test-hoge*))
+    (unwind-protect
+         (progn (ok (= (test-get-hoge) 100))
+                (setf (test-get-hoge) 200)
+                (ok (= (test-get-hoge) 200)))
+      (setf *test-hoge* pre-value))))
+
 ;; ----- Test internals ----- ;;
 
 (deftest internal-functions

@@ -19,7 +19,9 @@
                 :defun.ps
                 :defun.ps+
                 :defstruct.ps
-                :defstruct.ps+)
+                :defstruct.ps+
+                :defsetf.ps
+                :defsetf.ps+)
   (:export :defvar.ps
            :defvar.ps+
            :defun.ps-only
@@ -27,6 +29,8 @@
            :defun.ps+
            :defstruct.ps
            :defstruct.ps+
+           :defsetf.ps
+           :defsetf.ps+
            :with-use-ps-pack
            :ps.
            :defmacro.ps
