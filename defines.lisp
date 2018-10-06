@@ -8,7 +8,9 @@
            :defun.ps
            :defun.ps+
            :defstruct.ps
-           :defstruct.ps+)
+           :defstruct.ps+
+           :defsetf.ps
+           :defsetf.ps+)
   (:import-from :anaphora
                 :aif
                 :sif
@@ -56,6 +58,10 @@
 (def-ps-definer defvar.ps (name initial-value &optional (documentation "")) ()
   `(defvar ,name ,initial-value ,documentation))
 
+(defmacro defsetf.ps (access-fn &rest rest)
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (ps. (defsetf ,access-fn ,@rest))))
+
 ;; ----- .ps+ ----- ;;
 
 (defmacro defun.ps+ (name args &body body)
@@ -69,6 +75,10 @@
 (defmacro defstruct.ps+ (name-and-options &rest slot-description)
   `(progn (defstruct.ps-impl (t) ,name-and-options ,@slot-description)
           (defstruct ,name-and-options ,@slot-description)))
+
+(defmacro defsetf.ps+ (access-fn &rest rest)
+  `(progn (defsetf.ps ,access-fn ,@rest)
+          (defsetf ,access-fn ,@rest)))
 
 ;; ----- defstruct ----- ;;
 
