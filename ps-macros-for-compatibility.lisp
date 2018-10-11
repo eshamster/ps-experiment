@@ -149,7 +149,11 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
                       (string (cadr key))
                       key)))
     `(let ((result (in ,true-key ,hash-table)))
-       (delete (@ ,hash-table ,true-key))
+       ;; Note: If use '@' instead of 'aref',
+       ;; (remhash hash key) is compiled to "delete hash.key".
+       ;; However, this can't work if the 'key' is a variable.
+       ;; So instead use 'aref' to compile it to "delete hash[key]".
+       (delete (aref ,hash-table ,true-key))
        result)))
 
 ;; Limitation: Even if keys are registered as number,
