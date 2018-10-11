@@ -218,7 +218,7 @@
     (testing "use variable as key"
       (let ((hash (make-hash-table)))
         (setf (gethash :a hash) 100)
-        (ok (= (gethash :a hash)) 100)
+        (ok (= (gethash :a hash) 100))
         (let ((key :a))
           (ok (remhash key hash)))
         (ok (not (gethash :a hash))))))
