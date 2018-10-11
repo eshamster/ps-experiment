@@ -214,7 +214,14 @@
       (ok (remhash :a hash))
       (ok (not (gethash :a hash)))
       (ok (= (gethash :b hash) 200))
-      (ok (not (remhash :a hash)))))
+      (ok (not (remhash :a hash))))
+    (testing "use variable as key"
+      (let ((hash (make-hash-table)))
+        (setf (gethash :a hash) 100)
+        (ok (= (gethash :a hash) 100))
+        (let ((key :a))
+          (ok (remhash key hash)))
+        (ok (not (gethash :a hash))))))
   (testing "maphash"
     (ok (= (let ((tbl (make-hash-table))
                  (sum-key 0)
