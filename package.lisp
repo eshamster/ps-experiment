@@ -4,7 +4,6 @@
         :parenscript)
   (:export :def-top-level-form.ps
            :def-top-level-form.ps+
-           :defun.ps-only
            :with-use-ps-pack
            :unintern-all-ps-symbol
            :register-ps-type
@@ -33,6 +32,8 @@
                 :find-ps-func
                 :*ps-type-store*
                 :ps-type-p)
+  (:import-from :ps-experiment/defines/defun
+                :defun.ps-only)
   (:import-from :ps-experiment/util-sorter
                 :get-node-name
                 :node-equalp
@@ -142,10 +143,6 @@
 (defmacro def-top-level-form.ps+ (id-name &body body)
   `(progn (def-top-level-form.ps ,id-name ,@body)
           (progn ,@body)))
-
-;; TODO: Consider in what package we should place defun.ps and defun.ps+
-(def-ps-definer defun.ps-only (name args &body body) ()
-  `(defun ,name ,args ,@body))
 
 (defvar *unintern-all-ps-symbol-hook* nil)
 

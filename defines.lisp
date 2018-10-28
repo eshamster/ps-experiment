@@ -5,8 +5,6 @@
         :parenscript)
   (:export :defvar.ps
            :defvar.ps+
-           :defun.ps
-           :defun.ps+
            :defstruct.ps
            :defstruct.ps+
            :defsetf.ps
@@ -16,8 +14,7 @@
                 :sif
                 :it)
   (:import-from :alexandria
-                :symbolicate
-                :parse-ordinary-lambda-list)
+                :symbolicate)
   (:import-from :ps-experiment/base
                 :ps.
                 :defmacro.ps)
@@ -25,36 +22,15 @@
                 :make-ps-definer
                 :def-ps-definer
                 :register-ps-type)
+  (:import-from :ps-experiment/defines/defun
+                :defun.ps
+                :defun.ps-only)
   (:import-from :ps-experiment/package
                 :def-top-level-form.ps
-                :defun.ps-only
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment/defines)
 
 ;; ----- .ps ----- ;;
-
-(defun extract-arg-names (lambda-list)
-  (multiple-value-bind (required optional rest
-                        keys allow-other-keys aux keyp)
-      (parse-ordinary-lambda-list lambda-list
-                                  :normalize nil)
-    (declare (ignore allow-other-keys keyp))
-    (labels ((make-a-list (got)
-               (if (listp got)
-                   (mapcar (lambda (elem)
-                             (if (atom elem) elem (car elem)))
-                           got)
-                   (list got))))
-      (mapcan #'make-a-list
-              (list required optional rest keys aux)))))
-
-(def-ps-definer defun.ps (name args &body body)
-    (:before `(defun ,name ,args
-                (declare ,(cons 'ignore
-                                (extract-arg-names args)))
-                (error (format nil "~A is only defined but not implemented as a CL function"
-                               ',name))))
-  `(defun ,name ,args ,@body))
 
 (def-ps-definer defvar.ps (name initial-value &optional (documentation "")) ()
   `(defvar ,name ,initial-value ,documentation))
@@ -64,10 +40,6 @@
      (ps. (defsetf ,access-fn ,@rest))))
 
 ;; ----- .ps+ ----- ;;
-
-(defmacro defun.ps+ (name args &body body)
-  `(progn (defun.ps-only ,name ,args ,@body)
-          (defun ,name ,args ,@body)))
 
 (defmacro defvar.ps+ (name initial-value &optional (documentation ""))
   `(progn (defvar.ps ,name ,initial-value ,documentation)

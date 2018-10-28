@@ -190,7 +190,7 @@
 
 (deftest internal-functions
   (labels ((fn (lambda-list)
-             (ps-experiment/defines::extract-arg-names lambda-list))
+             (ps-experiment/defines/defun::extract-arg-names lambda-list))
            (is-list (got expected)
              (ok (equalp got expected))))
     (is-list (fn '()) '())

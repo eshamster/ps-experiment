@@ -11,13 +11,14 @@
   (:import-from :ps-experiment/package
                 :with-use-ps-pack
                 :def-top-level-form.ps
-                :def-top-level-form.ps+
-                :defun.ps-only)
+                :def-top-level-form.ps+)
+  (:import-from :ps-experiment/defines/defun
+                :defun.ps-only
+                :defun.ps
+                :defun.ps+)
   (:import-from :ps-experiment/defines
                 :defvar.ps
                 :defvar.ps+
-                :defun.ps
-                :defun.ps+
                 :defstruct.ps
                 :defstruct.ps+
                 :defsetf.ps
