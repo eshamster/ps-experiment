@@ -12,6 +12,9 @@
                 :with-use-ps-pack
                 :def-top-level-form.ps
                 :def-top-level-form.ps+)
+  (:import-from :ps-experiment/defines/defstruct
+                :defstruct.ps
+                :defstruct.ps+)
   (:import-from :ps-experiment/defines/defun
                 :defun.ps-only
                 :defun.ps
@@ -19,8 +22,6 @@
   (:import-from :ps-experiment/defines
                 :defvar.ps
                 :defvar.ps+
-                :defstruct.ps
-                :defstruct.ps+
                 :defsetf.ps
                 :defsetf.ps+)
   (:export :defvar.ps
