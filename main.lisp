@@ -19,7 +19,7 @@
                 :defun.ps-only
                 :defun.ps
                 :defun.ps+)
-  (:import-from :ps-experiment/defines
+  (:import-from :ps-experiment/defines/others
                 :defvar.ps
                 :defvar.ps+
                 :defsetf.ps

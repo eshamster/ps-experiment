@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage ps-experiment/defines
+(defpackage ps-experiment/defines/others
   (:use :cl
         :cl-ppcre
         :parenscript)
@@ -11,7 +11,7 @@
                 :ps.)
   (:import-from :ps-experiment/defines/definer
                 :def-ps-definer))
-(in-package :ps-experiment/defines)
+(in-package :ps-experiment/defines/others)
 
 ;; ----- .ps ----- ;;
 
