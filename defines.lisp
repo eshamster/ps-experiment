@@ -21,12 +21,13 @@
   (:import-from :ps-experiment/base
                 :ps.
                 :defmacro.ps)
-  (:import-from :ps-experiment/package
+  (:import-from :ps-experiment/defines/definer
                 :make-ps-definer
                 :def-ps-definer
+                :register-ps-type)
+  (:import-from :ps-experiment/package
                 :def-top-level-form.ps
                 :defun.ps-only
-                :register-ps-type
                 :add-unintern-all-ps-symbol-hook))
 (in-package :ps-experiment/defines)
 
