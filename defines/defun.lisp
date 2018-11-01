@@ -9,26 +9,13 @@
   (:import-from :alexandria
                 :parse-ordinary-lambda-list)
   (:import-from :ps-experiment/defines/definer
-                :def-ps-definer))
+                :def-ps-definer)
+  (:import-from :ps-experiment/defines/utils
+                :extract-arg-names))
 (in-package :ps-experiment/defines/defun)
 
 (def-ps-definer defun.ps-only (name args &body body) ()
   `(defun ,name ,args ,@body))
-
-(defun extract-arg-names (lambda-list)
-  (multiple-value-bind (required optional rest
-                        keys allow-other-keys aux keyp)
-      (parse-ordinary-lambda-list lambda-list
-                                  :normalize nil)
-    (declare (ignore allow-other-keys keyp))
-    (labels ((make-a-list (got)
-               (if (listp got)
-                   (mapcar (lambda (elem)
-                             (if (atom elem) elem (car elem)))
-                           got)
-                   (list got))))
-      (mapcan #'make-a-list
-              (list required optional rest keys aux)))))
 
 (def-ps-definer defun.ps (name args &body body)
     (:before `(defun ,name ,args

@@ -78,6 +78,56 @@ slot-name---a symbol.
 slot-init-form---a form.
 ```
 
+### defgeneric.ps[+], defmethod.ps[+]
+
+The ps-experiment provides the (tiny) subset of defstruct. The main purpose of the implementation is to provide multiple dispatch according to types of arguments.
+
+Syntax of `defgeneric.ps[+]`:
+
+```text
+defgeneric function-name gf-lambda-list [[option]]
+
+=> new-generic
+
+option::= (:documentation gf-documentation)
+
+Arguments and Values:
+
+function-name---a function name.
+gf-documentation---a string; not evaluated.
+gf-lambda-list---a generic function lambda list.
+new-generic---the generic function object.
+```
+
+Syntax of `defmethod.ps[+]`:
+
+```text
+defmethod function-name specialized-lambda-list [[declaration* | documentation]] form*
+
+=> new-method
+
+function-name::= symbol
+
+;; Note: & paramters are not considered and tested well.
+specialized-lambda-list::= ({var | (var parameter-specializer-name)}*
+                            [&optional {var | (var [initform [supplied-p-parameter] ])}*]
+                            [&rest var]
+                            [&key{var | ({var | (keywordvar)} [initform [supplied-p-parameter] ])}*
+                                 [&allow-other-keys] ]
+                            [&aux {var | (var [initform] )}*] )
+parameter-specializer-name::= symbol
+
+Arguments and Values:
+
+declaration---a declare expression; not evaluated.
+documentation---a string; not evaluated.
+var---a variable name.
+Form---a form.
+Initform---a form.
+Supplied-p-parameter---variable name.
+new-method---the new method object.
+```
+
 ### Some top-level definitions and Easy package system
 
 The ps-experiment provides some top-level definitions, `defvar.ps(+)`, `defun.ps(+)`, `defstruct.ps(+).

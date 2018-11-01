@@ -4,10 +4,10 @@
         :ps-experiment
         :parenscript
         :ps-experiment/t/test-utils
-        :rove)
-  (:import-from :ps-experiment/package
-                :unintern-all-ps-symbol))
+        :rove))
 (in-package :ps-experiment/t/defines)
+
+;; TODO: Move tests under "defines" folder like defines/defmethod.lisp
 
 (defvar.ps a 20)
 
