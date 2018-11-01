@@ -1,6 +1,7 @@
 (defpackage ps-experiment/t/package
   (:use :cl
-        :ps-experiment
+        :ps-experiment/base
+        :ps-experiment/package
         :parenscript
         :rove
         ;; packages for test

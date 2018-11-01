@@ -1,6 +1,5 @@
 (defpackage ps-experiment/t/package/utils
   (:use :cl
-        :ps-experiment
         :parenscript)
   (:import-from :ps-experiment/package
                 :def-ps-definer)

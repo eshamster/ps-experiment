@@ -1,6 +1,6 @@
 (defpackage ps-experiment/t/package/refer-unimported-export
   (:use :cl
-        :ps-experiment
+        :ps-experiment/package
         :parenscript
         :ps-experiment/t/package/utils)
   (:export :external-sym
