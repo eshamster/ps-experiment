@@ -54,7 +54,6 @@
   (declare (ignore a1 a2))
   nil "(type-a type-b)")
 
-
 (deftest.ps+ for-defmethod.ps+
   (ok (string= (method2 *type-a* 100) "(type-a nil)"))
   (ok (string= (method2 *type-b* 100) "(type-a nil)"))
@@ -62,7 +61,23 @@
   (ok (string= (method2 *type-a* *type-b*) "(type-a type-b)"))
   (ok (string= (method2 *type-b* *type-b*) "(type-b type-b)")))
 
-#|
-(print (pse:with-use-ps-pack (:this)
-         (string= (method2 *type-a* 100) "(type-a nil)")))
-|#
+
+(defvar.ps+ *test-cnm* 0) ; cnm = call-next-method
+(defgeneric.ps+ method-cnm (a1 a2))
+(defmethod.ps+ method-cnm (a1 a2)
+  (incf *test-cnm* 1))
+(defmethod.ps+ method-cnm ((a1 test-type-a) a2)
+  (incf *test-cnm* 10)
+  (call-next-method a1 a2))
+(defmethod.ps+ method-cnm (a1 (a2 test-type-b))
+  (incf *test-cnm* 100)
+  (call-next-method a1 a2))
+
+(deftest.ps+ for-call-next-method
+  (setf *test-cnm* 0)
+  (method-cnm 100 *type-b*)
+  (ok (= *test-cnm* 101))
+
+  (setf *test-cnm* 0)
+  (method-cnm *type-a* *type-b*)
+  (ok (= *test-cnm* 111)))

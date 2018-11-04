@@ -46,16 +46,18 @@
 ;; - defgeneric - ;;
 
 (defmacro defgeneric.ps-only (function-name gf-lambda-list &rest options)
-  (let ((opt (parse-defgeneric-options options)))
+  (let ((opt (parse-defgeneric-options options))
+        (call-list (convert-gf-lambda-list-to-call-list gf-lambda-list)))
     `(progn
        (def-top-level-form.ps ,(symbolicate '_defgeneric_form_ function-name)
          (setf (gethash ,(make-table-key function-name) *dispatch-list-table*)
                (list)))
        (defun.ps-only ,function-name ,gf-lambda-list
          ,(defgeneric-options-documentation opt)
-         (funcall (find-dispatch-func ,(make-table-key function-name)
-                                      (list ,@(extract-dispatch-instances gf-lambda-list)))
-                  ,@(convert-gf-lambda-list-to-call-list gf-lambda-list))))))
+         ,(call-next-method% :function-name function-name
+                             :lambda-list gf-lambda-list
+                             :call-list call-list
+                             :start-func-index 0)))))
 
 (defmacro defgeneric.ps (function-name gf-lambda-list &rest options)
   `(progn (defgeneric.ps-only ,function-name ,gf-lambda-list ,@options)
@@ -67,14 +69,25 @@
 ;; - defmethod - ;;
 
 (defmacro defmethod.ps-only (function-name specialized-lambda-list &body body)
-  (let ((dispatch-types (extract-dispatch-types specialized-lambda-list)))
+  (let* ((dispatch-types (extract-dispatch-types specialized-lambda-list))
+         (lambda-list (convert-specialized-lambda-list-to-lambda-list
+                       specialized-lambda-list))
+         (call-list (convert-gf-lambda-list-to-call-list lambda-list))
+         (table-key (make-table-key function-name))
+         (dispatch-func-index (gensym)))
     `(def-top-level-form.ps ,(symbolicate '_defmethod_form_ function-name
                                           (format nil "_(~{~A~^ ~})" dispatch-types))
-       (push-dispatch-func ,(make-table-key function-name)
-                           ',dispatch-types
-                           (lambda ,(convert-specialized-lambda-list-to-lambda-list
-                                     specialized-lambda-list)
-                             ,@body)))))
+       (push-dispatch-func
+        ,table-key
+        ',dispatch-types
+        (lambda (,dispatch-func-index)
+          (flet ((call-next-method ,lambda-list
+                   ,(call-next-method% :function-name function-name
+                                       :lambda-list lambda-list
+                                       :call-list call-list
+                                       :start-func-index `(1+ ,dispatch-func-index))))
+            (lambda ,lambda-list
+              ,@body)))))))
 
 (defmacro defmethod.ps (function-name specialized-lambda-list &body body)
   (let ((args (mapcar (lambda (elem)
@@ -166,7 +179,16 @@
              (let ((doc (car rest)))
                (check-type doc string)
                (setf (defgeneric-options-documentation result) doc))))))
-      result)))
+      result))
+  (defun call-next-method% (&key function-name lambda-list call-list start-func-index)
+    `(let* ((table-key ,(make-table-key function-name))
+            (func-index (find-dispatch-func-index
+                         table-key
+                         (list ,@(extract-dispatch-instances lambda-list))
+                         ,start-func-index)))
+       (funcall
+        (funcall (get-dispatch-func table-key func-index) func-index)
+        ,@call-list))))
 
 (defun.ps instance-dispatch-p (test-instance target-type)
   (or (null target-type)
@@ -218,14 +240,18 @@
                (compare-dispatch-prior (dispatch-item-type-list a)
                                        (dispatch-item-type-list b)))))
 
-(defun.ps+ find-dispatch-func (function-name instance-list)
+(defun.ps+ find-dispatch-func-index (function-name instance-list &optional (from 0))
   (let ((dispatch-item-list (gethash function-name *dispatch-list-table*)))
     (unless dispatch-item-list
       (error "There is no generic function \"~A\"" function-name))
-    (dolist (item dispatch-item-list)
-      (when (instance-list-dispatch-p instance-list (dispatch-item-type-list item))
-        (return-from find-dispatch-func (dispatch-item-func item)))))
-  (error "Can't find a function for ~A" instance-list))
+    (loop :for i :from from :below (length dispatch-item-list)
+       :do (let ((item (nth i dispatch-item-list)))
+             (when (instance-list-dispatch-p instance-list (dispatch-item-type-list item))
+               (return-from find-dispatch-func-index i))))
+    (error "Can't find a function for ~A" instance-list)))
+
+(defun.ps+ get-dispatch-func (function-name index)
+  (dispatch-item-func (nth index (gethash function-name *dispatch-list-table*))))
 
 (defun.ps+ same-type-list-p (type-list-a type-list-b)
   (unless (= (length type-list-a) (length type-list-b))
