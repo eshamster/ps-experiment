@@ -81,13 +81,27 @@
         ,table-key
         ',dispatch-types
         (lambda (,dispatch-func-index)
-          (flet ((call-next-method ,lambda-list
-                   ,(call-next-method% :function-name function-name
-                                       :lambda-list lambda-list
-                                       :call-list call-list
-                                       :start-func-index `(1+ ,dispatch-func-index))))
-            (lambda ,lambda-list
-              ,@body)))))))
+          ,(flet ((declare-p (line)
+                    (and (listp line)
+                         (eq (car line) 'declare))))
+             `(lambda ,lambda-list
+                ,@(loop :for line :in body
+                     :until (not (declare-p line)) :collect line)
+                (flet ((call-next-method ,lambda-list
+                         ,(call-next-method% :function-name function-name
+                                             :lambda-list lambda-list
+                                             :call-list call-list
+                                             :start-func-index `(1+ ,dispatch-func-index)))
+                       (next-method-p ()
+                         (not (null ,(find-dispatch-func-index%
+                                      :function-name function-name
+                                      :lambda-list lambda-list
+                                      :start-func-index `(1+ ,dispatch-func-index)
+
+                                      :if-does-not-exist nil)))))
+                  ,@(member-if (lambda (line)
+                                 (not (declare-p line)))
+                               body)))))))))
 
 (defmacro defmethod.ps (function-name specialized-lambda-list &body body)
   (let ((args (mapcar (lambda (elem)
@@ -180,12 +194,20 @@
                (check-type doc string)
                (setf (defgeneric-options-documentation result) doc))))))
       result))
+  (defun find-dispatch-func-index% (&key function-name lambda-list start-func-index
+                                      (if-does-not-exist :error))
+    `(let ((table-key ,(make-table-key function-name)))
+       (find-dispatch-func-index
+        table-key
+        (list ,@(extract-dispatch-instances lambda-list))
+        :from ,start-func-index
+        :if-does-not-exist ,if-does-not-exist)))
   (defun call-next-method% (&key function-name lambda-list call-list start-func-index)
     `(let* ((table-key ,(make-table-key function-name))
-            (func-index (find-dispatch-func-index
-                         table-key
-                         (list ,@(extract-dispatch-instances lambda-list))
-                         ,start-func-index)))
+            (func-index ,(find-dispatch-func-index%
+                          :function-name function-name
+                          :lambda-list lambda-list
+                          :start-func-index start-func-index)))
        (funcall
         (funcall (get-dispatch-func table-key func-index) func-index)
         ,@call-list))))
@@ -240,7 +262,8 @@
                (compare-dispatch-prior (dispatch-item-type-list a)
                                        (dispatch-item-type-list b)))))
 
-(defun.ps+ find-dispatch-func-index (function-name instance-list &optional (from 0))
+(defun.ps+ find-dispatch-func-index (function-name instance-list
+                                                   &key (from 0) (if-does-not-exist :error))
   (let ((dispatch-item-list (gethash function-name *dispatch-list-table*)))
     (unless dispatch-item-list
       (error "There is no generic function \"~A\"" function-name))
@@ -248,7 +271,9 @@
        :do (let ((item (nth i dispatch-item-list)))
              (when (instance-list-dispatch-p instance-list (dispatch-item-type-list item))
                (return-from find-dispatch-func-index i))))
-    (error "Can't find a function for ~A" instance-list)))
+    (case if-does-not-exist
+      (:error (error "Can't find a function for ~A" instance-list))
+      (t nil))))
 
 (defun.ps+ get-dispatch-func (function-name index)
   (dispatch-item-func (nth index (gethash function-name *dispatch-list-table*))))

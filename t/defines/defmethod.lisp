@@ -81,3 +81,14 @@
   (setf *test-cnm* 0)
   (method-cnm *type-a* *type-b*)
   (ok (= *test-cnm* 111)))
+
+
+(defgeneric.ps+ method-nmp (a))
+(defmethod.ps+ method-nmp ((a test-type-a))
+  (next-method-p))
+(defmethod.ps+ method-nmp ((a test-type-b))
+  (next-method-p))
+
+(deftest.ps+ for-next-method-p
+  (ok (not (method-nmp *type-a*)))
+  (ok (method-nmp *type-b*)))
