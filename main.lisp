@@ -11,15 +11,24 @@
   (:import-from :ps-experiment/package
                 :with-use-ps-pack
                 :def-top-level-form.ps
-                :def-top-level-form.ps+
-                :defun.ps-only)
-  (:import-from :ps-experiment/defines
+                :def-top-level-form.ps+)
+  (:import-from :ps-experiment/defines/defmethod
+                :defgeneric.ps-only
+                :defgeneric.ps
+                :defgeneric.ps+
+                :defmethod.ps-only
+                :defmethod.ps
+                :defmethod.ps+)
+  (:import-from :ps-experiment/defines/defstruct
+                :defstruct.ps
+                :defstruct.ps+)
+  (:import-from :ps-experiment/defines/defun
+                :defun.ps-only
+                :defun.ps
+                :defun.ps+)
+  (:import-from :ps-experiment/defines/others
                 :defvar.ps
                 :defvar.ps+
-                :defun.ps
-                :defun.ps+
-                :defstruct.ps
-                :defstruct.ps+
                 :defsetf.ps
                 :defsetf.ps+)
   (:export :defvar.ps
@@ -31,6 +40,12 @@
            :defstruct.ps+
            :defsetf.ps
            :defsetf.ps+
+           :defgeneric.ps-only
+           :defgeneric.ps
+           :defgeneric.ps+
+           :defmethod.ps-only
+           :defmethod.ps
+           :defmethod.ps+
            :with-use-ps-pack
            :ps.
            :defmacro.ps

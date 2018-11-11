@@ -4,7 +4,7 @@
         :parenscript
         :ps-experiment/t/package/utils)
   (:export :test-type)
-  (:import-from :ps-experiment/package
+  (:import-from :ps-experiment/defines/definer
                 :register-ps-type))
 (in-package :ps-experiment/t/package/type-specifier)
 

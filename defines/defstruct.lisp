@@ -1,92 +1,42 @@
 (in-package :cl-user)
-(defpackage ps-experiment/defines
+(defpackage ps-experiment/defines/defstruct
   (:use :cl
         :cl-ppcre
         :parenscript)
-  (:export :defvar.ps
-           :defvar.ps+
-           :defun.ps
-           :defun.ps+
-           :defstruct.ps
-           :defstruct.ps+
-           :defsetf.ps
-           :defsetf.ps+)
+  (:export :defstruct.ps
+           :defstruct.ps+)
+  (:import-from :alexandria
+                :symbolicate)
   (:import-from :anaphora
                 :aif
                 :sif
                 :it)
-  (:import-from :alexandria
-                :symbolicate
-                :parse-ordinary-lambda-list)
   (:import-from :ps-experiment/base
-                :ps.
                 :defmacro.ps)
-  (:import-from :ps-experiment/package
-                :make-ps-definer
+  (:import-from :ps-experiment/defines/definer
                 :def-ps-definer
+                :make-ps-definer
+                :register-ps-type)
+  (:import-from :ps-experiment/defines/defun
+                :defun.ps
+                :defun.ps-only)
+  (:import-from :ps-experiment/package
                 :def-top-level-form.ps
-                :defun.ps-only
-                :register-ps-type
                 :add-unintern-all-ps-symbol-hook))
-(in-package :ps-experiment/defines)
+(in-package :ps-experiment/defines/defstruct)
 
-;; ----- .ps ----- ;;
-
-(defun extract-arg-names (lambda-list)
-  (multiple-value-bind (required optional rest
-                        keys allow-other-keys aux keyp)
-      (parse-ordinary-lambda-list lambda-list
-                                  :normalize nil)
-    (declare (ignore allow-other-keys keyp))
-    (labels ((make-a-list (got)
-               (if (listp got)
-                   (mapcar (lambda (elem)
-                             (if (atom elem) elem (car elem)))
-                           got)
-                   (list got))))
-      (mapcan #'make-a-list
-              (list required optional rest keys aux)))))
-
-(def-ps-definer defun.ps (name args &body body)
-    (:before `(defun ,name ,args
-                (declare ,(cons 'ignore
-                                (extract-arg-names args)))
-                (error (format nil "~A is only defined but not implemented as a CL function"
-                               ',name))))
-  `(defun ,name ,args ,@body))
-
-(def-ps-definer defvar.ps (name initial-value &optional (documentation "")) ()
-  `(defvar ,name ,initial-value ,documentation))
-
-(defmacro defsetf.ps (access-fn &rest rest)
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (ps. (defsetf ,access-fn ,@rest))))
-
-;; ----- .ps+ ----- ;;
-
-(defmacro defun.ps+ (name args &body body)
-  `(progn (defun.ps-only ,name ,args ,@body)
-          (defun ,name ,args ,@body)))
-
-(defmacro defvar.ps+ (name initial-value &optional (documentation ""))
-  `(progn (defvar.ps ,name ,initial-value ,documentation)
-          (defvar ,name ,initial-value ,documentation)))
+(defmacro defstruct.ps (name-and-options &rest slot-description)
+  `(defstruct.ps-impl (nil) ,name-and-options ,@slot-description))
 
 (defmacro defstruct.ps+ (name-and-options &rest slot-description)
   `(progn (defstruct.ps-impl (t) ,name-and-options ,@slot-description)
           (defstruct ,name-and-options ,@slot-description)))
 
-(defmacro defsetf.ps+ (access-fn &rest rest)
-  `(progn (defsetf.ps ,access-fn ,@rest)
-          (defsetf ,access-fn ,@rest)))
-
-;; ----- defstruct ----- ;;
-
 (defun parse-defstruct-name (name)
   (if (symbolp name)
       name
       (error 'type-error :expected-type 'symbol :datum name)))
-  
+
 (defun parse-defstruct-include-option (options)
   (unless (eq (car options) :include)
     (error "unknown DEFSTRUCT.PS option:~% ~S" options))
@@ -117,7 +67,7 @@ value = ({(slot-name slot-init-form}*)")
 
 (add-unintern-all-ps-symbol-hook
  (lambda () (setf *ps-struct-slots* (make-hash-table))))
-  
+
 (defun find-defstruct-slots (parent)
   (aif (gethash parent *ps-struct-slots*)
        it
@@ -157,9 +107,6 @@ value = ({(slot-name slot-init-form}*)")
 
 (defun register-defstruct-slots (name slots)
   (setf (gethash name *ps-struct-slots*) slots))
-
-(defmacro defstruct.ps (name-and-options &rest slot-description)
-  `(defstruct.ps-impl (nil) ,name-and-options ,@slot-description))
 
 (defmacro defun-wrapper (ps-only-p name arg-list &body body)
   (if ps-only-p

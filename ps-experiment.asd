@@ -44,6 +44,7 @@
                "ps-experiment/t/util-sorter"
                "ps-experiment/t/package"
                "ps-experiment/t/defines"
+               "ps-experiment/t/defines/defmethod"
                "ps-experiment/t/ps-macros-for-compatibility"
                "ps-experiment/t/common-macros"
                )

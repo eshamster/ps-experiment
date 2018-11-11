@@ -4,10 +4,10 @@
         :ps-experiment
         :parenscript
         :ps-experiment/t/test-utils
-        :rove)
-  (:import-from :ps-experiment/package
-                :unintern-all-ps-symbol))
+        :rove))
 (in-package :ps-experiment/t/defines)
+
+;; TODO: Move tests under "defines" folder like defines/defmethod.lisp
 
 (defvar.ps a 20)
 
@@ -190,7 +190,7 @@
 
 (deftest internal-functions
   (labels ((fn (lambda-list)
-             (ps-experiment/defines::extract-arg-names lambda-list))
+             (ps-experiment/defines/defun::extract-arg-names lambda-list))
            (is-list (got expected)
              (ok (equalp got expected))))
     (is-list (fn '()) '())

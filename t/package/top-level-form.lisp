@@ -1,6 +1,6 @@
 (defpackage ps-experiment/t/package/top-level-form
   (:use :cl
-        :ps-experiment
+        :ps-experiment/package
         :parenscript
         :ps-experiment/t/package/utils))
 (in-package :ps-experiment/t/package/top-level-form)

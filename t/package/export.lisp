@@ -1,6 +1,6 @@
 (defpackage ps-experiment/t/package/export
   (:use :cl
-        :ps-experiment
+        :ps-experiment/package
         :parenscript
         :ps-experiment/t/package/utils)
   (:export :export1
