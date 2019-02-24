@@ -9,17 +9,45 @@
 
 ;; TODO: Move tests under "defines" folder like defines/defmethod.lisp
 
+(defvar.ps-only a-ps-only 100)
 (defvar.ps a 20)
 
 (deftest for-defvar.ps
-  (ok (= (execute-js
-          (with-use-ps-pack (:this)
-            (defun test (x)
-              (incf a x))
-            (test 100)
-            a))
-         120)))
+  (testing "defvar.ps-only"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              a-ps-only))
+           100))
+    (ok (not (boundp 'a-ps-only))))
+  (testing "defvar.ps"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              (defun test (x)
+                (incf a x))
+              (test 100)
+              a))
+           120))
+    (ok (null a))))
 
+(defparameter.ps-only param-ps-only 100)
+(defparameter.ps param 20)
+
+(deftest for-defparameter.ps
+  (testing "defparameter.ps-only"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              param-ps-only))
+           100))
+    (ok (not (boundp 'a-ps-only))))
+  (testing "defparameter.ps"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              (defun test (x)
+                (incf param x))
+              (test 100)
+              param))
+           120))
+    (ok (null param))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defmacro exec-in-this (&body body)
@@ -158,6 +186,7 @@
 (defun.ps+ test-func-plus (a b)
   (+ a b))
 (defvar.ps+ test-var-plus 100)
+(defparameter.ps+ test-param-plus 200)
 
 (defstruct.ps+ test-struct-plus1 (a 100) b)
 (defstruct.ps+ (test-struct-plus2 (:include test-struct-plus1)) c)
@@ -166,6 +195,7 @@
 
 (deftest.ps+ for-xxx.ps+-macros
   (ok (= test-var-plus 100))
+  (ok (= test-param-plus 200))
   (ok (= (test-struct-plus2-a str-plus) 100))
   (ok (= (test-struct-plus2-c str-plus) 20))
   (ok (test-struct-plus1-p str-plus))
