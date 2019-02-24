@@ -7,4 +7,4 @@
 (in-package :ps-experiment/t/package/utils)
 
 (def-ps-definer defhoge.ps (name value) ()
-    `(defvar ,name ,value))
+  `(defparameter ,name ,value))
