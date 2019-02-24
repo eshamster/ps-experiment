@@ -27,11 +27,13 @@
                 :defun.ps
                 :defun.ps+)
   (:import-from :ps-experiment/defines/others
+                :defvar.ps-only
                 :defvar.ps
                 :defvar.ps+
                 :defsetf.ps
                 :defsetf.ps+)
-  (:export :defvar.ps
+  (:export :defvar.ps-only
+           :defvar.ps
            :defvar.ps+
            :defun.ps-only
            :defun.ps

@@ -9,16 +9,25 @@
 
 ;; TODO: Move tests under "defines" folder like defines/defmethod.lisp
 
+(defvar.ps-only a-ps-only 100)
 (defvar.ps a 20)
 
 (deftest for-defvar.ps
-  (ok (= (execute-js
-          (with-use-ps-pack (:this)
-            (defun test (x)
-              (incf a x))
-            (test 100)
-            a))
-         120)))
+  (testing "defvar.ps-only"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              a-ps-only))
+           100))
+    (ok (not (boundp 'a-ps-only))))
+  (testing "defvar.ps"
+    (ok (= (execute-js
+            (with-use-ps-pack (:this)
+              (defun test (x)
+                (incf a x))
+              (test 100)
+              a))
+           120))
+    (ok (null a))))
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
