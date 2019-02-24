@@ -30,11 +30,17 @@
                 :defvar.ps-only
                 :defvar.ps
                 :defvar.ps+
+                :defparameter.ps-only
+                :defparameter.ps
+                :defparameter.ps+
                 :defsetf.ps
                 :defsetf.ps+)
   (:export :defvar.ps-only
            :defvar.ps
            :defvar.ps+
+           :defparameter.ps-only
+           :defparameter.ps
+           :defparameter.ps+
            :defun.ps-only
            :defun.ps
            :defun.ps+
