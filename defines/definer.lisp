@@ -13,6 +13,7 @@
            :make-ps-func
            :ps-func-name-keyword
            :ps-func-func
+           :ps-func-body
            :ps-func-require-exporting-p
 
            :*ps-type-store*
@@ -26,7 +27,7 @@
 
 ;; --- ps-func-store --- ;;
 
-(defstruct ps-func name-keyword (func (lambda () "")) (require-exporting-p t))
+(defstruct ps-func name-keyword (func (lambda () "")) body (require-exporting-p t))
 
 (defparameter *ps-func-store* (make-hash-table)
   "Key: package, Value: list of ps-func")
@@ -67,6 +68,7 @@ you cannot edit ps-func itself."
           (register-ps-func
            (make-ps-func :name-keyword (make-keyword ',name)
                          :func (lambda () (ps. ,body))
+                         :body ',body
                          :require-exporting-p ,require-exporting-p)
            ,*package*)))
 

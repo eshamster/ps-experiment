@@ -27,6 +27,7 @@
                 :copy-ps-func-store
                 :def-ps-definer
                 :ps-func-func
+                :ps-func-body
                 :ps-func-name-keyword
                 :ps-func-require-exporting-p
                 :find-ps-func
@@ -44,6 +45,19 @@
 ;; --- Define methods to sort packages --- ;;
 
 (defstruct package-dependency pack depending-packs)
+
+(defun extract-package-in-body (pack)
+  ;; Note: Extracting by do-symbols overlooks packages
+  ;; whose symbols are used but none of them are not imported.
+  ;; The purpose of this function is to extract such ones.
+  (let ((ps-funcs (gethash pack *ps-func-store*)))
+    (when ps-funcs
+      (remove-duplicates
+       (mapcan (lambda (ps-func)
+                 (loop :for sym :in (flatten (ps-func-body ps-func))
+                    :when (and sym (typep sym 'symbol))
+                    :collect (symbol-package sym)))
+               ps-funcs)))))
 
 ;; Note: Because get-children is very frequently called when sorting package,
 ;; we calculate all dependencies in advance.
@@ -65,6 +79,8 @@
                    (let ((target-pack (symbol-package sym)))
                      (push-new-package result current-pack target-pack)))
                  (dolist (target-pack (package-use-list current-pack))
+                   (push-new-package result current-pack target-pack))
+                 (dolist (target-pack (extract-package-in-body current-pack))
                    (push-new-package result current-pack target-pack))
                  result)))
       (rec pack))))

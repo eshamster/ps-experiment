@@ -9,6 +9,8 @@
         :ps-experiment/t/package/import
         :ps-experiment/t/package/top-level-form
         :ps-experiment/t/package/refer-unimported-import
+        :ps-experiment/t/package/refer-with-no-importing-export
+        :ps-experiment/t/package/refer-with-no-importing-import
         :ps-experiment/t/package/type-specifier
         :ps-experiment/t/package/circular-a
         :ps-experiment/t/package/circular-b)
@@ -39,6 +41,8 @@
     (run-package :top-level-form))
   (testing "referring un-imported symbol"
     (run-package :refer-unimported-import))
+  (testing "referring with no importing"
+    (run-package :refer-with-no-importing-import))
   (testing "type specifier"
     (ok (string= (ps. 'x) "'x';"))
     (ok (string= (ps. 'test-type) "testType;"))
