@@ -4,7 +4,9 @@
         :cl-ppcre
         :parenscript)
   (:import-from :ps-experiment/base
-                :defmacro.ps+))
+                :defmacro.ps+)
+  (:import-from :ps-experiment/defines/others
+                :defsetf.ps))
 (in-package :ps-experiment/ps-macros-for-compatibility)
 
 #|
@@ -101,12 +103,22 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
                     (return-from process (* i 2))))))
        (process))))
 
-;; Note: This doesn't support set by setf
 (defpsmacro getf (place key &optional default)
   `(let ((key-index ,(find-plist-key-index% place key)))
      (if (not (null key-index))
          (nth (1+ key-index) ,place)
          ,default)))
+
+(defsetf.ps getf
+    (place key) (value)
+    (with-ps-gensyms (g-value)
+      `(let ((key-index ,(find-plist-key-index% place key))
+             (,g-value ,value))
+         (if (not (null key-index))
+             (setf (nth (1+ key-index) ,place) ,g-value)
+             (progn (push ,g-value ,place)
+                    (push ,key ,place)))
+         ,g-value)))
 
 (defpsmacro remf (place key)
   `(let ((key-index ,(find-plist-key-index% place key)))

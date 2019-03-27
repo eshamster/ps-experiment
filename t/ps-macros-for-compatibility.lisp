@@ -129,14 +129,20 @@
   (ok (not (find-if (lambda (x) (> x 10)) '(2 1 3 4)))))
 
 (deftest.ps+ for-getf
-  (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y) :b) 10))
-  (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y)
-               :not-exist
-               999)
-         999))
-  ;; test index 0
-  (ok (= (getf (list :a 1 :b 2) :a) 1)))
-
+  (testing "get"
+    (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y) :b) 10))
+    (ok (= (getf (getf '(:x 1 :y (:a 3 :b 10 :c 4)) :y)
+                 :not-exist
+                 999)
+           999))
+    ;; test index 0
+    (ok (= (getf (list :a 1 :b 2) :a) 1)))
+  (testing "set"
+    (let ((lst (list :a 1 :b 2)))
+      (ok (= (setf (getf lst :a) 100) 100))
+      (ok (= (getf lst :a) 100))
+      (ok (= (setf (getf lst :not-exist) 200) 200))
+      (ok (= (getf lst :not-exist) 200)))))
 
 (deftest.ps+ for-remf
   (let ((lst (list :x 1 :y 2 :z 3)))
