@@ -104,13 +104,13 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 ;; Note: This doesn't support set by setf
 (defpsmacro getf (place key &optional default)
   `(let ((key-index ,(find-plist-key-index% place key)))
-     (if key-index
+     (if (not (null key-index))
          (nth (1+ key-index) ,place)
          ,default)))
 
 (defpsmacro remf (place key)
   `(let ((key-index ,(find-plist-key-index% place key)))
-     (when key-index
+     (when (not (null key-index))
        ((@ ,place splice) key-index 2)
        t)))
 
