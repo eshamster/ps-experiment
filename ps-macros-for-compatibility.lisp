@@ -245,12 +245,19 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 
 ;; --- have not classified utils --- ;;
 
+(defun interleave (lst interleaved)
+  (labels ((rec (rest result)
+             (if (cdr rest)
+                 (rec (cdr rest)
+                      (cons interleaved
+                            (cons (car rest) result)))
+                 (reverse (cons (car rest) result)))))
+    (rec lst nil)))
+
 (defpsmacro error (datum &rest args)
   (cond ((null args) `(throw ,datum))
-        ((stringp datum) `(throw ,(eval `(format nil ,datum
-                                                 ,@(mapcar (lambda (arg)
-                                                             (format nil "~A" arg))
-                                                           args)))))
+        ((stringp datum) `(throw (+ "Message: " ,datum "; Args: "
+                                    ,@(interleave args ", "))))
         (t `(throw ,(format nil "~A: ~A" datum args)))))
 
 (defpsmacro assert (test-form)
