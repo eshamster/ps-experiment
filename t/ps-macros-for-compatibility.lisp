@@ -135,6 +135,13 @@
                999)
          999)))
 
+(deftest.ps+ for-remf
+  (let ((lst (list :x 1 :y 2 :z 3)))
+    (ok (remf lst :y))
+    (ok (not (getf lst :y)))
+    (ok (= (getf lst :z) 3))
+    (ok (not (remf lst :not-exist)))))
+
 (deftest.ps+ for-reduce
   (ok (= (reduce #'(lambda (x y) (+ x y)) '(1 2 3 4))
          10))

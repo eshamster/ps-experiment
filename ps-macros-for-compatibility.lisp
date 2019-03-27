@@ -88,8 +88,9 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
   (with-ps-gensyms (target)
     `(find-if (lambda (,target) (eq ,item ,target)) ,sequence)))
 
-;; Note: This doesn't support set by setf
-(defpsmacro getf (place key &optional default)
+(defun find-plist-key-index% (place key)
+  ;; Return: place[return-value] = key
+  ;;         place[return-value + 1] = value
   `(progn
      (unless (= (rem (length ,place) 2)
                 0)
@@ -97,9 +98,21 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
      (labels ((process ()
                 (dotimes (i (/ (length ,place) 2))
                   (when (= (nth (* i 2) ,place) ,key)
-                    (return-from process (nth (1+ (* i 2)) ,place))))
-                ,default))
+                    (return-from process (* i 2))))))
        (process))))
+
+;; Note: This doesn't support set by setf
+(defpsmacro getf (place key &optional default)
+  `(let ((key-index ,(find-plist-key-index% place key)))
+     (if key-index
+         (nth (1+ key-index) ,place)
+         ,default)))
+
+(defpsmacro remf (place key)
+  `(let ((key-index ,(find-plist-key-index% place key)))
+     (when key-index
+       ((@ ,place splice) key-index 2)
+       t)))
 
 ;; Note: This doesn't support some builtin functions such as min
 ;; because, for example, #'min is not automatically interpreted
