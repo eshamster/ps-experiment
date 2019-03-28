@@ -4,7 +4,9 @@
         :cl-ppcre
         :parenscript)
   (:import-from :ps-experiment/base
-                :defmacro.ps+))
+                :defmacro.ps+)
+  (:import-from :ps-experiment/defines/others
+                :defsetf.ps))
 (in-package :ps-experiment/ps-macros-for-compatibility)
 
 #|
@@ -88,8 +90,9 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
   (with-ps-gensyms (target)
     `(find-if (lambda (,target) (eq ,item ,target)) ,sequence)))
 
-;; Note: This doesn't support set by setf
-(defpsmacro getf (place key &optional default)
+(defun find-plist-key-index% (place key)
+  ;; Return: place[return-value] = key
+  ;;         place[return-value + 1] = value
   `(progn
      (unless (= (rem (length ,place) 2)
                 0)
@@ -97,9 +100,31 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
      (labels ((process ()
                 (dotimes (i (/ (length ,place) 2))
                   (when (= (nth (* i 2) ,place) ,key)
-                    (return-from process (nth (1+ (* i 2)) ,place))))
-                ,default))
+                    (return-from process (* i 2))))))
        (process))))
+
+(defpsmacro getf (place key &optional default)
+  `(let ((key-index ,(find-plist-key-index% place key)))
+     (if (not (null key-index))
+         (nth (1+ key-index) ,place)
+         ,default)))
+
+(defsetf.ps getf
+    (place key) (value)
+    (with-ps-gensyms (g-value)
+      `(let ((key-index ,(find-plist-key-index% place key))
+             (,g-value ,value))
+         (if (not (null key-index))
+             (setf (nth (1+ key-index) ,place) ,g-value)
+             (progn (push ,g-value ,place)
+                    (push ,key ,place)))
+         ,g-value)))
+
+(defpsmacro remf (place key)
+  `(let ((key-index ,(find-plist-key-index% place key)))
+     (when (not (null key-index))
+       ((@ ,place splice) key-index 2)
+       t)))
 
 ;; Note: This doesn't support some builtin functions such as min
 ;; because, for example, #'min is not automatically interpreted
@@ -220,12 +245,19 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 
 ;; --- have not classified utils --- ;;
 
+(defun interleave (lst interleaved)
+  (labels ((rec (rest result)
+             (if (cdr rest)
+                 (rec (cdr rest)
+                      (cons interleaved
+                            (cons (car rest) result)))
+                 (reverse (cons (car rest) result)))))
+    (rec lst nil)))
+
 (defpsmacro error (datum &rest args)
   (cond ((null args) `(throw ,datum))
-        ((stringp datum) `(throw ,(eval `(format nil ,datum
-                                                 ,@(mapcar (lambda (arg)
-                                                             (format nil "~A" arg))
-                                                           args)))))
+        ((stringp datum) `(throw (+ "Message: " ,datum "; Args: "
+                                    ,@(interleave args ", "))))
         (t `(throw ,(format nil "~A: ~A" datum args)))))
 
 (defpsmacro assert (test-form)
