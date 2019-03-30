@@ -50,6 +50,11 @@
 (deftest.ps+ for-list*
   (ok (is-list (list* 1 2 '(3 4))
                '(1 2 3 4)))
+  (let ((x 1)
+        (y 2)
+        (z '(3 4)))
+    (ok (is-list (list* x y z)
+               '(1 2 3 4))))
   (ok (= (list* 1) 1)))
 
 (deftest.ps+ for-cxxr

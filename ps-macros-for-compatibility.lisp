@@ -23,7 +23,7 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 
 (defpsmacro list* (&rest objects)
   (if (cdr objects)
-      `((@ ',(butlast objects) concat) ,(car (last objects)))
+      `((@ (list ,@(butlast objects)) concat) ,(car (last objects)))
       (car objects)))
 
 ;; c[ad]{1-2}r
