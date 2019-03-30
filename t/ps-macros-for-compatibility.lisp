@@ -47,6 +47,11 @@
                 lst)
               ,expected)))
 
+(deftest.ps+ for-list*
+  (ok (is-list (list* 1 2 '(3 4))
+               '(1 2 3 4)))
+  (ok (= (list* 1) 1)))
+
 (deftest.ps+ for-cxxr
   "Test c[ad]{1-2}r (Limitation: cd[ad]*r cannot be used for setting)"
   (testing "car"

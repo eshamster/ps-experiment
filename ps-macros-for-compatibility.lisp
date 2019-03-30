@@ -21,6 +21,11 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 
 ;; --- array utils --- ;;
 
+(defpsmacro list* (&rest objects)
+  (if (cdr objects)
+      `((@ ',(butlast objects) concat) ,(car (last objects)))
+      (car objects)))
+
 ;; c[ad]{1-2}r
 ;; Limitaton: cd[ad]*r cannot be used for setting
 
