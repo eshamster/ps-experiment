@@ -220,6 +220,15 @@
                  lst)
                '(1 2 3))))
 
+(deftest.ps+ for-sort
+  (ok (is-list (sort '(2 1 3)
+                     (lambda (a b) (< a b)))
+               '(1 2 3)))
+  (ok (is-list (sort '((2 a) (1 b) (3 c))
+                     (lambda (a b) (< a b))
+                     :key (lambda (a) (car a)))
+               '((1 b) (2 a) (3 c)))))
+
 (deftest for-hash-table1
   ;;  (ok (= (ps (make-hash-table)) "{};"))
   (ok (string= (ps (gethash key tbl)) "tbl[key];"))

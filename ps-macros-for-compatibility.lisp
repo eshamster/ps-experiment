@@ -163,6 +163,17 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 (defpsmacro mapcar (function list)
   `((@ ,list map) ,function))
 
+(defpsmacro sort (sequence predicate &key key)
+  (with-ps-gensyms (g-sequence g-key)
+    `(let ((,g-sequence ,sequence)
+           (,g-key ,key))
+       ((@ ,g-sequence sort)
+        (lambda (a b)
+          (let ((key-a ,(if key `(funcall ,g-key a) 'a))
+                (key-b ,(if key `(funcall ,g-key b) 'b)))
+            (if (funcall ,predicate key-a key-b) -1 1))))
+       ,g-sequence)))
+
 ;; --- hash utils --- ;;
 
 (defpsmacro make-hash-table ()
