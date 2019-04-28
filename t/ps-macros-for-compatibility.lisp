@@ -79,8 +79,12 @@
     (ok (is-list (cddr '(1 2 3)) '(3)))))
 
 (deftest.ps+ for-nth
-  (ok (= (nth 2 '(1 2 3 4)) 3))
-  (ok (null (nth 2 '(1 2)))))
+  (testing "nth"
+    (ok (= (nth 2 '(1 2 3 4)) 3))
+    (ok (null (nth 2 '(1 2)))))
+  (testing "nthcdr"
+    (ok (is-list (nthcdr 2 '(1 2 3 4)) '(3 4)))
+    (ok (is-list (nthcdr 2 '(1 2)) '()))))
 
 (deftest.ps+ for-listp_atom
   (testing "listp"

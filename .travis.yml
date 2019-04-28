@@ -18,3 +18,8 @@ script:
   - rove *.asd
   - cd t/tests-for-test-utils
   - ./run.ros
+
+notifications:
+  email:
+    on_success: always
+    on_failure: always
