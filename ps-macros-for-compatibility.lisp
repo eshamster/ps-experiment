@@ -44,6 +44,9 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
 
 (defpsmacro nth (n list)
   `(aref ,list ,n))
+(defpsmacro nthcdr (n list)
+  (ps-once-only (list)
+    `((@ ,list slice) ,n (@ ,list length))))
 
 (defpsmacro listp (object)
   (if (null object)
