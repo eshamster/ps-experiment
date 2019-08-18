@@ -75,6 +75,9 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
             (push ,item ,place))
           ,place))
 
+(defpsmacro pop (place)
+  `((@ ,place shift)))
+
 ;; TODO: Throw error if the range beyond the sequence.
 (defpsmacro subseq (sequence start &optional end)
   (if end
@@ -286,7 +289,7 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
   `(case ,key
      ,@forms
      (t (error "The value ~A is not of the expected type (MEMBER ~A)"
-               ,key ,(mapcar #'car forms)))))
+               ,key ',(mapcar #'car forms)))))
 
 (defpsmacro warn (datum &rest args)
   (cond ((null args) `((@ console warn) ,datum))

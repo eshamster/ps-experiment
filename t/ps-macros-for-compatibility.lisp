@@ -126,6 +126,19 @@
                    (pushnew 6 x :test (lambda (a b) (= a (/ b 6)))))
                  '(6 1 2)))))
 
+(deftest.ps+ for-pop
+  (let ((x (list 1 2 3)))
+    (flet ((test-pop (popped rest)
+             (let ((got (pop x)))
+               (if popped
+                   (ok (= got popped))
+                   (ok (null got)))
+               (ok (is-list x rest)))))
+      (test-pop 1 '(2 3))
+      (test-pop 2 '(3))
+      (test-pop 3 '())
+      (test-pop nil '()))))
+
 (deftest.ps+ for-every
   (ok (every (lambda (x) (> x 2)) '(3 4 5)))
   (ok (not (every (lambda (x) (> x 2)) '(2 3 4)))))
@@ -316,7 +329,7 @@
   (ok (= (let ((x 2))
            (ecase x (1 111) (2 222)))
          222))
-  (ok (Signals (let ((x 3))
+  (ok (signals (let ((x 3))
                  (ecase x (1 111) (2 222)))
                'error)))
 
