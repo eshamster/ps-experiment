@@ -329,7 +329,7 @@
   (ok (= (let ((x 2))
            (ecase x (1 111) (2 222)))
          222))
-  (ok (Signals (let ((x 3))
+  (ok (signals (let ((x 3))
                  (ecase x (1 111) (2 222)))
                'error)))
 
