@@ -75,6 +75,9 @@ This file defines macros for Parenscript for compatiblity to Common Lisp code.
             (push ,item ,place))
           ,place))
 
+(defpsmacro pop (place)
+  `((@ ,place shift)))
+
 ;; TODO: Throw error if the range beyond the sequence.
 (defpsmacro subseq (sequence start &optional end)
   (if end
