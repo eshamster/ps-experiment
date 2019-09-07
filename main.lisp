@@ -11,7 +11,8 @@
   (:import-from :ps-experiment/package
                 :with-use-ps-pack
                 :def-top-level-form.ps
-                :def-top-level-form.ps+)
+                :def-top-level-form.ps+
+                :symbol-to-full-js-string)
   (:import-from :ps-experiment/defines/defmethod
                 :defgeneric.ps-only
                 :defgeneric.ps
@@ -60,5 +61,6 @@
            :defmacro.ps+
            :def-top-level-form.ps
            :def-top-level-form.ps+
+           :symbol-to-full-js-string
            :enable-ps-experiment-syntax
            :--))

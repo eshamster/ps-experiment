@@ -59,3 +59,7 @@
                  (+ 1 2))
                '(progn (def-top-level-form.ps :test-top-level-form (+ 1 2))
                  (progn (+ 1 2))))))
+
+(deftest for-symbol-to-full-js-string
+  (ok (string= (symbol-to-full-js-string 'run-package)
+               "psExperiment_t_package.runPackage")))
