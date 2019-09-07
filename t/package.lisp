@@ -59,3 +59,13 @@
                  (+ 1 2))
                '(progn (def-top-level-form.ps :test-top-level-form (+ 1 2))
                  (progn (+ 1 2))))))
+
+(deftest for-xxx-to-full-js-string
+  (testing "symbol-to-xxx"
+    (ok (string= (symbol-to-full-js-string 'run-package)
+                 "psExperiment_t_package.runPackage")))
+  (testing "funcall-to-xxx"
+    (ok (string= (funcall-to-full-js-string 'run-package)
+                 "psExperiment_t_package.runPackage()"))
+    (ok (string= (funcall-to-full-js-string 'run-package 1 2 3)
+                 "psExperiment_t_package.runPackage(1,2,3)"))))

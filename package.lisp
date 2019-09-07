@@ -7,7 +7,9 @@
            :with-use-ps-pack
            :unintern-all-ps-symbol
            :register-ps-type
-           :add-unintern-all-ps-symbol-hook)
+           :add-unintern-all-ps-symbol-hook
+           :symbol-to-full-js-string
+           :funcall-to-full-js-string)
   (:import-from :alexandria
                 :flatten
                 :hash-table-keys
@@ -132,6 +134,17 @@
         (aif (ps-package-prefix (symbol-package symbol))
              (concatenate 'string it identifier)
              identifier))))
+
+(defun symbol-to-full-js-string (symbol)
+  "Convert symbol to JavaScript string with package prefix"
+  (format nil "~A.~A" (package-to-js-string (symbol-package symbol))
+          (symbol-to-js-string symbol)))
+
+(defun funcall-to-full-js-string (symbol &rest args)
+  ;; Assume that args are simple literals.
+  (format nil "~A(~{~A~^,~})"
+          (symbol-to-full-js-string symbol)
+          args))
 
 ;; If a symbol is registered as a type-specifier, quote before it is removed.
 ;; In Common Lisp, type-specifier can be specified using symbol, but it is
